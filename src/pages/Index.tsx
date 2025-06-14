@@ -1,12 +1,38 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Navbar from '@/components/layout/Navbar';
+import Hero from '@/components/home/Hero';
+import Features from '@/components/home/Features';
+import Stats from '@/components/home/Stats';
+import Testimonials from '@/components/home/Testimonials';
+import Footer from '@/components/layout/Footer';
 
 const Index = () => {
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Check if user is authenticated
+    const token = localStorage.getItem('docmatex_token');
+    if (token) {
+      setIsAuthenticated(true);
+      navigate('/dashboard');
+    }
+  }, [navigate]);
+
+  if (isAuthenticated) {
+    return null; // Will redirect to dashboard
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+      <Navbar />
+      <Hero />
+      <Features />
+      <Stats />
+      <Testimonials />
+      <Footer />
     </div>
   );
 };
