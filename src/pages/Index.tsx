@@ -14,11 +14,9 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is authenticated
     const token = localStorage.getItem('docmatex_token');
     if (token) {
       setIsAuthenticated(true);
-      // Redirect to feed after showing landing page briefly
       setTimeout(() => {
         navigate('/feed');
       }, 500);
@@ -27,40 +25,12 @@ const Index = () => {
     }
   }, [navigate]);
 
-  // Show landing page for everyone initially
-  if (isLoading && !isAuthenticated) {
-    return (
-      <div className="min-h-screen relative">
-        {/* Tiled Background Pattern */}
-        <div 
-          className="absolute inset-0 opacity-20 dark:opacity-10"
-          style={{
-            backgroundImage: `url('/lovable-uploads/2d1a9ec6-c93c-4135-985c-6be34cfa1141.png')`,
-            backgroundSize: '300px 300px',
-            backgroundRepeat: 'repeat',
-            backgroundPosition: 'center'
-          }}
-        />
-        {/* Gradient overlay for better readability */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/95 via-blue-50/90 to-white/95 dark:from-gray-900/95 dark:via-gray-800/90 dark:to-gray-900/95" />
-        
-        {/* Content */}
-        <div className="relative z-10">
-          <Navbar />
-          <Hero />
-          <Features />
-          <Stats />
-          <Testimonials />
-          <Footer />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen relative">
-      {/* Tiled Background Pattern */}
+  // Semantic page wrapper for SEO
+  const page = (
+    <div className="min-h-screen relative flex flex-col">
+      {/* Responsive tiled background */}
       <div 
+        aria-hidden="true"
         className="absolute inset-0 opacity-20 dark:opacity-10"
         style={{
           backgroundImage: `url('/lovable-uploads/2d1a9ec6-c93c-4135-985c-6be34cfa1141.png')`,
@@ -69,20 +39,41 @@ const Index = () => {
           backgroundPosition: 'center'
         }}
       />
-      {/* Gradient overlay for better readability */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/95 via-blue-50/90 to-white/95 dark:from-gray-900/95 dark:via-gray-800/90 dark:to-gray-900/95" />
-      
-      {/* Content */}
-      <div className="relative z-10">
-        <Navbar />
-        <Hero />
-        <Features />
-        <Stats />
-        <Testimonials />
-        <Footer />
-      </div>
+      {/* Accessible overlay for contrast */}
+      <div 
+        aria-hidden="true"
+        className="absolute inset-0 bg-gradient-to-br from-white/95 via-blue-50/90 to-white/95 dark:from-gray-900/95 dark:via-gray-800/90 dark:to-gray-900/95"
+      />
+      {/* Main content for SEO & accessibility */}
+      <main className="relative z-10 flex-1 flex flex-col">
+        <header>
+          <Navbar />
+        </header>
+        <section aria-label="Hero" className="w-full">
+          <Hero />
+        </section>
+        <section aria-label="Features" className="w-full">
+          <Features />
+        </section>
+        <section aria-label="Statistics" className="w-full">
+          <Stats />
+        </section>
+        <section aria-label="Testimonials" className="w-full">
+          <Testimonials />
+        </section>
+        <footer className="w-full">
+          <Footer />
+        </footer>
+      </main>
     </div>
   );
+
+  // Show landing page for everyone initially (same for all modes)
+  if (isLoading && !isAuthenticated) {
+    return page;
+  }
+
+  return page;
 };
 
 export default Index;
