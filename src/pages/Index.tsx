@@ -30,7 +30,44 @@ const Index = () => {
   // Show landing page for everyone initially
   if (isLoading && !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
+      <div className="min-h-screen relative">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url('/lovable-uploads/daa06cc2-1c0f-419f-bb83-0f4de1e042a2.png')`
+          }}
+        />
+        {/* Light mode overlay */}
+        <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/85 backdrop-blur-sm" />
+        
+        {/* Content */}
+        <div className="relative z-10">
+          <Navbar />
+          <Hero />
+          <Features />
+          <Stats />
+          <Testimonials />
+          <Footer />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen relative">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('/lovable-uploads/daa06cc2-1c0f-419f-bb83-0f4de1e042a2.png')`
+        }}
+      />
+      {/* Light mode overlay */}
+      <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/85 backdrop-blur-sm" />
+      
+      {/* Content */}
+      <div className="relative z-10">
         <Navbar />
         <Hero />
         <Features />
@@ -38,17 +75,6 @@ const Index = () => {
         <Testimonials />
         <Footer />
       </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
-      <Navbar />
-      <Hero />
-      <Features />
-      <Stats />
-      <Testimonials />
-      <Footer />
     </div>
   );
 };
