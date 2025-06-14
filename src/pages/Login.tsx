@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -67,13 +66,15 @@ const Login = () => {
         {/* Logo */}
         <div className="text-center">
           <div className="flex justify-center mb-4 sm:mb-6">
-            <div className="bg-white dark:bg-white rounded-lg p-3 shadow-sm flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20">
-              <img 
-                src="/lovable-uploads/aaa35625-b685-4931-8494-60f87b95865a.png" 
-                alt="DocMateX Logo" 
-                className="h-12 sm:h-16 w-auto"
-              />
-            </div>
+            <Link to="/" className="inline-block hover:opacity-80 transition-opacity duration-300">
+              <div className="bg-white dark:bg-white rounded-lg p-3 shadow-sm flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20">
+                <img 
+                  src="/lovable-uploads/aaa35625-b685-4931-8494-60f87b95865a.png" 
+                  alt="DocMateX Logo" 
+                  className="h-12 sm:h-16 w-auto"
+                />
+              </div>
+            </Link>
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
             Welcome back to DocMateX

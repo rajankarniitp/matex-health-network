@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -55,7 +54,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const handleLogout = () => {
     localStorage.removeItem('docmatex_token');
     localStorage.removeItem('docmatex_user');
-    navigate('/login');
+    navigate('/');
   };
 
   const user = JSON.parse(localStorage.getItem('docmatex_user') || '{}');
@@ -72,24 +71,24 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
       {/* Mobile sidebar */}
       <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 transform transition-transform duration-300 ease-in-out md:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between h-14 sm:h-16 px-3 sm:px-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-2">
-            <div className="bg-white dark:bg-white rounded-lg p-1.5 shadow-sm flex items-center justify-center w-8 h-8">
+            <div className="bg-white dark:bg-white rounded-lg p-1 sm:p-1.5 shadow-sm flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8">
               <img 
                 src="/lovable-uploads/aaa35625-b685-4931-8494-60f87b95865a.png" 
                 alt="DocMateX Logo" 
-                className="h-6 w-auto"
+                className="h-5 sm:h-6 w-auto"
               />
             </div>
-            <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+            <span className="text-xs sm:text-sm font-bold text-blue-600 dark:text-blue-400">
               DocMateX
             </span>
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="p-2 rounded-md text-gray-400 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-200"
+            className="p-1.5 sm:p-2 rounded-md text-gray-400 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-200"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         </div>
         <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
@@ -101,11 +100,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 location.pathname === item.href
                   ? 'bg-blue-100 text-blue-900 dark:bg-blue-800 dark:text-blue-100'
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100'
-              } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
+              } group flex items-center px-2 py-2 text-xs sm:text-sm font-medium rounded-md`}
               onClick={() => setSidebarOpen(false)}
             >
-              <item.icon className="mr-3 h-4 w-4" />
-              <span className="text-sm">{item.name}</span>
+              <item.icon className="mr-2 sm:mr-3 h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="text-xs sm:text-sm">{item.name}</span>
             </Link>
           ))}
         </nav>
@@ -152,20 +151,20 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         {/* Header */}
         <header className="bg-white dark:bg-gray-800 shadow dark:shadow-gray-700 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30">
           <div className="px-2 sm:px-4 lg:px-6">
-            <div className="flex justify-between items-center h-14 sm:h-16">
+            <div className="flex justify-between items-center h-12 sm:h-14 md:h-16">
               {/* Mobile menu button */}
               <div className="flex items-center md:hidden">
                 <button
                   type="button"
-                  className="p-2 rounded-md text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                  className="p-1.5 sm:p-2 rounded-md text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
                   onClick={() => setSidebarOpen(true)}
                 >
-                  <Menu className="h-5 w-5" />
+                  <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
               </div>
 
               <div className="flex-1 min-w-0 px-2 md:px-0">
-                <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold leading-7 text-gray-900 dark:text-gray-100 truncate">
+                <h1 className="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold leading-7 text-gray-900 dark:text-gray-100 truncate">
                   {navigation.find(item => item.href === location.pathname)?.name || 'DocMateX'}
                 </h1>
               </div>
@@ -175,14 +174,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-7 w-7 sm:h-8 sm:w-8 rounded-full">
-                      <Avatar className="h-7 w-7 sm:h-8 sm:w-8">
+                    <Button variant="ghost" className="relative h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 rounded-full">
+                      <Avatar className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8">
                         <AvatarImage src="" alt={user.name} />
                         <AvatarFallback className="bg-blue-600 text-white dark:bg-blue-500 text-xs sm:text-sm">{user.name?.charAt(0) || 'U'}</AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-48 sm:w-56 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" align="end" forceMount>
+                  <DropdownMenuContent className="w-44 sm:w-48 md:w-56 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-xs sm:text-sm font-medium leading-none text-gray-900 dark:text-gray-100">{user.name}</p>
