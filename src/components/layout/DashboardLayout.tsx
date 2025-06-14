@@ -77,11 +77,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </div>
           <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
             <div className="flex-shrink-0 flex items-center px-4 space-x-3">
-              <div className="bg-white rounded-lg p-2 shadow-sm">
+              <div className="bg-white dark:bg-white rounded-lg p-2 shadow-sm flex items-center justify-center w-12 h-12">
                 <img 
                   src="/lovable-uploads/aaa35625-b685-4931-8494-60f87b95865a.png" 
                   alt="DocMateX Logo" 
-                  className="h-6 w-auto"
+                  className="h-9 w-auto"
                 />
               </div>
               <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
@@ -114,11 +114,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="flex-1 flex flex-col min-h-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
             <div className="flex items-center flex-shrink-0 px-4 space-x-3">
-              <div className="bg-white rounded-lg p-2 shadow-sm">
+              <div className="bg-white dark:bg-white rounded-lg p-2 shadow-sm flex items-center justify-center w-12 h-12">
                 <img 
                   src="/lovable-uploads/aaa35625-b685-4931-8494-60f87b95865a.png" 
                   alt="DocMateX Logo" 
-                  className="h-6 w-auto"
+                  className="h-9 w-auto"
                 />
               </div>
               <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
@@ -161,13 +161,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         {/* Header */}
         <header className="bg-white dark:bg-gray-800 shadow dark:shadow-gray-700 border-b border-gray-200 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-6">
+            <div className="flex justify-between items-center py-4 sm:py-6">
               <div className="flex-1 min-w-0">
-                <h1 className="text-2xl font-bold leading-7 text-gray-900 dark:text-gray-100 sm:text-3xl sm:truncate">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold leading-7 text-gray-900 dark:text-gray-100 truncate">
                   {navigation.find(item => item.href === location.pathname)?.name || 'DocMateX'}
                 </h1>
               </div>
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 sm:space-x-4">
                 <NotificationDropdown />
 
                 <DropdownMenu>

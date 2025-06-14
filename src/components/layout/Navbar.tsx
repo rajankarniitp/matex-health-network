@@ -10,15 +10,15 @@ const Navbar = () => {
   return (
     <nav className="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50 border-b border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-14 sm:h-16">
+        <div className="flex justify-between items-center h-16 sm:h-18">
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-3">
-              <div className="bg-white dark:bg-white rounded-lg p-2 shadow-sm">
+              <div className="bg-white dark:bg-white rounded-lg p-2 shadow-sm flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14">
                 <img 
                   src="/lovable-uploads/aaa35625-b685-4931-8494-60f87b95865a.png" 
                   alt="DocMateX Logo" 
-                  className="h-8 sm:h-10 w-auto"
+                  className="h-9 sm:h-11 w-auto"
                 />
               </div>
               <span className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
