@@ -62,51 +62,53 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Mobile sidebar backdrop */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 md:hidden" 
+          onClick={() => setSidebarOpen(false)} 
+        />
+      )}
+
       {/* Mobile sidebar */}
-      <div className={`fixed inset-0 flex z-40 md:hidden ${sidebarOpen ? '' : 'pointer-events-none'}`}>
-        <div className={`fixed inset-0 bg-gray-600 bg-opacity-75 transition-opacity ease-linear duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`} onClick={() => setSidebarOpen(false)} />
-        <div className={`relative flex-1 flex flex-col max-w-xs w-full bg-white dark:bg-gray-800 transform transition ease-in-out duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-          <div className="absolute top-0 right-0 -mr-12 pt-2">
-            <button
-              type="button"
-              className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 transform transition-transform duration-300 ease-in-out md:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center space-x-2">
+            <div className="bg-white dark:bg-white rounded-lg p-1.5 shadow-sm flex items-center justify-center w-8 h-8">
+              <img 
+                src="/lovable-uploads/aaa35625-b685-4931-8494-60f87b95865a.png" 
+                alt="DocMateX Logo" 
+                className="h-6 w-auto"
+              />
+            </div>
+            <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+              DocMateX
+            </span>
+          </div>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="p-2 rounded-md text-gray-400 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-200"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+          {navigation.map((item) => (
+            <Link
+              key={item.name}
+              to={item.href}
+              className={`${
+                location.pathname === item.href
+                  ? 'bg-blue-100 text-blue-900 dark:bg-blue-800 dark:text-blue-100'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100'
+              } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
               onClick={() => setSidebarOpen(false)}
             >
-              <X className="h-6 w-6 text-white" />
-            </button>
-          </div>
-          <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-            <div className="flex-shrink-0 flex items-center px-4 space-x-3">
-              <div className="bg-white dark:bg-white rounded-lg p-2 shadow-sm flex items-center justify-center w-12 h-12">
-                <img 
-                  src="/lovable-uploads/aaa35625-b685-4931-8494-60f87b95865a.png" 
-                  alt="DocMateX Logo" 
-                  className="h-9 w-auto"
-                />
-              </div>
-              <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                DocMateX
-              </span>
-            </div>
-            <nav className="mt-5 px-2 space-y-1">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`${
-                    location.pathname === item.href
-                      ? 'bg-blue-100 text-blue-900 dark:bg-blue-800 dark:text-blue-100'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100'
-                  } group flex items-center px-2 py-2 text-base font-medium rounded-md`}
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <item.icon className="mr-4 h-6 w-6" />
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        </div>
+              <item.icon className="mr-3 h-4 w-4" />
+              <span className="text-sm">{item.name}</span>
+            </Link>
+          ))}
+        </nav>
       </div>
 
       {/* Static sidebar for desktop */}
@@ -114,14 +116,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="flex-1 flex flex-col min-h-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
             <div className="flex items-center flex-shrink-0 px-4 space-x-3">
-              <div className="bg-white dark:bg-white rounded-lg p-2 shadow-sm flex items-center justify-center w-12 h-12">
+              <div className="bg-white dark:bg-white rounded-lg p-2 shadow-sm flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12">
                 <img 
                   src="/lovable-uploads/aaa35625-b685-4931-8494-60f87b95865a.png" 
                   alt="DocMateX Logo" 
-                  className="h-9 w-auto"
+                  className="h-7 lg:h-9 w-auto"
                 />
               </div>
-              <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+              <span className="text-base lg:text-lg font-bold text-blue-600 dark:text-blue-400">
                 DocMateX
               </span>
             </div>
@@ -134,10 +136,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     location.pathname === item.href
                       ? 'bg-blue-100 text-blue-900 dark:bg-blue-800 dark:text-blue-100'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100'
-                  } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
+                  } group flex items-center px-2 py-2 text-xs lg:text-sm font-medium rounded-md`}
                 >
-                  <item.icon className="mr-3 h-5 w-5" />
-                  {item.name}
+                  <item.icon className="mr-3 h-4 w-4 lg:h-5 lg:w-5" />
+                  <span>{item.name}</span>
                 </Link>
               ))}
             </nav>
@@ -147,63 +149,64 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
       {/* Main content */}
       <div className="md:pl-64 flex flex-col flex-1">
-        {/* Top navigation */}
-        <div className="sticky top-0 z-10 md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3 bg-gray-200 dark:bg-gray-800">
-          <button
-            type="button"
-            className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-        </div>
-
         {/* Header */}
-        <header className="bg-white dark:bg-gray-800 shadow dark:shadow-gray-700 border-b border-gray-200 dark:border-gray-700">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-4 sm:py-6">
-              <div className="flex-1 min-w-0">
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold leading-7 text-gray-900 dark:text-gray-100 truncate">
+        <header className="bg-white dark:bg-gray-800 shadow dark:shadow-gray-700 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30">
+          <div className="px-2 sm:px-4 lg:px-6">
+            <div className="flex justify-between items-center h-14 sm:h-16">
+              {/* Mobile menu button */}
+              <div className="flex items-center md:hidden">
+                <button
+                  type="button"
+                  className="p-2 rounded-md text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                  onClick={() => setSidebarOpen(true)}
+                >
+                  <Menu className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="flex-1 min-w-0 px-2 md:px-0">
+                <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold leading-7 text-gray-900 dark:text-gray-100 truncate">
                   {navigation.find(item => item.href === location.pathname)?.name || 'DocMateX'}
                 </h1>
               </div>
-              <div className="flex items-center space-x-2 sm:space-x-4">
+
+              <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4">
                 <NotificationDropdown />
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                      <Avatar className="h-8 w-8">
+                    <Button variant="ghost" className="relative h-7 w-7 sm:h-8 sm:w-8 rounded-full">
+                      <Avatar className="h-7 w-7 sm:h-8 sm:w-8">
                         <AvatarImage src="" alt={user.name} />
-                        <AvatarFallback className="bg-blue-600 text-white dark:bg-blue-500">{user.name?.charAt(0) || 'U'}</AvatarFallback>
+                        <AvatarFallback className="bg-blue-600 text-white dark:bg-blue-500 text-xs sm:text-sm">{user.name?.charAt(0) || 'U'}</AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" align="end" forceMount>
+                  <DropdownMenuContent className="w-48 sm:w-56 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none text-gray-900 dark:text-gray-100">{user.name}</p>
+                        <p className="text-xs sm:text-sm font-medium leading-none text-gray-900 dark:text-gray-100">{user.name}</p>
                         <p className="text-xs leading-none text-muted-foreground dark:text-gray-400">{user.email}</p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
-                    <DropdownMenuItem onClick={() => navigate('/profile')} className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                      <User className="mr-2 h-4 w-4" />
+                    <DropdownMenuItem onClick={() => navigate('/profile')} className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <User className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                       <span>Profile</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/settings')} className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                      <Settings className="mr-2 h-4 w-4" />
+                    <DropdownMenuItem onClick={() => navigate('/settings')} className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <Settings className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                       <span>Settings</span>
                     </DropdownMenuItem>
                     {user.role === 'admin' && (
-                      <DropdownMenuItem onClick={() => navigate('/admin')} className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <Shield className="mr-2 h-4 w-4" />
+                      <DropdownMenuItem onClick={() => navigate('/admin')} className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <Shield className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                         <span>Admin Panel</span>
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
-                    <DropdownMenuItem onClick={handleLogout} className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                      <LogOut className="mr-2 h-4 w-4" />
+                    <DropdownMenuItem onClick={handleLogout} className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <LogOut className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                       <span>Log out</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -215,8 +218,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
         {/* Main content */}
         <main className="flex-1">
-          <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="py-3 sm:py-4 md:py-6">
+            <div className="px-2 sm:px-4 md:px-6 lg:px-8">
               {children}
             </div>
           </div>
