@@ -1,4 +1,3 @@
-
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,18 +7,33 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Bell, Shield, Globe, Palette, HelpCircle } from 'lucide-react';
+import { User, Bell, Shield, Globe, Palette, HelpCircle, Moon, Sun, Monitor } from 'lucide-react';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const Settings = () => {
   const user = JSON.parse(localStorage.getItem('docmatex_user') || '{}');
+  const { theme, setTheme } = useTheme();
+
+  const getThemeIcon = (themeName: string) => {
+    switch (themeName) {
+      case 'light':
+        return <Sun className="h-4 w-4" />;
+      case 'dark':
+        return <Moon className="h-4 w-4" />;
+      case 'system':
+        return <Monitor className="h-4 w-4" />;
+      default:
+        return <Monitor className="h-4 w-4" />;
+    }
+  };
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-          <p className="text-gray-600">Manage your account preferences and privacy settings</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Settings</h1>
+          <p className="text-gray-600 dark:text-gray-400">Manage your account preferences and privacy settings</p>
         </div>
 
         <Tabs defaultValue="profile" className="w-full">
@@ -48,7 +62,7 @@ const Settings = () => {
                   </Avatar>
                   <div>
                     <Button variant="outline">Change Photo</Button>
-                    <p className="text-sm text-gray-500 mt-2">JPG or PNG. Max size 2MB.</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">JPG or PNG. Max size 2MB.</p>
                   </div>
                 </div>
 
@@ -93,7 +107,7 @@ const Settings = () => {
                   <Label htmlFor="bio">Professional Bio</Label>
                   <textarea
                     id="bio"
-                    className="w-full mt-1 p-3 border border-gray-300 rounded-md h-32 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full mt-1 p-3 border border-gray-300 dark:border-gray-600 rounded-md h-32 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-background text-foreground"
                     placeholder="Tell us about your medical background and expertise..."
                   />
                 </div>
@@ -117,42 +131,42 @@ const Settings = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-medium">New Mate Requests</h4>
-                      <p className="text-sm text-gray-500">Get notified when someone wants to connect</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Get notified when someone wants to connect</p>
                     </div>
                     <Switch defaultChecked />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-medium">Messages</h4>
-                      <p className="text-sm text-gray-500">Receive notifications for new messages</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Receive notifications for new messages</p>
                     </div>
                     <Switch defaultChecked />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-medium">Post Interactions</h4>
-                      <p className="text-sm text-gray-500">Likes, comments, and shares on your posts</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Likes, comments, and shares on your posts</p>
                     </div>
                     <Switch defaultChecked />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-medium">Research Updates</h4>
-                      <p className="text-sm text-gray-500">New papers in your field of interest</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">New papers in your field of interest</p>
                     </div>
                     <Switch />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-medium">Event Reminders</h4>
-                      <p className="text-sm text-gray-500">Reminders for upcoming events</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Reminders for upcoming events</p>
                     </div>
                     <Switch defaultChecked />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-medium">Weekly Digest</h4>
-                      <p className="text-sm text-gray-500">Summary of platform activity</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Summary of platform activity</p>
                     </div>
                     <Switch />
                   </div>
@@ -236,21 +250,21 @@ const Settings = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-medium">Show Online Status</h4>
-                      <p className="text-sm text-gray-500">Let others see when you're online</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Let others see when you're online</p>
                     </div>
                     <Switch defaultChecked />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-medium">Allow Search Engines</h4>
-                      <p className="text-sm text-gray-500">Let search engines index your profile</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Let search engines index your profile</p>
                     </div>
                     <Switch />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-medium">Data Analytics</h4>
-                      <p className="text-sm text-gray-500">Help improve the platform with usage data</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Help improve the platform with usage data</p>
                     </div>
                     <Switch defaultChecked />
                   </div>
@@ -272,17 +286,26 @@ const Settings = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
-                  <Label>Theme</Label>
-                  <Select>
-                    <SelectTrigger className="w-full mt-1">
-                      <SelectValue placeholder="Select theme" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="light">Light</SelectItem>
-                      <SelectItem value="dark">Dark</SelectItem>
-                      <SelectItem value="system">System</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label className="text-base font-medium">Theme</Label>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Choose your preferred theme</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    {['light', 'dark', 'system'].map((themeName) => (
+                      <button
+                        key={themeName}
+                        onClick={() => setTheme(themeName as any)}
+                        className={`p-3 rounded-lg border-2 transition-all ${
+                          theme === themeName
+                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                            : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                        }`}
+                      >
+                        <div className="flex flex-col items-center space-y-2">
+                          {getThemeIcon(themeName)}
+                          <span className="text-sm font-medium capitalize">{themeName}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div>
@@ -323,30 +346,30 @@ const Settings = () => {
           <TabsContent value="account" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-red-600">Danger Zone</CardTitle>
+                <CardTitle className="text-red-600 dark:text-red-400">Danger Zone</CardTitle>
                 <CardDescription>Irreversible actions for your account</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="border border-red-200 rounded-lg p-4">
-                  <h4 className="font-medium text-red-600 mb-2">Delete Account</h4>
-                  <p className="text-sm text-gray-600 mb-4">
+                <div className="border border-red-200 dark:border-red-800 rounded-lg p-4">
+                  <h4 className="font-medium text-red-600 dark:text-red-400 mb-2">Delete Account</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                     Once you delete your account, there is no going back. This will permanently delete your 
                     profile, posts, connections, and all associated data.
                   </p>
                   <Button variant="destructive">Delete Account</Button>
                 </div>
 
-                <div className="border border-yellow-200 rounded-lg p-4">
-                  <h4 className="font-medium text-yellow-600 mb-2">Deactivate Account</h4>
-                  <p className="text-sm text-gray-600 mb-4">
+                <div className="border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                  <h4 className="font-medium text-yellow-600 dark:text-yellow-400 mb-2">Deactivate Account</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                     Temporarily hide your profile and content. You can reactivate anytime by logging back in.
                   </p>
                   <Button variant="outline">Deactivate Account</Button>
                 </div>
 
-                <div className="border border-blue-200 rounded-lg p-4">
-                  <h4 className="font-medium text-blue-600 mb-2">Download Your Data</h4>
-                  <p className="text-sm text-gray-600 mb-4">
+                <div className="border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                  <h4 className="font-medium text-blue-600 dark:text-blue-400 mb-2">Download Your Data</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                     Get a copy of all your data including posts, messages, connections, and profile information.
                   </p>
                   <Button variant="outline">Request Data Export</Button>

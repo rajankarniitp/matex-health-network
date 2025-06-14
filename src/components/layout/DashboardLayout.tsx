@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
+import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import {
   Home,
   Users,
@@ -22,7 +22,6 @@ import {
   Search,
   Award,
   Settings,
-  Bell,
   Menu,
   X,
   LogOut,
@@ -61,11 +60,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const user = JSON.parse(localStorage.getItem('docmatex_user') || '{}');
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Mobile sidebar */}
       <div className={`fixed inset-0 flex z-40 md:hidden ${sidebarOpen ? '' : 'pointer-events-none'}`}>
         <div className={`fixed inset-0 bg-gray-600 bg-opacity-75 transition-opacity ease-linear duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`} onClick={() => setSidebarOpen(false)} />
-        <div className={`relative flex-1 flex flex-col max-w-xs w-full bg-white transform transition ease-in-out duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className={`relative flex-1 flex flex-col max-w-xs w-full bg-white dark:bg-gray-800 transform transition ease-in-out duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="absolute top-0 right-0 -mr-12 pt-2">
             <button
               type="button"
@@ -90,8 +89,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   to={item.href}
                   className={`${
                     location.pathname === item.href
-                      ? 'bg-blue-100 text-blue-900'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-blue-100 text-blue-900 dark:bg-blue-800 dark:text-blue-100'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100'
                   } group flex items-center px-2 py-2 text-base font-medium rounded-md`}
                   onClick={() => setSidebarOpen(false)}
                 >
@@ -106,7 +105,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
       {/* Static sidebar for desktop */}
       <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
-        <div className="flex-1 flex flex-col min-h-0 border-r border-gray-200 bg-white">
+        <div className="flex-1 flex flex-col min-h-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
             <div className="flex items-center flex-shrink-0 px-4">
               <img 
@@ -115,15 +114,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 className="h-8 w-auto"
               />
             </div>
-            <nav className="mt-5 flex-1 px-2 bg-white space-y-1">
+            <nav className="mt-5 flex-1 px-2 bg-white dark:bg-gray-800 space-y-1">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
                   className={`${
                     location.pathname === item.href
-                      ? 'bg-blue-100 text-blue-900'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-blue-100 text-blue-900 dark:bg-blue-800 dark:text-blue-100'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100'
                   } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
                 >
                   <item.icon className="mr-3 h-5 w-5" />
@@ -138,10 +137,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       {/* Main content */}
       <div className="md:pl-64 flex flex-col flex-1">
         {/* Top navigation */}
-        <div className="sticky top-0 z-10 md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3 bg-gray-200">
+        <div className="sticky top-0 z-10 md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3 bg-gray-200 dark:bg-gray-800">
           <button
             type="button"
-            className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+            className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="h-6 w-6" />
@@ -149,19 +148,16 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </div>
 
         {/* Header */}
-        <header className="bg-white shadow">
+        <header className="bg-white dark:bg-gray-800 shadow dark:shadow-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-6">
               <div className="flex-1 min-w-0">
-                <h1 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                <h1 className="text-2xl font-bold leading-7 text-gray-900 dark:text-gray-100 sm:text-3xl sm:truncate">
                   {navigation.find(item => item.href === location.pathname)?.name || 'DocMateX'}
                 </h1>
               </div>
               <div className="flex items-center space-x-4">
-                <Button variant="ghost" size="sm" className="relative">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
-                </Button>
+                <NotificationDropdown />
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
