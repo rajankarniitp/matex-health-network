@@ -19,7 +19,8 @@ import {
   Lock,
   MoreHorizontal,
   Heart,
-  Bookmark
+  Bookmark,
+  BookmarkCheck
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
@@ -33,14 +34,16 @@ const Feed = () => {
       role: 'Cardiologist',
       specialization: 'Interventional Cardiology',
       time: '2 hours ago',
-      content: 'Just completed a groundbreaking minimally invasive cardiac procedure. The patient recovery time has been reduced by 40% compared to traditional methods. This new technique could revolutionize cardiac surgery.',
-      image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=500&h=300&fit=crop',
-      likes: 24,
-      comments: 8,
-      shares: 5,
+      content: 'Just completed a groundbreaking minimally invasive cardiac procedure using robotic assistance. The patient recovery time has been reduced by 40% compared to traditional methods. This new technique could revolutionize cardiac surgery and improve patient outcomes significantly. \n\nThe precision of robotic tools combined with advanced imaging has allowed us to perform complex procedures through smaller incisions. Looking forward to publishing our findings! 🔬❤️',
+      image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=600&h=400&fit=crop',
+      likes: 47,
+      comments: 15,
+      shares: 8,
       verified: true,
       privacy: 'public',
-      reactions: { like: 15, heart: 9 }
+      reactions: { like: 32, heart: 15 },
+      saved: false,
+      liked: false
     },
     {
       id: 2,
@@ -48,27 +51,64 @@ const Feed = () => {
       role: 'Neurologist',
       specialization: 'Neurosurgery',
       time: '4 hours ago',
-      content: 'Exciting developments at the International Neuroscience Conference! New research on neuroplasticity is opening doors for treating previously untreatable conditions. The future of neuroscience is bright.',
-      likes: 18,
-      comments: 12,
-      shares: 3,
+      content: 'Exciting developments at the International Neuroscience Conference! 🧠✨ New research on neuroplasticity is opening doors for treating previously untreatable conditions. \n\nKey highlights:\n• Brain organoids showing promising results\n• AI-assisted surgical planning\n• Novel treatment for Alzheimer\'s disease\n• Gene therapy breakthroughs\n\nThe future of neuroscience is incredibly bright. Proud to be part of this amazing medical community!',
+      likes: 63,
+      comments: 22,
+      shares: 12,
       verified: true,
       privacy: 'public',
-      reactions: { like: 12, heart: 6 }
+      reactions: { like: 45, heart: 18 },
+      saved: false,
+      liked: false
     },
     {
       id: 3,
       author: 'Dr. Priya Patel',
       role: 'Pediatrician',
       specialization: 'Pediatric Surgery',
-      time: '1 day ago',
-      content: 'Successful pediatric surgery today! 👶 The teamwork between our surgical team, anesthesiologists, and nursing staff was exceptional. Every child deserves the best care possible.',
-      likes: 45,
-      comments: 15,
-      shares: 8,
+      time: '8 hours ago',
+      content: 'Successful pediatric surgery today! 👶💙 Performed a complex congenital heart defect repair on a 6-month-old patient. The teamwork between our surgical team, anesthesiologists, and nursing staff was exceptional.\n\nEvery child deserves the best care possible. Moments like these remind me why I chose pediatric medicine. The little fighter is doing amazingly well post-surgery! 🌟\n\n#PediatricSurgery #Teamwork #Hope',
+      likes: 128,
+      comments: 34,
+      shares: 19,
       verified: true,
       privacy: 'public',
-      reactions: { like: 32, heart: 13 }
+      reactions: { like: 89, heart: 39 },
+      saved: false,
+      liked: false
+    },
+    {
+      id: 4,
+      author: 'Dr. James Wilson',
+      role: 'Orthopedic Surgeon',
+      specialization: 'Sports Medicine',
+      time: '12 hours ago',
+      content: 'Amazing case study: Professional athlete returned to competition just 8 weeks after ACL reconstruction using our new enhanced recovery protocol! 🏃‍♂️⚡\n\nOur approach combines:\n✅ Advanced surgical techniques\n✅ Personalized rehabilitation\n✅ Nutritional optimization\n✅ Mental health support\n\nThis holistic approach is changing the game in sports medicine. Recovery times are improving while maintaining excellent long-term outcomes.',
+      image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop',
+      likes: 92,
+      comments: 18,
+      shares: 14,
+      verified: true,
+      privacy: 'public',
+      reactions: { like: 67, heart: 25 },
+      saved: false,
+      liked: false
+    },
+    {
+      id: 5,
+      author: 'Dr. Emily Rodriguez',
+      role: 'Emergency Medicine Physician',
+      specialization: 'Trauma Surgery',
+      time: '1 day ago',
+      content: 'Night shift reflections 🌙 Just finished a 12-hour shift in the ER. We treated everything from minor injuries to life-threatening emergencies. \n\nWhat strikes me most is the resilience of the human spirit. Patients and families facing their worst moments still find ways to show gratitude and hope.\n\nTo my fellow healthcare workers: remember to take care of yourselves too. We can only pour from a full cup. 💪❤️\n\n#EmergencyMedicine #Healthcare #SelfCare #Gratitude',
+      likes: 156,
+      comments: 41,
+      shares: 23,
+      verified: true,
+      privacy: 'public',
+      reactions: { like: 112, heart: 44 },
+      saved: false,
+      liked: false
     }
   ]);
 
@@ -94,7 +134,9 @@ const Feed = () => {
       shares: 0,
       verified: true,
       privacy: privacy,
-      reactions: { like: 0, heart: 0 }
+      reactions: { like: 0, heart: 0 },
+      saved: false,
+      liked: false
     };
 
     setPosts([newPostObj, ...posts]);
@@ -109,9 +151,31 @@ const Feed = () => {
   const handleLike = (postId: number) => {
     setPosts(posts.map(post => 
       post.id === postId 
-        ? { ...post, likes: post.likes + 1, reactions: { ...post.reactions, like: post.reactions.like + 1 } }
+        ? { 
+            ...post, 
+            likes: post.liked ? post.likes - 1 : post.likes + 1,
+            liked: !post.liked,
+            reactions: { 
+              ...post.reactions, 
+              like: post.liked ? post.reactions.like - 1 : post.reactions.like + 1 
+            }
+          }
         : post
     ));
+  };
+
+  const handleSave = (postId: number) => {
+    setPosts(posts.map(post => 
+      post.id === postId 
+        ? { ...post, saved: !post.saved }
+        : post
+    ));
+    
+    const post = posts.find(p => p.id === postId);
+    toast({
+      title: post?.saved ? "Post removed from saved" : "Post saved",
+      description: post?.saved ? "The post has been removed from your saved items." : "The post has been saved to your collection.",
+    });
   };
 
   const getPrivacyIcon = (privacy: string) => {
@@ -132,24 +196,35 @@ const Feed = () => {
             <CardTitle>Share with your network</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="flex items-center space-x-3 mb-4">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src="" alt="Your profile" />
+                <AvatarFallback className="bg-blue-100 text-blue-600">JD</AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-semibold">Dr. John Doe</p>
+                <p className="text-sm text-gray-500">General Medicine</p>
+              </div>
+            </div>
+            
             <Textarea
               placeholder="What's on your mind? Share your medical insights, achievements, or thoughts with fellow healthcare professionals..."
               value={newPost}
               onChange={(e) => setNewPost(e.target.value)}
-              className="min-h-[100px] resize-none"
+              className="min-h-[120px] resize-none border-gray-200"
             />
             
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-blue-600">
                   <Image className="h-4 w-4 mr-2" />
                   Photo
                 </Button>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-blue-600">
                   <Video className="h-4 w-4 mr-2" />
                   Video
                 </Button>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-blue-600">
                   <FileText className="h-4 w-4 mr-2" />
                   Document
                 </Button>
@@ -182,7 +257,7 @@ const Feed = () => {
                   </SelectContent>
                 </Select>
                 
-                <Button onClick={handlePostSubmit}>
+                <Button onClick={handlePostSubmit} disabled={!newPost.trim()}>
                   Post
                 </Button>
               </div>
@@ -193,12 +268,14 @@ const Feed = () => {
         {/* Posts Feed */}
         <div className="space-y-6">
           {posts.map((post) => (
-            <Card key={post.id}>
+            <Card key={post.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-start space-x-3">
                   <Avatar className="h-12 w-12">
                     <AvatarImage src="" alt={post.author} />
-                    <AvatarFallback>{post.author.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    <AvatarFallback className="bg-blue-100 text-blue-600">
+                      {post.author.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
                   </Avatar>
                   
                   <div className="flex-1 min-w-0">
@@ -207,8 +284,8 @@ const Feed = () => {
                         <div className="flex items-center space-x-2">
                           <h3 className="text-sm font-semibold text-gray-900">{post.author}</h3>
                           {post.verified && (
-                            <Badge variant="secondary" className="text-xs">
-                              Verified
+                            <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-600">
+                              ✓ Verified
                             </Badge>
                           )}
                         </div>
@@ -226,14 +303,14 @@ const Feed = () => {
                     </div>
                     
                     <div className="mt-4">
-                      <p className="text-gray-700 whitespace-pre-wrap">{post.content}</p>
+                      <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{post.content}</p>
                       
                       {post.image && (
                         <div className="mt-4">
                           <img 
                             src={post.image} 
                             alt="Post attachment" 
-                            className="rounded-lg max-w-full h-auto"
+                            className="rounded-lg max-w-full h-auto border"
                           />
                         </div>
                       )}
@@ -241,8 +318,8 @@ const Feed = () => {
                     
                     {/* Reactions Summary */}
                     {(post.reactions.like > 0 || post.reactions.heart > 0) && (
-                      <div className="flex items-center space-x-4 mt-4 pt-3 border-t">
-                        <div className="flex items-center space-x-1">
+                      <div className="flex items-center justify-between mt-4 pt-3 border-t">
+                        <div className="flex items-center space-x-2">
                           <div className="flex -space-x-1">
                             {post.reactions.like > 0 && (
                               <div className="bg-blue-500 rounded-full p-1">
@@ -256,7 +333,7 @@ const Feed = () => {
                             )}
                           </div>
                           <span className="text-sm text-gray-500">
-                            {post.reactions.like + post.reactions.heart}
+                            {post.reactions.like + post.reactions.heart} reactions
                           </span>
                         </div>
                         
@@ -274,9 +351,9 @@ const Feed = () => {
                           variant="ghost" 
                           size="sm" 
                           onClick={() => handleLike(post.id)}
-                          className="text-gray-600 hover:text-blue-600"
+                          className={`${post.liked ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600'}`}
                         >
-                          <ThumbsUp className="h-4 w-4 mr-1" />
+                          <ThumbsUp className={`h-4 w-4 mr-1 ${post.liked ? 'fill-current' : ''}`} />
                           Like
                         </Button>
                         <Button variant="ghost" size="sm" className="text-gray-600 hover:text-blue-600">
@@ -292,9 +369,10 @@ const Feed = () => {
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="text-gray-600 hover:text-blue-600"
+                        onClick={() => handleSave(post.id)}
+                        className={`${post.saved ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600'}`}
                       >
-                        <Bookmark className="h-4 w-4" />
+                        {post.saved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
                       </Button>
                     </div>
                   </div>
@@ -302,6 +380,13 @@ const Feed = () => {
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        {/* Load More */}
+        <div className="text-center py-6">
+          <Button variant="outline" className="px-8">
+            Load More Posts
+          </Button>
         </div>
       </div>
     </DashboardLayout>
