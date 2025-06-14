@@ -31,15 +31,18 @@ const Index = () => {
   if (isLoading && !isAuthenticated) {
     return (
       <div className="min-h-screen relative">
-        {/* Background Image */}
+        {/* Tiled Background Pattern */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-0 opacity-20 dark:opacity-10"
           style={{
-            backgroundImage: `url('/lovable-uploads/daa06cc2-1c0f-419f-bb83-0f4de1e042a2.png')`
+            backgroundImage: `url('/lovable-uploads/2d1a9ec6-c93c-4135-985c-6be34cfa1141.png')`,
+            backgroundSize: '300px 300px',
+            backgroundRepeat: 'repeat',
+            backgroundPosition: 'center'
           }}
         />
-        {/* Light mode overlay */}
-        <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/85 backdrop-blur-sm" />
+        {/* Gradient overlay for better readability */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/95 via-blue-50/90 to-white/95 dark:from-gray-900/95 dark:via-gray-800/90 dark:to-gray-900/95" />
         
         {/* Content */}
         <div className="relative z-10">
@@ -56,15 +59,18 @@ const Index = () => {
 
   return (
     <div className="min-h-screen relative">
-      {/* Background Image */}
+      {/* Tiled Background Pattern */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 opacity-20 dark:opacity-10"
         style={{
-          backgroundImage: `url('/lovable-uploads/daa06cc2-1c0f-419f-bb83-0f4de1e042a2.png')`
+          backgroundImage: `url('/lovable-uploads/2d1a9ec6-c93c-4135-985c-6be34cfa1141.png')`,
+          backgroundSize: '300px 300px',
+          backgroundRepeat: 'repeat',
+          backgroundPosition: 'center'
         }}
       />
-      {/* Light mode overlay */}
-      <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/85 backdrop-blur-sm" />
+      {/* Gradient overlay for better readability */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/95 via-blue-50/90 to-white/95 dark:from-gray-900/95 dark:via-gray-800/90 dark:to-gray-900/95" />
       
       {/* Content */}
       <div className="relative z-10">
