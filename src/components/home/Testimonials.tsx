@@ -22,25 +22,25 @@ const testimonials = [
 
 const Testimonials = () => {
   return (
-    <div className="bg-gray-50 py-24">
+    <div className="bg-gray-50 dark:bg-gray-900 py-12 sm:py-16 md:py-20 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">
             What Healthcare Professionals Say
           </h2>
-          <p className="mt-4 text-xl text-gray-600">
+          <p className="mt-3 sm:mt-4 text-lg sm:text-xl text-gray-600 dark:text-gray-400 px-2">
             Hear from doctors, researchers, and medical students who trust DocMateX
           </p>
         </div>
 
-        <div className="mt-20 grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="mt-12 sm:mt-16 md:mt-20 grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-3">
           {testimonials.map((testimonial, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-md p-8">
+            <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-900/25 p-6 sm:p-8 border border-gray-200 dark:border-gray-700">
               <div className="flex items-center mb-4">
                 {[...Array(5)].map((_, i) => (
                   <svg
                     key={i}
-                    className="h-5 w-5 text-yellow-400"
+                    className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-400 dark:text-yellow-300"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -48,13 +48,13 @@ const Testimonials = () => {
                   </svg>
                 ))}
               </div>
-              <blockquote className="text-gray-700 text-lg leading-relaxed mb-6">
+              <blockquote className="text-gray-700 dark:text-gray-300 text-base sm:text-lg leading-relaxed mb-6">
                 "{testimonial.content}"
               </blockquote>
-              <div className="border-t pt-6">
-                <div className="font-semibold text-gray-900">{testimonial.author}</div>
-                <div className="text-blue-600 font-medium">{testimonial.role}</div>
-                <div className="text-gray-500 text-sm">{testimonial.location}</div>
+              <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
+                <div className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base">{testimonial.author}</div>
+                <div className="text-blue-600 dark:text-blue-400 font-medium text-sm sm:text-base">{testimonial.role}</div>
+                <div className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm">{testimonial.location}</div>
               </div>
             </div>
           ))}
