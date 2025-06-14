@@ -62,37 +62,41 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center py-6 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-6 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-6 sm:space-y-8">
         {/* Logo */}
         <div className="text-center">
-          <img 
-            src="/lovable-uploads/ab211828-c9c9-4c9c-9eeb-323444473e1b.png" 
-            alt="DocMateX Logo" 
-            className="mx-auto h-12 sm:h-16 w-auto"
-          />
-          <h2 className="mt-4 sm:mt-6 text-2xl sm:text-3xl font-bold text-gray-900">
+          <div className="flex justify-center mb-4 sm:mb-6">
+            <div className="bg-white dark:bg-white rounded-lg p-3 shadow-sm flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20">
+              <img 
+                src="/lovable-uploads/aaa35625-b685-4931-8494-60f87b95865a.png" 
+                alt="DocMateX Logo" 
+                className="h-12 sm:h-16 w-auto"
+              />
+            </div>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
             Welcome back to DocMateX
           </h2>
-          <p className="mt-2 text-sm text-gray-600 px-2">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 px-2">
             Sign in to your professional healthcare account
           </p>
         </div>
 
-        <Card className="shadow-lg">
+        <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <CardHeader className="space-y-1 px-4 sm:px-6">
-            <CardTitle className="text-xl sm:text-2xl text-center">Sign In</CardTitle>
-            <CardDescription className="text-center text-sm">
+            <CardTitle className="text-xl sm:text-2xl text-center text-gray-900 dark:text-gray-100">Sign In</CardTitle>
+            <CardDescription className="text-center text-sm text-gray-600 dark:text-gray-400">
               Enter your credentials to access your account
             </CardDescription>
           </CardHeader>
           <CardContent className="px-4 sm:px-6">
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               <div>
-                <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+                <Label htmlFor="email" className="text-sm font-medium text-gray-900 dark:text-gray-100">Email Address</Label>
                 <div className="mt-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                   </div>
                   <Input
                     id="email"
@@ -100,7 +104,7 @@ const Login = () => {
                     type="email"
                     autoComplete="email"
                     required
-                    className="pl-9 sm:pl-10 h-10 sm:h-11 text-sm"
+                    className="pl-9 sm:pl-10 h-10 sm:h-11 text-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
                     placeholder="doctor@example.com"
                     value={formData.email}
                     onChange={handleChange}
@@ -109,10 +113,10 @@ const Login = () => {
               </div>
 
               <div>
-                <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                <Label htmlFor="password" className="text-sm font-medium text-gray-900 dark:text-gray-100">Password</Label>
                 <div className="mt-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                   </div>
                   <Input
                     id="password"
@@ -120,7 +124,7 @@ const Login = () => {
                     type={showPassword ? 'text' : 'password'}
                     autoComplete="current-password"
                     required
-                    className="pl-9 sm:pl-10 pr-9 sm:pr-10 h-10 sm:h-11 text-sm"
+                    className="pl-9 sm:pl-10 pr-9 sm:pr-10 h-10 sm:h-11 text-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleChange}
@@ -131,9 +135,9 @@ const Login = () => {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 hover:text-gray-600" />
+                      <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300" />
                     ) : (
-                      <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 hover:text-gray-600" />
+                      <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300" />
                     )}
                   </button>
                 </div>
@@ -145,17 +149,17 @@ const Login = () => {
                     id="remember-me"
                     name="rememberMe"
                     type="checkbox"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
                     checked={formData.rememberMe}
                     onChange={handleChange}
                   />
-                  <Label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                  <Label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-100">
                     Remember me
                   </Label>
                 </div>
 
                 <div className="text-sm">
-                  <Link to="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
+                  <Link to="/forgot-password" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">
                     Forgot password?
                   </Link>
                 </div>
@@ -164,16 +168,16 @@ const Login = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 sm:py-3 text-sm sm:text-base"
+                className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 sm:py-3 text-sm sm:text-base"
               >
                 {isLoading ? 'Signing in...' : 'Sign In'}
               </Button>
             </form>
 
             <div className="mt-4 sm:mt-6 text-center">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 Don't have an account?{' '}
-                <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500">
+                <Link to="/signup" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">
                   Join DocMateX
                 </Link>
               </p>
