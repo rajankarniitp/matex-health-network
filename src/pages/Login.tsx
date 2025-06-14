@@ -41,7 +41,7 @@ const Login = () => {
         description: "You have successfully logged in to DocMateX.",
       });
 
-      navigate('/dashboard');
+      navigate('/feed'); // Redirect to feed instead of dashboard
     } catch (error) {
       toast({
         title: "Login Failed",
@@ -62,37 +62,37 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center py-6 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-6 sm:space-y-8">
         {/* Logo */}
         <div className="text-center">
           <img 
             src="/lovable-uploads/ab211828-c9c9-4c9c-9eeb-323444473e1b.png" 
             alt="DocMateX Logo" 
-            className="mx-auto h-16 w-auto"
+            className="mx-auto h-12 sm:h-16 w-auto"
           />
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">
+          <h2 className="mt-4 sm:mt-6 text-2xl sm:text-3xl font-bold text-gray-900">
             Welcome back to DocMateX
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-gray-600 px-2">
             Sign in to your professional healthcare account
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl text-center">Sign In</CardTitle>
-            <CardDescription className="text-center">
+        <Card className="shadow-lg">
+          <CardHeader className="space-y-1 px-4 sm:px-6">
+            <CardTitle className="text-xl sm:text-2xl text-center">Sign In</CardTitle>
+            <CardDescription className="text-center text-sm">
               Enter your credentials to access your account
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <CardContent className="px-4 sm:px-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               <div>
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
                 <div className="mt-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" />
+                    <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                   </div>
                   <Input
                     id="email"
@@ -100,7 +100,7 @@ const Login = () => {
                     type="email"
                     autoComplete="email"
                     required
-                    className="pl-10"
+                    className="pl-9 sm:pl-10 h-10 sm:h-11 text-sm"
                     placeholder="doctor@example.com"
                     value={formData.email}
                     onChange={handleChange}
@@ -109,10 +109,10 @@ const Login = () => {
               </div>
 
               <div>
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-sm font-medium">Password</Label>
                 <div className="mt-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
+                    <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                   </div>
                   <Input
                     id="password"
@@ -120,7 +120,7 @@ const Login = () => {
                     type={showPassword ? 'text' : 'password'}
                     autoComplete="current-password"
                     required
-                    className="pl-10 pr-10"
+                    className="pl-9 sm:pl-10 pr-9 sm:pr-10 h-10 sm:h-11 text-sm"
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleChange}
@@ -131,15 +131,15 @@ const Login = () => {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 hover:text-gray-600" />
                     ) : (
-                      <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 hover:text-gray-600" />
                     )}
                   </button>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                 <div className="flex items-center">
                   <input
                     id="remember-me"
@@ -164,13 +164,13 @@ const Login = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 sm:py-3 text-sm sm:text-base"
               >
                 {isLoading ? 'Signing in...' : 'Sign In'}
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
+            <div className="mt-4 sm:mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Don't have an account?{' '}
                 <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500">

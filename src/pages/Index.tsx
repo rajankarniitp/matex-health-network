@@ -17,12 +17,12 @@ const Index = () => {
     const token = localStorage.getItem('docmatex_token');
     if (token) {
       setIsAuthenticated(true);
-      navigate('/dashboard');
+      navigate('/feed'); // Redirect to feed instead of dashboard
     }
   }, [navigate]);
 
   if (isAuthenticated) {
-    return null; // Will redirect to dashboard
+    return null; // Will redirect to feed
   }
 
   return (

@@ -139,31 +139,31 @@ const Features = () => {
   };
 
   return (
-    <div className="py-24 bg-gradient-to-br from-blue-50 to-white" id="features">
+    <div className="py-12 sm:py-16 lg:py-24 bg-gradient-to-br from-blue-50 to-white" id="features">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h2 className="text-4xl font-bold text-gray-900 sm:text-5xl">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900">
             Complete Healthcare Professional Platform
           </h2>
-          <p className="mt-6 text-xl text-gray-600 max-w-4xl mx-auto">
+          <p className="mt-4 sm:mt-6 text-base sm:text-lg lg:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
             DocMateX provides comprehensive tools and features designed specifically for healthcare professionals, 
             researchers, and medical students. Everything you need to advance your medical career in one platform.
           </p>
         </div>
 
-        <div className="mt-20 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="mt-12 sm:mt-16 lg:mt-20 grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="relative group bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-blue-200 hover:-translate-y-1"
+              className="relative group bg-white p-4 sm:p-6 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-blue-200 hover:-translate-y-1"
             >
-              <div className={`inline-flex p-3 rounded-lg border ${getColorClasses(feature.color)}`}>
-                <feature.icon className="h-6 w-6" />
+              <div className={`inline-flex p-2 sm:p-3 rounded-lg border ${getColorClasses(feature.color)}`}>
+                <feature.icon className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
-              <h3 className="mt-4 text-lg font-semibold text-gray-900">
+              <h3 className="mt-3 sm:mt-4 text-base sm:text-lg font-semibold text-gray-900">
                 {feature.title}
               </h3>
-              <p className="mt-2 text-gray-600 leading-relaxed">
+              <p className="mt-2 text-sm sm:text-base text-gray-600 leading-relaxed">
                 {feature.description}
               </p>
               <div className="absolute inset-0 rounded-xl border-2 border-transparent group-hover:border-blue-200 transition-colors duration-300"></div>
@@ -171,10 +171,10 @@ const Features = () => {
           ))}
         </div>
 
-        <div className="mt-16 text-center">
-          <div className="inline-flex items-center space-x-2 bg-blue-50 px-6 py-3 rounded-full">
-            <Shield className="h-5 w-5 text-blue-600" />
-            <span className="text-blue-900 font-medium">All features are HIPAA-compliant and secure</span>
+        <div className="mt-12 sm:mt-16 text-center">
+          <div className="inline-flex items-center space-x-2 bg-blue-50 px-4 sm:px-6 py-2 sm:py-3 rounded-full">
+            <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+            <span className="text-blue-900 font-medium text-sm sm:text-base">All features are HIPAA-compliant and secure</span>
           </div>
         </div>
       </div>
