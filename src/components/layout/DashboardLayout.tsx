@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -75,12 +76,17 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </button>
           </div>
           <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-            <div className="flex-shrink-0 flex items-center px-4">
-              <img 
-                src="/lovable-uploads/ab211828-c9c9-4c9c-9eeb-323444473e1b.png" 
-                alt="DocMateX Logo" 
-                className="h-8 w-auto"
-              />
+            <div className="flex-shrink-0 flex items-center px-4 space-x-3">
+              <div className="bg-white rounded-lg p-2 shadow-sm">
+                <img 
+                  src="/lovable-uploads/aaa35625-b685-4931-8494-60f87b95865a.png" 
+                  alt="DocMateX Logo" 
+                  className="h-6 w-auto"
+                />
+              </div>
+              <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                DocMateX
+              </span>
             </div>
             <nav className="mt-5 px-2 space-y-1">
               {navigation.map((item) => (
@@ -107,12 +113,17 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
         <div className="flex-1 flex flex-col min-h-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-            <div className="flex items-center flex-shrink-0 px-4">
-              <img 
-                src="/lovable-uploads/ab211828-c9c9-4c9c-9eeb-323444473e1b.png" 
-                alt="DocMateX Logo" 
-                className="h-8 w-auto"
-              />
+            <div className="flex items-center flex-shrink-0 px-4 space-x-3">
+              <div className="bg-white rounded-lg p-2 shadow-sm">
+                <img 
+                  src="/lovable-uploads/aaa35625-b685-4931-8494-60f87b95865a.png" 
+                  alt="DocMateX Logo" 
+                  className="h-6 w-auto"
+                />
+              </div>
+              <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                DocMateX
+              </span>
             </div>
             <nav className="mt-5 flex-1 px-2 bg-white dark:bg-gray-800 space-y-1">
               {navigation.map((item) => (
@@ -148,7 +159,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </div>
 
         {/* Header */}
-        <header className="bg-white dark:bg-gray-800 shadow dark:shadow-gray-700">
+        <header className="bg-white dark:bg-gray-800 shadow dark:shadow-gray-700 border-b border-gray-200 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-6">
               <div className="flex-1 min-w-0">
@@ -164,34 +175,34 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                       <Avatar className="h-8 w-8">
                         <AvatarImage src="" alt={user.name} />
-                        <AvatarFallback>{user.name?.charAt(0) || 'U'}</AvatarFallback>
+                        <AvatarFallback className="bg-blue-600 text-white dark:bg-blue-500">{user.name?.charAt(0) || 'U'}</AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user.name}</p>
-                        <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                        <p className="text-sm font-medium leading-none text-gray-900 dark:text-gray-100">{user.name}</p>
+                        <p className="text-xs leading-none text-muted-foreground dark:text-gray-400">{user.email}</p>
                       </div>
                     </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => navigate('/profile')}>
+                    <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
+                    <DropdownMenuItem onClick={() => navigate('/profile')} className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/settings')}>
+                    <DropdownMenuItem onClick={() => navigate('/settings')} className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Settings</span>
                     </DropdownMenuItem>
                     {user.role === 'admin' && (
-                      <DropdownMenuItem onClick={() => navigate('/admin')}>
+                      <DropdownMenuItem onClick={() => navigate('/admin')} className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                         <Shield className="mr-2 h-4 w-4" />
                         <span>Admin Panel</span>
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout}>
+                    <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
+                    <DropdownMenuItem onClick={handleLogout} className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Log out</span>
                     </DropdownMenuItem>
