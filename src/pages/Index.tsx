@@ -11,18 +11,34 @@ import Footer from '@/components/layout/Footer';
 const Index = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Check if user is authenticated
     const token = localStorage.getItem('docmatex_token');
     if (token) {
       setIsAuthenticated(true);
-      navigate('/feed'); // Redirect to feed instead of dashboard
+      // Redirect to feed after showing landing page briefly
+      setTimeout(() => {
+        navigate('/feed');
+      }, 500);
+    } else {
+      setIsLoading(false);
     }
   }, [navigate]);
 
-  if (isAuthenticated) {
-    return null; // Will redirect to feed
+  // Show landing page for everyone initially
+  if (isLoading && !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
+        <Navbar />
+        <Hero />
+        <Features />
+        <Stats />
+        <Testimonials />
+        <Footer />
+      </div>
+    );
   }
 
   return (
