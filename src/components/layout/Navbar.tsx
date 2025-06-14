@@ -1,129 +1,170 @@
 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
+import { Menu, User, LogOut } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from '@/components/ui/dropdown-menu';
+import MobileBottomNav from './MobileBottomNav';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const user = JSON.parse(localStorage.getItem('docmatex_user') || '{}');
 
+  const handleLogout = () => {
+    localStorage.removeItem('docmatex_token');
+    localStorage.removeItem('docmatex_user');
+    navigate('/login');
+  };
+
+  // For mobile menu slide-in
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50 border-b border-gray-200 dark:border-gray-700">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 sm:h-18">
-          {/* Logo */}
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-3">
-              <div className="bg-white dark:bg-white rounded-lg p-2 shadow-sm flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14">
-                <img 
-                  src="/lovable-uploads/aaa35625-b685-4931-8494-60f87b95865a.png" 
-                  alt="DocMateX Logo" 
-                  className="h-9 sm:h-11 w-auto"
-                />
-              </div>
-              <span className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
-                DocMateX
-              </span>
-            </Link>
+    <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16">
+        {/* Logo */}
+        <Link to="/" className="flex items-center space-x-3">
+          <div className="rounded-lg p-1 shadow-sm flex items-center justify-center w-10 h-10">
+            <img
+              src="/lovable-uploads/aaa35625-b685-4931-8494-60f87b95865a.png"
+              alt="DocMateX Logo"
+              className="h-8 w-auto"
+            />
           </div>
+          <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
+            DocMateX
+          </span>
+        </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:block">
-            <div className="ml-10 flex items-baseline space-x-4">
-              <Link to="/" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                Home
-              </Link>
-              <a href="#features" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                Features
-              </a>
-              <Link to="/about" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                About
-              </Link>
-              <Link to="/contact" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                Contact
-              </Link>
-            </div>
-          </div>
+        {/* Desktop navigation */}
+        <div className="hidden md:flex items-center space-x-6">
+          <Link to="/" className={`hover:text-blue-600 transition-colors ${location.pathname === '/' ? 'font-semibold' : ''}`}>Home</Link>
+          <Link to="/mates" className={`hover:text-blue-600 transition-colors ${location.pathname === '/mates' ? 'font-semibold' : ''}`}>Mates</Link>
+          <Link to="/feed" className={`hover:text-blue-600 transition-colors ${location.pathname === '/feed' ? 'font-semibold' : ''}`}>Feed</Link>
+          <Link to="/jobs" className={`hover:text-blue-600 transition-colors ${location.pathname === '/jobs' ? 'font-semibold' : ''}`}>Jobs</Link>
+        </div>
 
-          {/* Auth Buttons - Desktop */}
-          <div className="hidden sm:block">
-            <div className="ml-4 flex items-center md:ml-6 space-x-2 sm:space-x-3">
-              <Link to="/login">
-                <Button variant="outline" className="border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-sm px-3 sm:px-4 py-2">
-                  Login
-                </Button>
-              </Link>
-              <Link to="/signup">
-                <Button className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white text-sm px-3 sm:px-4 py-2">
-                  Join Now
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="sm:hidden">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+        {/* Avatar + Profile Toggle */}
+        <div className="flex items-center space-x-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="rounded-full p-1 h-9 w-9">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={user?.photoURL ?? ''} alt={user?.name ?? 'Profile'} />
+                  <AvatarFallback>{user?.name?.charAt(0) ?? 'U'}</AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-44">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col">
+                  <span className="font-semibold">{user?.name ?? 'Doctor'}</span>
+                  <span className="text-xs text-gray-500">{user?.email}</span>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/profile')}>
+                <User className="mr-2 h-4 w-4" />
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/settings')}>
+                Settings
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {/* Hamburger for mobile */}
+          <button
+            className="inline-flex md:hidden items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-700 transition focus:outline-none"
+            aria-label="Open menu"
+            onClick={() => setIsMenuOpen((v) => !v)}
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+        </div>
+      </div>
+      {/* Mobile menu slide-in */}
+      <div
+        className={`fixed inset-0 z-50 transition-all duration-300 ease-in-out md:hidden ${
+          isMenuOpen ? 'visible' : 'invisible'
+        }`}
+      >
+        {/* Overlay */}
+        <div
+          onClick={() => setIsMenuOpen(false)}
+          className={`fixed inset-0 bg-black/40 transition-opacity ${isMenuOpen ? 'opacity-100' : 'opacity-0'}`}
+        />
+        {/* Sidebar */}
+        <div
+          className={`fixed top-0 left-0 h-full w-3/5 bg-white dark:bg-gray-900 shadow-lg transition-transform transform ${
+            isMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          <div className="flex flex-col h-full p-6 pt-8 space-y-5">
+            <Link
+              to="/"
+              className="py-2 px-2 rounded text-gray-900 dark:text-gray-100 hover:bg-blue-50 font-medium"
+              onClick={() => setIsMenuOpen(false)}
             >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              Home
+            </Link>
+            <Link
+              to="/mates"
+              className="py-2 px-2 rounded text-gray-900 dark:text-gray-100 hover:bg-blue-50 font-medium"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Mates
+            </Link>
+            <Link
+              to="/feed"
+              className="py-2 px-2 rounded text-gray-900 dark:text-gray-100 hover:bg-blue-50 font-medium"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Feed
+            </Link>
+            <Link
+              to="/jobs"
+              className="py-2 px-2 rounded text-gray-900 dark:text-gray-100 hover:bg-blue-50 font-medium"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Jobs
+            </Link>
+            <Link
+              to="/profile"
+              className="py-2 px-2 rounded text-gray-900 dark:text-gray-100 hover:bg-blue-50 font-medium"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Profile
+            </Link>
+            <button
+              className="mt-8 text-left text-sm hover:underline text-blue-700"
+              onClick={() => {
+                setIsMenuOpen(false);
+                handleLogout();
+              }}
+            >
+              Logout
             </button>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="sm:hidden border-t border-gray-200 dark:border-gray-700">
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-white dark:bg-gray-800">
-              <Link 
-                to="/" 
-                className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Home
-              </Link>
-              <a 
-                href="#features" 
-                className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Features
-              </a>
-              <Link 
-                to="/about" 
-                className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                About
-              </Link>
-              <Link 
-                to="/contact" 
-                className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Contact
-              </Link>
-              <div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex flex-col space-y-3 px-3">
-                  <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                    <Button variant="outline" className="w-full border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                      Login
-                    </Button>
-                  </Link>
-                  <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white">
-                      Join DocMateX
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+      </div>
+      {/* Mobile Bottom Nav */}
+      <div className="md:hidden">
+        <MobileBottomNav />
       </div>
     </nav>
   );
 };
-
 export default Navbar;
