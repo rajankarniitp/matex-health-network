@@ -12,8 +12,9 @@ const Footer = () => {
             <div className="flex items-center space-x-2 mb-4">
               <img 
                 src="/lovable-uploads/ab211828-c9c9-4c9c-9eeb-323444473e1b.png" 
-                alt="DocMateX Logo" 
-                className="h-8 w-auto filter brightness-0 invert"
+                alt="DocMateX Tile Logo" 
+                className="h-10 w-10 rounded-md shadow bg-white dark:bg-gray-900 border dark:border-gray-700 object-contain"
+                style={{ boxShadow: '0 0 0 2px rgba(30,41,59,0.12)' }}
               />
             </div>
             <p className="text-gray-300 mb-4 max-w-md">
@@ -89,3 +90,4 @@ const Footer = () => {
 };
 
 export default Footer;
+
