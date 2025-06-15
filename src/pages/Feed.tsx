@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -214,7 +213,7 @@ const Feed = () => {
               className="min-h-[120px] resize-none border-gray-200"
             />
             
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-0">
               <div className="flex items-center space-x-4">
                 <Button variant="ghost" size="sm" className="text-gray-600 hover:text-blue-600">
                   <Image className="h-4 w-4 mr-2" />
@@ -230,7 +229,7 @@ const Feed = () => {
                 </Button>
               </div>
               
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Select value={privacy} onValueChange={setPrivacy}>
                   <SelectTrigger className="w-32">
                     <SelectValue />
@@ -256,8 +255,11 @@ const Feed = () => {
                     </SelectItem>
                   </SelectContent>
                 </Select>
-                
-                <Button onClick={handlePostSubmit} disabled={!newPost.trim()}>
+                <Button
+                  onClick={handlePostSubmit}
+                  disabled={!newPost.trim()}
+                  className="sm:ml-2 flex-shrink-0"
+                >
                   Post
                 </Button>
               </div>
