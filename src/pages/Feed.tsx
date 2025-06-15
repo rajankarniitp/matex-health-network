@@ -20,13 +20,13 @@ import {
   MoreHorizontal,
   Bookmark,
 } from 'lucide-react';
-import { useAuthContext } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { usePosts, useCreatePost, useToggleLike } from '@/hooks/useApi';
 
 const Feed = () => {
   const [newPost, setNewPost] = useState('');
   const [privacy, setPrivacy] = useState('public');
-  const { user, profile, loading: authLoading } = useAuthContext();
+  const { user, profile, loading: authLoading } = useAuth();
   
   const { data: posts, isLoading: postsLoading, error: postsError } = usePosts();
   const createPostMutation = useCreatePost();

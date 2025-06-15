@@ -14,6 +14,7 @@ interface Profile {
   phone: string | null;
   role: string | null;
   verified: boolean | null;
+  avatar_url: string | null;
   created_at: string | null;
   updated_at: string | null;
 }
