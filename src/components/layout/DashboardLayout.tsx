@@ -101,12 +101,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               className={`${
                 location.pathname === item.href
                   ? 'bg-blue-100 text-blue-900 dark:bg-blue-800 dark:text-blue-100'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100'
-              } group flex items-center px-2 py-2 text-xs sm:text-sm font-medium rounded-md`}
+                  : 'text-gray-700 hover:bg-gray-50 hover:text-blue-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-blue-100'
+              } group flex items-center px-2 py-2 text-base font-bold rounded-md transition-all`}
+              style={{ fontSize: '1.05rem' }}
               onClick={() => setSidebarOpen(false)}
             >
-              <item.icon className="mr-2 sm:mr-3 h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="text-xs sm:text-sm">{item.name}</span>
+              <item.icon className="mr-3 h-[1.1rem] w-[1.1rem]" />
+              <span className="font-bold">{item.name}</span>
             </Link>
           ))}
         </nav>
@@ -136,11 +137,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   className={`${
                     location.pathname === item.href
                       ? 'bg-blue-100 text-blue-900 dark:bg-blue-800 dark:text-blue-100'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100'
-                  } group flex items-center px-2 py-2 text-xs lg:text-sm font-medium rounded-md`}
+                      : 'text-gray-700 hover:bg-gray-50 hover:text-blue-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-blue-100'
+                  } group flex items-center px-2 py-2 text-[1.1rem] font-bold rounded-md transition-all`}
+                  style={{ fontSize: '1.08rem' }}
                 >
-                  <item.icon className="mr-3 h-4 w-4 lg:h-5 lg:w-5" />
-                  <span>{item.name}</span>
+                  <item.icon className="mr-3 h-[1.15rem] w-[1.15rem]" />
+                  <span className="font-bold">{item.name}</span>
                 </Link>
               ))}
             </nav>
