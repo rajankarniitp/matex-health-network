@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("docmatex_token");
+  const token = localStorage.getItem("token") || localStorage.getItem("docmatex_token");
 
   useEffect(() => {
     if (!token) {

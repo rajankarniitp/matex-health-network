@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Loader2 } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { userAPI } from '@/services/api';
+import LoadingSkeleton from '@/components/ui/loading-skeleton';
 import {
   Edit,
   MapPin,
@@ -24,22 +27,24 @@ import {
   ExternalLink,
   Star
 } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+
+// ... keep existing code (imports and interfaces)
 
 const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [profileData, setProfileData] = useState({
-    name: 'Dr. John Doe',
-    email: 'john.doe@example.com',
-    phone: '+1 (555) 123-4567',
-    role: 'Cardiologist',
-    specialization: 'Interventional Cardiology',
-    location: 'New York, NY',
-    bio: 'Board-certified cardiologist with 10+ years of experience in interventional cardiology. Passionate about advancing cardiac care through innovative techniques and research.',
-    education: 'MD from Harvard Medical School',
-    experience: 'Senior Cardiologist at Mount Sinai Hospital',
-    joinDate: 'January 2022',
-    verified: true
+    name: '',
+    email: '',
+    phone: '',
+    role: '',
+    specialization: '',
+    location: '',
+    bio: '',
+    education: '',
+    experience: '',
+    joinDate: '',
+    verified: false
   });
 
   const stats = [
@@ -86,6 +91,70 @@ const Profile = () => {
     { type: 'event', content: 'Attended International Cardiology Conference', time: '1 week ago' },
   ];
 
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      setIsLoading(true);
+      console.log('Fetching user profile...');
+      
+      const response = await userAPI.getProfile();
+      console.log('Profile response:', response);
+      
+      if (response.user || response) {
+        const userData = response.user || response;
+        setProfileData({
+          name: userData.name || userData.firstName + ' ' + userData.lastName || 'Dr. User',
+          email: userData.email || '',
+          phone: userData.phone || '',
+          role: userData.role || userData.specialization || 'Doctor',
+          specialization: userData.specialization || userData.specialty || '',
+          location: userData.location || userData.address || '',
+          bio: userData.bio || userData.description || '',
+          education: userData.education || '',
+          experience: userData.experience || '',
+          joinDate: userData.joinDate || userData.createdAt || 'Recently',
+          verified: userData.verified || userData.isVerified || false
+        });
+      }
+    } catch (error: any) {
+      console.error('Profile fetch error:', error);
+      
+      // Fallback to localStorage data if API fails
+      const storedUser = localStorage.getItem('docmatex_user');
+      if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          setProfileData({
+            name: userData.name || 'Dr. User',
+            email: userData.email || '',
+            phone: userData.phone || '',
+            role: userData.role || 'Doctor',
+            specialization: userData.specialization || '',
+            location: userData.location || '',
+            bio: userData.bio || '',
+            education: userData.education || '',
+            experience: userData.experience || '',
+            joinDate: userData.joinDate || 'Recently',
+            verified: userData.verified || false
+          });
+        } catch (parseError) {
+          console.error('Error parsing stored user data:', parseError);
+        }
+      }
+      
+      toast({
+        title: "Error Loading Profile",
+        description: "Using cached profile data. Please refresh to try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSave = () => {
     setIsEditing(false);
     toast({
@@ -100,6 +169,18 @@ const Profile = () => {
       [field]: value
     }));
   };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-4xl mx-auto space-y-6">
+          <LoadingSkeleton type="profile" count={1} />
+          <LoadingSkeleton type="stats" />
+          <LoadingSkeleton type="card" count={2} />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -128,7 +209,7 @@ const Profile = () => {
                   <div className="space-y-2">
                     <div className="flex items-center space-x-3">
                       <h1 className="text-2xl sm:text-3xl font-bold text-foreground dark:text-foreground">
-                        {profileData.name}
+                        {profileData.name || 'Dr. User'}
                       </h1>
                       {profileData.verified && (
                         <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 flex items-center">
@@ -138,28 +219,35 @@ const Profile = () => {
                       )}
                     </div>
                     <p className="text-lg font-medium text-foreground dark:text-foreground">
-                      {profileData.role}
+                      {profileData.role || 'Healthcare Professional'}
                     </p>
                     <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                      {profileData.specialization}
+                      {profileData.specialization || 'Medical Specialist'}
                     </p>
                   </div>
                   
                   <Button 
-                    onClick={() => setIsEditing(!isEditing)}
+                    onClick={() => isEditing ? handleSave() : setIsEditing(!isEditing)}
                     variant={isEditing ? "default" : "outline"}
                     className="self-start sm:self-auto"
+                    disabled={isLoading}
                   >
-                    <Edit className="h-4 w-4 mr-2" />
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Edit className="h-4 w-4 mr-2" />
+                    )}
                     {isEditing ? 'Save Changes' : 'Edit Profile'}
                   </Button>
                 </div>
                 
                 <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-6 mt-4 text-sm text-muted-foreground dark:text-muted-foreground">
-                  <div className="flex items-center space-x-2">
-                    <MapPin className="h-4 w-4" />
-                    <span>{profileData.location}</span>
-                  </div>
+                  {profileData.location && (
+                    <div className="flex items-center space-x-2">
+                      <MapPin className="h-4 w-4" />
+                      <span>{profileData.location}</span>
+                    </div>
+                  )}
                   <div className="flex items-center space-x-2">
                     <Calendar className="h-4 w-4" />
                     <span>Joined {profileData.joinDate}</span>

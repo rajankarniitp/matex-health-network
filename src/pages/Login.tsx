@@ -5,15 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { authAPI } from '@/services/api';
 
 const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: 'demo@docmatex.com',
+    password: '123456',
     rememberMe: false
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -23,29 +24,44 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      console.log('Attempting login with:', { email: formData.email });
+      
+      const response = await authAPI.login(formData.email, formData.password);
+      console.log('Login response:', response);
       
       // Store token in localStorage
-      localStorage.setItem('docmatex_token', 'demo_token_123');
-      localStorage.setItem('docmatex_user', JSON.stringify({
-        id: '1',
-        name: 'Dr. John Doe',
-        email: formData.email,
-        role: 'doctor',
-        verified: true
-      }));
+      if (response.token) {
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('docmatex_token', response.token); // Keep for compatibility
+        
+        // Store user data if provided
+        if (response.user) {
+          localStorage.setItem('docmatex_user', JSON.stringify(response.user));
+        }
 
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully logged in to DocMateX.",
-      });
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully logged in to DocMateX.",
+        });
 
-      navigate('/feed'); // Redirect to feed instead of dashboard
-    } catch (error) {
+        navigate('/feed');
+      } else {
+        throw new Error('No token received from server');
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      
+      let errorMessage = "Please check your credentials and try again.";
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       toast({
         title: "Login Failed",
-        description: "Please check your credentials and try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -169,6 +185,7 @@ const Login = () => {
                     placeholder="doctor@example.com"
                     value={formData.email}
                     onChange={handleChange}
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -189,11 +206,13 @@ const Login = () => {
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleChange}
+                    disabled={isLoading}
                   />
                   <button
                     type="button"
                     className="absolute inset-y-0 right-0 pr-3 flex items-center"
                     onClick={() => setShowPassword(!showPassword)}
+                    disabled={isLoading}
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300" />
@@ -229,9 +248,16 @@ const Login = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 sm:py-3 text-sm sm:text-base"
+                className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 sm:py-3 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? 'Signing in...' : 'Sign In'}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  'Sign In'
+                )}
               </Button>
             </form>
 
