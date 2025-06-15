@@ -5,6 +5,14 @@ interface AnalyticsEvent {
   properties?: Record<string, any>;
 }
 
+// Extend Window interface to include dataLayer and gtag
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
+
 class AnalyticsService {
   private isInitialized = false;
 
@@ -12,7 +20,7 @@ class AnalyticsService {
     if (this.isInitialized) return;
 
     // Google Analytics 4
-    if (process.env.VITE_GA_MEASUREMENT_ID) {
+    if (import.meta.env.VITE_GA_MEASUREMENT_ID) {
       this.initGoogleAnalytics();
     }
 
@@ -22,7 +30,7 @@ class AnalyticsService {
   }
 
   private initGoogleAnalytics() {
-    const measurementId = process.env.VITE_GA_MEASUREMENT_ID;
+    const measurementId = import.meta.env.VITE_GA_MEASUREMENT_ID;
     
     // Load Google Analytics script
     const script = document.createElement('script');
@@ -43,7 +51,7 @@ class AnalyticsService {
     });
 
     // Make gtag available globally
-    (window as any).gtag = gtag;
+    window.gtag = gtag;
   }
 
   track(event: AnalyticsEvent) {
@@ -53,8 +61,8 @@ class AnalyticsService {
     }
 
     // Google Analytics
-    if ((window as any).gtag) {
-      (window as any).gtag('event', event.name, event.properties);
+    if (window.gtag) {
+      window.gtag('event', event.name, event.properties);
     }
 
     // Add other providers tracking here
@@ -65,8 +73,8 @@ class AnalyticsService {
     if (!this.isInitialized) return;
 
     // Google Analytics
-    if ((window as any).gtag) {
-      (window as any).gtag('config', process.env.VITE_GA_MEASUREMENT_ID, {
+    if (window.gtag) {
+      window.gtag('config', import.meta.env.VITE_GA_MEASUREMENT_ID, {
         page_path: path,
         page_title: title || document.title,
         page_location: window.location.href,
@@ -78,8 +86,8 @@ class AnalyticsService {
     if (!this.isInitialized) return;
 
     // Google Analytics
-    if ((window as any).gtag) {
-      (window as any).gtag('config', process.env.VITE_GA_MEASUREMENT_ID, {
+    if (window.gtag) {
+      window.gtag('config', import.meta.env.VITE_GA_MEASUREMENT_ID, {
         user_id: userId,
         custom_map: traits,
       });
