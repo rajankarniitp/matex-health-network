@@ -59,18 +59,26 @@ export const authService = {
   // Google OAuth login
   loginWithGoogle: async () => {
     try {
+      // Get the current origin for proper redirect
+      const redirectTo = `${window.location.origin}/feed`;
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/feed`,
+          redirectTo: redirectTo,
           queryParams: {
             access_type: 'offline',
-            prompt: 'consent',
+            prompt: 'select_account',
           },
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Google OAuth error:', error);
+        throw error;
+      }
+      
+      console.log('Google OAuth initiated successfully:', data);
       return { data };
     } catch (error) {
       console.error('Google login error:', error);
