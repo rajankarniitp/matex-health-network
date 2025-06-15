@@ -5,7 +5,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, Send, Phone, Video, MoreVertical } from 'lucide-react';
+import { ArrowLeft, Send, Phone, Video, MoreVertical, Paperclip, Image, FileText } from 'lucide-react';
 
 const Chat = () => {
   const { id } = useParams();
@@ -35,7 +35,6 @@ const Chat = () => {
     }
   ]);
 
-  // Mock conversation data - in real app this would come from API
   const conversations = [
     {
       id: 1,
@@ -81,6 +80,21 @@ const Chat = () => {
       e.preventDefault();
       sendMessage();
     }
+  };
+
+  const handleFileAttachment = () => {
+    console.log('File attachment clicked');
+    // TODO: Implement file attachment logic
+  };
+
+  const handleImageAttachment = () => {
+    console.log('Image attachment clicked');
+    // TODO: Implement image attachment logic
+  };
+
+  const handleDocumentAttachment = () => {
+    console.log('Document attachment clicked');
+    // TODO: Implement document attachment logic
   };
 
   if (!currentConversation) {
@@ -166,9 +180,38 @@ const Chat = () => {
           ))}
         </div>
 
-        {/* Message Input */}
+        {/* Message Input with Attachment Options */}
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-2">
+            {/* Attachment Options */}
+            <div className="flex items-center space-x-1">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={handleFileAttachment}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <Paperclip className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={handleImageAttachment}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <Image className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={handleDocumentAttachment}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <FileText className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+              </Button>
+            </div>
+            
+            {/* Message Input */}
             <Input
               placeholder="Type a message..."
               value={message}
@@ -176,10 +219,13 @@ const Chat = () => {
               onKeyPress={handleKeyPress}
               className="flex-1"
             />
+            
+            {/* Send Button */}
             <Button 
               onClick={sendMessage}
               disabled={!message.trim()}
               size="sm"
+              className="bg-blue-600 hover:bg-blue-700"
             >
               <Send className="h-4 w-4" />
             </Button>
