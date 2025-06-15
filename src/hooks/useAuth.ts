@@ -31,6 +31,36 @@ export const useAuth = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchProfile = async (userId: string) => {
+    try {
+      console.log('Fetching profile for user:', userId);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, email, first_name, last_name, specialization, location, bio, phone, role, verified, created_at, updated_at')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return;
+      }
+
+      console.log('Profile fetched:', data);
+      setProfile({
+        ...data,
+        avatar_url: null
+      });
+    } catch (error) {
+      console.error('Error in fetchProfile:', error);
+    }
+  };
+
+  const refreshProfile = async () => {
+    if (user?.id) {
+      await fetchProfile(user.id);
+    }
+  };
+
   useEffect(() => {
     console.log('useAuth: Setting up auth listener...');
     
@@ -79,31 +109,6 @@ export const useAuth = () => {
     };
   }, []);
 
-  const fetchProfile = async (userId: string) => {
-    try {
-      console.log('Fetching profile for user:', userId);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, email, first_name, last_name, specialization, location, bio, phone, role, verified, created_at, updated_at')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching profile:', error);
-        return;
-      }
-
-      console.log('Profile fetched:', data);
-      // Add avatar_url as null since it doesn't exist in the database
-      setProfile({
-        ...data,
-        avatar_url: null
-      });
-    } catch (error) {
-      console.error('Error in fetchProfile:', error);
-    }
-  };
-
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -111,6 +116,10 @@ export const useAuth = () => {
         console.error('Error signing out:', error);
         throw error;
       }
+      // Clear local state
+      setUser(null);
+      setSession(null);
+      setProfile(null);
     } catch (error) {
       console.error('Error in signOut:', error);
       throw error;
@@ -123,6 +132,7 @@ export const useAuth = () => {
     profile,
     loading,
     signOut,
+    refreshProfile,
   };
 };
 

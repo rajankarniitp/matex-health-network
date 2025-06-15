@@ -7,7 +7,8 @@ import {
   connectionsAPI, 
   searchAPI, 
   eventsAPI, 
-  caseStudiesAPI 
+  caseStudiesAPI,
+  profileAPI
 } from '@/services/api';
 import { toast } from '@/hooks/use-toast';
 
@@ -16,6 +17,8 @@ export const usePosts = () => {
   return useQuery({
     queryKey: ['posts'],
     queryFn: () => postsAPI.getPosts(),
+    retry: 3,
+    staleTime: 30000, // 30 seconds
   });
 };
 
@@ -32,6 +35,7 @@ export const useCreatePost = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Post creation error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to create post.",
@@ -50,6 +54,7 @@ export const useToggleLike = () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
     onError: (error: any) => {
+      console.error('Toggle like error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to update like.",
@@ -59,11 +64,44 @@ export const useToggleLike = () => {
   });
 };
 
+// Profile hooks
+export const useUpdateProfile = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: profileAPI.updateProfile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been updated successfully.",
+      });
+    },
+    onError: (error: any) => {
+      console.error('Profile update error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update profile.",
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+export const useProfile = (userId: string) => {
+  return useQuery({
+    queryKey: ['profile', userId],
+    queryFn: () => profileAPI.getProfile(userId),
+    enabled: !!userId,
+  });
+};
+
 // Jobs hooks
 export const useJobs = (filters?: any) => {
   return useQuery({
     queryKey: ['jobs', filters],
     queryFn: () => jobsAPI.getJobs(filters),
+    staleTime: 60000, // 1 minute
   });
 };
 
@@ -81,6 +119,7 @@ export const useApplyJob = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Job application error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to submit application.",
@@ -108,6 +147,7 @@ export const useSendMessage = () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },
     onError: (error: any) => {
+      console.error('Send message error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to send message.",
@@ -138,6 +178,7 @@ export const useSendConnectionRequest = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Connection request error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to send connection request.",
@@ -185,6 +226,7 @@ export const useRegisterEvent = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Event registration error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to register for event.",
@@ -215,6 +257,7 @@ export const useCreateCaseStudy = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Case study creation error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to create case study.",

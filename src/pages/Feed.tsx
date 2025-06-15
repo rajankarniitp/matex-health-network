@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,29 +28,44 @@ const Feed = () => {
   const [privacy, setPrivacy] = useState('public');
   const { user, profile, loading: authLoading } = useAuth();
   
-  const { data: posts, isLoading: postsLoading, error: postsError } = usePosts();
+  const { data: posts, isLoading: postsLoading, error: postsError, refetch } = usePosts();
   const createPostMutation = useCreatePost();
   const toggleLikeMutation = useToggleLike();
 
   console.log('Feed: Auth state:', { user: !!user, profile: !!profile, authLoading });
   console.log('Feed: Posts state:', { posts: posts?.length, postsLoading, postsError });
 
+  // Refetch posts when component mounts and user is authenticated
+  useEffect(() => {
+    if (user && !authLoading) {
+      console.log('User authenticated, refetching posts...');
+      refetch();
+    }
+  }, [user, authLoading, refetch]);
+
   const handlePostSubmit = () => {
     if (!newPost.trim()) {
       return;
     }
+
+    console.log('Creating post with data:', { title: newPost.split('\n')[0] || 'Untitled Post', content: newPost });
 
     createPostMutation.mutate({
       title: newPost.split('\n')[0] || 'Untitled Post',
       content: newPost,
     }, {
       onSuccess: () => {
+        console.log('Post created successfully');
         setNewPost('');
+      },
+      onError: (error) => {
+        console.error('Failed to create post:', error);
       }
     });
   };
 
   const handleLike = (postId: string) => {
+    console.log('Toggling like for post:', postId);
     toggleLikeMutation.mutate(postId);
   };
 
@@ -71,7 +86,10 @@ const Feed = () => {
     return (
       <DashboardLayout>
         <div className="max-w-2xl mx-auto flex items-center justify-center min-h-[400px]">
-          <p className="text-gray-500 dark:text-gray-400">Loading...</p>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-2 text-gray-600">Loading...</p>
+          </div>
         </div>
       </DashboardLayout>
     );
@@ -88,12 +106,16 @@ const Feed = () => {
   }
 
   if (postsError) {
+    console.error('Posts error:', postsError);
     return (
       <DashboardLayout>
         <div className="max-w-2xl mx-auto flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <p className="text-red-500 mb-2">Error loading posts</p>
             <p className="text-gray-500 text-sm">{postsError.message}</p>
+            <Button onClick={() => refetch()} className="mt-4">
+              Try Again
+            </Button>
           </div>
         </div>
       </DashboardLayout>
@@ -113,12 +135,12 @@ const Feed = () => {
               <Avatar className="h-10 w-10">
                 <AvatarImage src="" alt="Your profile" />
                 <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300">
-                  {profile?.first_name?.[0]}{profile?.last_name?.[0]}
+                  {profile?.first_name?.[0] || 'U'}{profile?.last_name?.[0] || 'S'}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <p className="font-semibold text-gray-900 dark:text-gray-100">
-                  {profile?.first_name} {profile?.last_name}
+                  {profile?.first_name || 'Unknown'} {profile?.last_name || 'User'}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{profile?.specialization || 'Healthcare Professional'}</p>
               </div>
@@ -189,7 +211,8 @@ const Feed = () => {
         <div className="space-y-6">
           {postsLoading ? (
             <div className="text-center py-8">
-              <p className="text-gray-500 dark:text-gray-400">Loading posts...</p>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="mt-2 text-gray-500 dark:text-gray-400">Loading posts...</p>
             </div>
           ) : posts && posts.length > 0 ? (
             posts.map((post) => (
@@ -199,7 +222,7 @@ const Feed = () => {
                     <Avatar className="h-12 w-12">
                       <AvatarImage src="" alt={`${post.profiles?.first_name} ${post.profiles?.last_name}`} />
                       <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300">
-                        {post.profiles?.first_name?.[0]}{post.profiles?.last_name?.[0]}
+                        {post.profiles?.first_name?.[0] || 'U'}{post.profiles?.last_name?.[0] || 'S'}
                       </AvatarFallback>
                     </Avatar>
                     
@@ -208,7 +231,7 @@ const Feed = () => {
                         <div>
                           <div className="flex items-center space-x-2">
                             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                              {post.profiles?.first_name} {post.profiles?.last_name}
+                              {post.profiles?.first_name || 'Unknown'} {post.profiles?.last_name || 'User'}
                             </h3>
                             {post.profiles?.verified && (
                               <Badge variant="secondary" className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300">
@@ -216,7 +239,7 @@ const Feed = () => {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{post.profiles?.specialization}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{post.profiles?.specialization || 'Healthcare Professional'}</p>
                           <div className="flex items-center space-x-1 mt-1">
                             <span className="text-xs text-gray-400 dark:text-gray-500">
                               {new Date(post.created_at).toLocaleDateString()}
@@ -257,11 +280,11 @@ const Feed = () => {
                             className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                           >
                             <ThumbsUp className="h-4 w-4 mr-1" />
-                            Like ({post.post_likes?.[0]?.count || 0})
+                            Like ({post.like_count || 0})
                           </Button>
                           <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700">
                             <MessageCircle className="h-4 w-4 mr-1" />
-                            Comment ({post.post_comments?.[0]?.count || 0})
+                            Comment ({post.comment_count || 0})
                           </Button>
                           <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700">
                             <Share2 className="h-4 w-4 mr-1" />
@@ -285,17 +308,22 @@ const Feed = () => {
             ))
           ) : (
             <div className="text-center py-12">
-              <p className="text-gray-500 dark:text-gray-400">No posts yet. Be the first to share something!</p>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">No posts yet. Be the first to share something!</p>
+              <Button onClick={() => refetch()} variant="outline">
+                Refresh
+              </Button>
             </div>
           )}
         </div>
 
         {/* Load More */}
-        <div className="text-center py-6">
-          <Button variant="outline" className="px-8 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
-            Load More Posts
-          </Button>
-        </div>
+        {posts && posts.length > 0 && (
+          <div className="text-center py-6">
+            <Button variant="outline" className="px-8 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
+              Load More Posts
+            </Button>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

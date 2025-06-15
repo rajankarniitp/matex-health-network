@@ -16,8 +16,8 @@ export const postsAPI = {
           specialization,
           verified
         ),
-        post_likes (count),
-        post_comments (count)
+        post_likes!left (user_id),
+        post_comments!left (id)
       `)
       .order('created_at', { ascending: false });
 
@@ -25,8 +25,17 @@ export const postsAPI = {
       console.error('Error fetching posts:', error);
       throw error;
     }
-    console.log('Posts fetched successfully:', data);
-    return data;
+    
+    // Transform the data to include like counts and user's like status
+    const transformedData = data?.map(post => ({
+      ...post,
+      like_count: post.post_likes?.length || 0,
+      comment_count: post.post_comments?.length || 0,
+      is_liked: false // Will be set by the component based on current user
+    })) || [];
+    
+    console.log('Posts fetched successfully:', transformedData);
+    return transformedData;
   },
 
   createPost: async (postData: { title: string; content?: string; image_url?: string }) => {
@@ -43,7 +52,16 @@ export const postsAPI = {
         ...postData,
         user_id: user.id,
       })
-      .select()
+      .select(`
+        *,
+        profiles:user_id (
+          id,
+          first_name,
+          last_name,
+          specialization,
+          verified
+        )
+      `)
       .single();
 
     if (error) {
@@ -68,7 +86,7 @@ export const postsAPI = {
       .select('id')
       .eq('post_id', postId)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (existingLike) {
       // Remove like
@@ -103,6 +121,51 @@ export const postsAPI = {
   },
 };
 
+// Profile API
+export const profileAPI = {
+  updateProfile: async (profileData: any) => {
+    console.log('Updating profile:', profileData);
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({
+        ...profileData,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', user.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
+    console.log('Profile updated successfully:', data);
+    return data;
+  },
+
+  getProfile: async (userId: string) => {
+    console.log('Fetching profile for user:', userId);
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching profile:', error);
+      throw error;
+    }
+    console.log('Profile fetched:', data);
+    return data;
+  },
+};
+
 // Jobs API
 export const jobsAPI = {
   getJobs: async (filters?: any) => {
@@ -117,7 +180,7 @@ export const jobsAPI = {
           last_name,
           specialization
         ),
-        job_applications (count)
+        job_applications!left (id)
       `)
       .order('created_at', { ascending: false });
 
@@ -134,8 +197,14 @@ export const jobsAPI = {
       console.error('Error fetching jobs:', error);
       throw error;
     }
-    console.log('Jobs fetched successfully:', data);
-    return data;
+    
+    const transformedData = data?.map(job => ({
+      ...job,
+      application_count: job.job_applications?.length || 0
+    })) || [];
+    
+    console.log('Jobs fetched successfully:', transformedData);
+    return transformedData;
   },
 
   applyForJob: async (jobId: string, coverLetter?: string) => {
@@ -353,7 +422,7 @@ export const eventsAPI = {
           first_name,
           last_name
         ),
-        event_registrations (count)
+        event_registrations!left (id)
       `)
       .order('date_time', { ascending: true });
 
@@ -361,8 +430,14 @@ export const eventsAPI = {
       console.error('Error fetching events:', error);
       throw error;
     }
-    console.log('Events fetched successfully:', data);
-    return data;
+    
+    const transformedData = data?.map(event => ({
+      ...event,
+      registration_count: event.event_registrations?.length || 0
+    })) || [];
+    
+    console.log('Events fetched successfully:', transformedData);
+    return transformedData;
   },
 
   registerForEvent: async (eventId: string) => {
