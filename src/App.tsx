@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +14,7 @@ import Profile from "./pages/Profile";
 import Feed from "./pages/Feed";
 import Mates from "./pages/Mates";
 import Messages from "./pages/Messages";
+import Chat from "./pages/Chat";
 import Jobs from "./pages/Jobs";
 import Research from "./pages/Research";
 import CaseStudies from "./pages/CaseStudies";
@@ -76,6 +78,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Messages />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/chat/:id"
+                element={
+                  <ProtectedRoute>
+                    <Chat />
                   </ProtectedRoute>
                 }
               />
