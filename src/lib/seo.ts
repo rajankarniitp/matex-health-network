@@ -1,4 +1,3 @@
-
 interface SEOData {
   title?: string;
   description?: string;
@@ -46,7 +45,7 @@ export class SEOService {
     const baseUrl = 'https://matex-health-network.lovable.app';
     const defaultTitle = 'DocMateX - Connect, Collaborate & Advance Healthcare';
     const defaultDescription = 'Premier online network for doctors, medical researchers, and healthcare professionals';
-    const defaultImage = 'https://lovable.dev/opengraph-image-p98pqg.png';
+    const defaultImage = '/lovable-uploads/84147cf3-76ff-47ed-8414-b86ab0dd0c76.png';
 
     // Update title
     const title = data.title ? `${data.title} | DocMateX` : defaultTitle;
