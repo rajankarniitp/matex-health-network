@@ -44,6 +44,8 @@ const navigation = [
   { name: 'Events', href: '/events', icon: Calendar },
   { name: 'Search', href: '/search', icon: Search },
   { name: 'Mentorship', href: '/mentorship', icon: Award },
+  { name: 'Profile', href: '/profile', icon: User },
+  { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {

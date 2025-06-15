@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -14,6 +13,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import MobileBottomNav from './MobileBottomNav';
 
+// Helper function to check auth
+function isLoggedIn() {
+  return !!localStorage.getItem('docmatex_token');
+}
+
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -26,7 +30,14 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  // For mobile menu slide-in
+  const navigateOrLogin = (path: string) => {
+    if (isLoggedIn()) {
+      navigate(path);
+    } else {
+      navigate('/login');
+    }
+  };
+
   return (
     <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16">
@@ -46,10 +57,27 @@ const Navbar = () => {
 
         {/* Desktop navigation */}
         <div className="hidden md:flex items-center space-x-6">
-          <Link to="/" className={`hover:text-blue-600 transition-colors ${location.pathname === '/' ? 'font-semibold' : ''}`}>Home</Link>
-          <Link to="/mates" className={`hover:text-blue-600 transition-colors ${location.pathname === '/mates' ? 'font-semibold' : ''}`}>Mates</Link>
-          <Link to="/feed" className={`hover:text-blue-600 transition-colors ${location.pathname === '/feed' ? 'font-semibold' : ''}`}>Feed</Link>
-          <Link to="/jobs" className={`hover:text-blue-600 transition-colors ${location.pathname === '/jobs' ? 'font-semibold' : ''}`}>Jobs</Link>
+          <button
+            type="button"
+            onClick={() => navigateOrLogin('/mates')}
+            className={`hover:text-blue-600 transition-colors ${location.pathname === '/mates' ? 'font-semibold' : ''} bg-transparent border-0 cursor-pointer`}
+          >
+            Mates
+          </button>
+          <button
+            type="button"
+            onClick={() => navigateOrLogin('/feed')}
+            className={`hover:text-blue-600 transition-colors ${location.pathname === '/feed' ? 'font-semibold' : ''} bg-transparent border-0 cursor-pointer`}
+          >
+            Feed
+          </button>
+          <button
+            type="button"
+            onClick={() => navigateOrLogin('/jobs')}
+            className={`hover:text-blue-600 transition-colors ${location.pathname === '/jobs' ? 'font-semibold' : ''} bg-transparent border-0 cursor-pointer`}
+          >
+            Jobs
+          </button>
         </div>
 
         {/* Avatar + Profile Toggle */}
