@@ -34,29 +34,7 @@ export const useAuth = () => {
   useEffect(() => {
     console.log('useAuth: Setting up auth listener...');
     
-    // Get initial session
-    const getInitialSession = async () => {
-      try {
-        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
-        if (error) {
-          console.error('Error getting initial session:', error);
-        } else {
-          console.log('Initial session:', initialSession);
-          setSession(initialSession);
-          setUser(initialSession?.user ?? null);
-          
-          if (initialSession?.user) {
-            await fetchProfile(initialSession.user.id);
-          }
-        }
-      } catch (error) {
-        console.error('Error in getInitialSession:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Set up auth state listener
+    // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.id);
@@ -72,6 +50,27 @@ export const useAuth = () => {
         setLoading(false);
       }
     );
+
+    // Get initial session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error getting initial session:', error);
+        } else {
+          console.log('Initial session:', initialSession);
+          if (initialSession) {
+            setSession(initialSession);
+            setUser(initialSession.user);
+            await fetchProfile(initialSession.user.id);
+          }
+        }
+      } catch (error) {
+        console.error('Error in getInitialSession:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
     getInitialSession();
 
