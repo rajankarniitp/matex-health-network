@@ -9,7 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { userAPI } from '@/services/api';
+import { updateUserProfile } from '@/services/auth';
+import { useAuth } from '@/contexts/AuthContext';
 import LoadingSkeleton from '@/components/ui/loading-skeleton';
 import {
   Edit,
@@ -28,22 +29,19 @@ import {
   Star
 } from 'lucide-react';
 
-// ... keep existing code (imports and interfaces)
-
 const Profile = () => {
+  const { user, profile, loading: authLoading } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: '',
+    first_name: '',
+    last_name: '',
     email: '',
     phone: '',
     role: '',
     specialization: '',
     location: '',
     bio: '',
-    education: '',
-    experience: '',
-    joinDate: '',
     verified: false
   });
 
@@ -92,75 +90,42 @@ const Profile = () => {
   ];
 
   useEffect(() => {
-    fetchProfile();
-  }, []);
+    if (profile) {
+      setProfileData({
+        first_name: profile.first_name || '',
+        last_name: profile.last_name || '',
+        email: profile.email || user?.email || '',
+        phone: profile.phone || '',
+        role: profile.role || 'doctor',
+        specialization: profile.specialization || '',
+        location: profile.location || '',
+        bio: profile.bio || '',
+        verified: profile.verified || false
+      });
+    }
+  }, [profile, user]);
 
-  const fetchProfile = async () => {
+  const handleSave = async () => {
+    if (!user) return;
+    
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      console.log('Fetching user profile...');
-      
-      const response = await userAPI.getProfile();
-      console.log('Profile response:', response);
-      
-      if (response.user || response) {
-        const userData = response.user || response;
-        setProfileData({
-          name: userData.name || userData.firstName + ' ' + userData.lastName || 'Dr. User',
-          email: userData.email || '',
-          phone: userData.phone || '',
-          role: userData.role || userData.specialization || 'Doctor',
-          specialization: userData.specialization || userData.specialty || '',
-          location: userData.location || userData.address || '',
-          bio: userData.bio || userData.description || '',
-          education: userData.education || '',
-          experience: userData.experience || '',
-          joinDate: userData.joinDate || userData.createdAt || 'Recently',
-          verified: userData.verified || userData.isVerified || false
-        });
-      }
-    } catch (error: any) {
-      console.error('Profile fetch error:', error);
-      
-      // Fallback to localStorage data if API fails
-      const storedUser = localStorage.getItem('docmatex_user');
-      if (storedUser) {
-        try {
-          const userData = JSON.parse(storedUser);
-          setProfileData({
-            name: userData.name || 'Dr. User',
-            email: userData.email || '',
-            phone: userData.phone || '',
-            role: userData.role || 'Doctor',
-            specialization: userData.specialization || '',
-            location: userData.location || '',
-            bio: userData.bio || '',
-            education: userData.education || '',
-            experience: userData.experience || '',
-            joinDate: userData.joinDate || 'Recently',
-            verified: userData.verified || false
-          });
-        } catch (parseError) {
-          console.error('Error parsing stored user data:', parseError);
-        }
-      }
-      
+      await updateUserProfile(user.id, profileData);
+      setIsEditing(false);
       toast({
-        title: "Error Loading Profile",
-        description: "Using cached profile data. Please refresh to try again.",
+        title: "Profile Updated",
+        description: "Your profile has been successfully updated.",
+      });
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleSave = () => {
-    setIsEditing(false);
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been successfully updated.",
-    });
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -170,7 +135,7 @@ const Profile = () => {
     }));
   };
 
-  if (isLoading) {
+  if (authLoading) {
     return (
       <DashboardLayout>
         <div className="max-w-4xl mx-auto space-y-6">
@@ -182,6 +147,14 @@ const Profile = () => {
     );
   }
 
+  const displayName = profileData.first_name && profileData.last_name 
+    ? `${profileData.first_name} ${profileData.last_name}`
+    : profileData.first_name || 'Dr. User';
+
+  const initials = profileData.first_name && profileData.last_name
+    ? `${profileData.first_name[0]}${profileData.last_name[0]}`
+    : (profileData.first_name || user?.email || 'U')[0];
+
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto space-y-6">
@@ -191,9 +164,9 @@ const Profile = () => {
             <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-6">
               <div className="relative flex-shrink-0">
                 <Avatar className="h-24 w-24 ring-2 ring-border dark:ring-border">
-                  <AvatarImage src="" alt={profileData.name} />
+                  <AvatarImage src="" alt={displayName} />
                   <AvatarFallback className="text-2xl font-semibold bg-primary text-primary-foreground">
-                    {profileData.name.split(' ').map(n => n[0]).join('')}
+                    {initials}
                   </AvatarFallback>
                 </Avatar>
                 <Button 
@@ -209,7 +182,7 @@ const Profile = () => {
                   <div className="space-y-2">
                     <div className="flex items-center space-x-3">
                       <h1 className="text-2xl sm:text-3xl font-bold text-foreground dark:text-foreground">
-                        {profileData.name || 'Dr. User'}
+                        {displayName}
                       </h1>
                       {profileData.verified && (
                         <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 flex items-center">
@@ -250,7 +223,7 @@ const Profile = () => {
                   )}
                   <div className="flex items-center space-x-2">
                     <Calendar className="h-4 w-4" />
-                    <span>Joined {profileData.joinDate}</span>
+                    <span>Joined Recently</span>
                   </div>
                 </div>
               </div>
@@ -292,6 +265,29 @@ const Profile = () => {
               <CardContent className="space-y-6">
                 {isEditing ? (
                   <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
+                          First Name
+                        </label>
+                        <Input
+                          value={profileData.first_name}
+                          onChange={(e) => handleInputChange('first_name', e.target.value)}
+                          className="bg-background dark:bg-input text-foreground dark:text-foreground"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
+                          Last Name
+                        </label>
+                        <Input
+                          value={profileData.last_name}
+                          onChange={(e) => handleInputChange('last_name', e.target.value)}
+                          className="bg-background dark:bg-input text-foreground dark:text-foreground"
+                        />
+                      </div>
+                    </div>
+                    
                     <div>
                       <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
                         Bio
@@ -305,16 +301,6 @@ const Profile = () => {
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
-                          Email
-                        </label>
-                        <Input
-                          value={profileData.email}
-                          onChange={(e) => handleInputChange('email', e.target.value)}
-                          className="bg-background dark:bg-input text-foreground dark:text-foreground"
-                        />
-                      </div>
                       <div>
                         <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
                           Phone
@@ -345,33 +331,17 @@ const Profile = () => {
                           className="bg-background dark:bg-input text-foreground dark:text-foreground"
                         />
                       </div>
+                      <div>
+                        <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
+                          Role
+                        </label>
+                        <Input
+                          value={profileData.role}
+                          onChange={(e) => handleInputChange('role', e.target.value)}
+                          className="bg-background dark:bg-input text-foreground dark:text-foreground"
+                        />
+                      </div>
                     </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
-                        Education
-                      </label>
-                      <Input
-                        value={profileData.education}
-                        onChange={(e) => handleInputChange('education', e.target.value)}
-                        className="bg-background dark:bg-input text-foreground dark:text-foreground"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
-                        Experience
-                      </label>
-                      <Input
-                        value={profileData.experience}
-                        onChange={(e) => handleInputChange('experience', e.target.value)}
-                        className="bg-background dark:bg-input text-foreground dark:text-foreground"
-                      />
-                    </div>
-                    
-                    <Button onClick={handleSave} className="bg-primary hover:bg-primary/90">
-                      Save Changes
-                    </Button>
                   </div>
                 ) : (
                   <div className="space-y-6">
@@ -380,7 +350,7 @@ const Profile = () => {
                         Bio
                       </h3>
                       <p className="text-muted-foreground dark:text-muted-foreground leading-relaxed">
-                        {profileData.bio}
+                        {profileData.bio || 'No bio provided yet.'}
                       </p>
                     </div>
                     
@@ -396,12 +366,14 @@ const Profile = () => {
                               {profileData.email}
                             </span>
                           </div>
-                          <div className="flex items-center space-x-3">
-                            <Phone className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
-                            <span className="text-muted-foreground dark:text-muted-foreground">
-                              {profileData.phone}
-                            </span>
-                          </div>
+                          {profileData.phone && (
+                            <div className="flex items-center space-x-3">
+                              <Phone className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
+                              <span className="text-muted-foreground dark:text-muted-foreground">
+                                {profileData.phone}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       
@@ -412,20 +384,30 @@ const Profile = () => {
                         <div className="space-y-3">
                           <div>
                             <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-                              Education:
+                              Role:
                             </span>
                             <p className="text-foreground dark:text-foreground">
-                              {profileData.education}
+                              {profileData.role || 'Not specified'}
                             </p>
                           </div>
                           <div>
                             <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-                              Current Position:
+                              Specialization:
                             </span>
                             <p className="text-foreground dark:text-foreground">
-                              {profileData.experience}
+                              {profileData.specialization || 'Not specified'}
                             </p>
                           </div>
+                          {profileData.location && (
+                            <div>
+                              <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+                                Location:
+                              </span>
+                              <p className="text-foreground dark:text-foreground">
+                                {profileData.location}
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

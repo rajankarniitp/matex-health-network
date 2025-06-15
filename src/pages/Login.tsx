@@ -1,17 +1,18 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, EyeOff, Mail, Lock, Loader2, AlertTriangle, Wifi, WifiOff } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, Loader2, Wifi } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { authAPI, testConnection } from '@/services/api';
+import { authService } from '@/services/auth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: 'demo@docmatex.com',
@@ -19,29 +20,13 @@ const Login = () => {
     rememberMe: false
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
 
   useEffect(() => {
-    // Check if user is already logged in
-    const token = localStorage.getItem('token') || localStorage.getItem('docmatex_token');
-    if (token) {
+    // Redirect if already logged in
+    if (!authLoading && user) {
       navigate('/feed');
-      return;
     }
-
-    // Test backend connection on component mount
-    const checkConnection = async () => {
-      try {
-        const isConnected = await testConnection();
-        setConnectionStatus(isConnected ? 'connected' : 'disconnected');
-      } catch (error) {
-        console.error('Connection test failed:', error);
-        setConnectionStatus('disconnected');
-      }
-    };
-
-    checkConnection();
-  }, [navigate]);
+  }, [user, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,32 +35,19 @@ const Login = () => {
     try {
       console.log('Attempting login with:', { email: formData.email });
       
-      const response = await authAPI.login(formData.email, formData.password);
-      console.log('Login response:', response);
+      const response = await authService.login({
+        email: formData.email,
+        password: formData.password,
+      });
       
-      // Store token in localStorage
-      if (response.token) {
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('docmatex_token', response.token); // Keep for compatibility
-        
-        // Store user data if provided
-        if (response.user) {
-          localStorage.setItem('docmatex_user', JSON.stringify(response.user));
-        }
+      console.log('Login successful:', response);
 
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully logged in to DocMateX.",
-        });
+      toast({
+        title: "Welcome back!",
+        description: "You have successfully logged in to DocMateX.",
+      });
 
-        // Set connection status to connected since login worked
-        setConnectionStatus('connected');
-        
-        // Navigate to feed/dashboard
-        navigate('/feed');
-      } else {
-        throw new Error('No token received from server');
-      }
+      // Navigation will be handled by useEffect when user state updates
     } catch (error: any) {
       console.error('Login error:', error);
       
@@ -110,15 +82,14 @@ const Login = () => {
     });
   };
 
-  const retryConnection = async () => {
-    setConnectionStatus('checking');
-    try {
-      const isConnected = await testConnection();
-      setConnectionStatus(isConnected ? 'connected' : 'disconnected');
-    } catch (error) {
-      setConnectionStatus('disconnected');
-    }
-  };
+  // Show loading while checking auth state
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-6 px-4 sm:px-6 lg:px-8">
@@ -145,40 +116,12 @@ const Login = () => {
         </div>
 
         {/* Connection Status Alert */}
-        {connectionStatus === 'checking' && (
-          <Alert>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <AlertDescription>
-              Checking server connection...
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {connectionStatus === 'disconnected' && (
-          <Alert variant="destructive">
-            <WifiOff className="h-4 w-4" />
-            <AlertDescription className="flex items-center justify-between">
-              <span>Unable to connect to the server. Please try again.</span>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={retryConnection}
-                className="ml-2"
-              >
-                Retry
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {connectionStatus === 'connected' && (
-          <Alert>
-            <Wifi className="h-4 w-4" />
-            <AlertDescription>
-              Successfully connected to DocMateX servers.
-            </AlertDescription>
-          </Alert>
-        )}
+        <Alert>
+          <Wifi className="h-4 w-4" />
+          <AlertDescription>
+            Connected to DocMateX servers via Supabase.
+          </AlertDescription>
+        </Alert>
 
         <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <CardHeader className="space-y-1 px-4 sm:px-6">
