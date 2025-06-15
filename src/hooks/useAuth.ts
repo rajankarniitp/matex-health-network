@@ -85,7 +85,7 @@ export const useAuth = () => {
       console.log('Fetching profile for user:', userId);
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, email, first_name, last_name, specialization, location, bio, phone, role, verified, avatar_url, created_at, updated_at')
         .eq('id', userId)
         .single();
 
