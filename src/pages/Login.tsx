@@ -1,13 +1,14 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, EyeOff, Mail, Lock, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, Loader2, AlertTriangle, Wifi, WifiOff } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { authAPI } from '@/services/api';
+import { authAPI, testConnection } from '@/services/api';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -18,6 +19,22 @@ const Login = () => {
     rememberMe: false
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
+
+  useEffect(() => {
+    // Test backend connection on component mount
+    const checkConnection = async () => {
+      try {
+        const isConnected = await testConnection();
+        setConnectionStatus(isConnected ? 'connected' : 'disconnected');
+      } catch (error) {
+        console.error('Connection test failed:', error);
+        setConnectionStatus('disconnected');
+      }
+    };
+
+    checkConnection();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,9 +70,7 @@ const Login = () => {
       
       let errorMessage = "Please check your credentials and try again.";
       
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.message) {
+      if (error.message) {
         errorMessage = error.message;
       }
 
@@ -107,6 +122,25 @@ const Login = () => {
             Sign in to your professional healthcare account
           </p>
         </div>
+
+        {/* Connection Status Alert */}
+        {connectionStatus === 'disconnected' && (
+          <Alert variant="destructive">
+            <WifiOff className="h-4 w-4" />
+            <AlertDescription>
+              Unable to connect to the server. Please check your internet connection or try again later.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {connectionStatus === 'connected' && (
+          <Alert>
+            <Wifi className="h-4 w-4" />
+            <AlertDescription>
+              Successfully connected to DocMateX servers.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <CardHeader className="space-y-1 px-4 sm:px-6">
@@ -247,7 +281,7 @@ const Login = () => {
 
               <Button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || connectionStatus === 'disconnected'}
                 className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 sm:py-3 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
