@@ -9,7 +9,6 @@ import { toast } from '@/hooks/use-toast';
 import { authService } from '@/services/auth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -81,36 +80,17 @@ const Login = () => {
       setIsLoading(true);
       console.log('Attempting Google login...');
       
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/feed`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
-        },
-      });
-
-      if (error) {
-        console.error('Google login error:', error);
-        toast({
-          title: "Google Login Failed",
-          description: error.message || "Failed to login with Google. Please try again.",
-          variant: "destructive",
-        });
-      } else {
-        console.log('Google login initiated:', data);
-        // The redirect will happen automatically
-      }
+      const result = await authService.loginWithGoogle();
+      console.log('Google login initiated:', result);
+      // The redirect will happen automatically
+      
     } catch (error: any) {
       console.error('Google login error:', error);
       toast({
         title: "Google Login Failed",
-        description: "An unexpected error occurred. Please try again.",
+        description: error.message || "Failed to login with Google. Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
     }
   };

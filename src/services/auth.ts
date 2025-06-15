@@ -43,7 +43,7 @@ export const authService = {
             first_name: firstName,
             last_name: lastName,
           },
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: `${window.location.origin}/feed`,
         },
       });
 
@@ -52,6 +52,28 @@ export const authService = {
       return { user: data.user, session: data.session };
     } catch (error) {
       console.error('Signup error:', error);
+      throw error;
+    }
+  },
+
+  // Google OAuth login
+  loginWithGoogle: async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/feed`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+
+      if (error) throw error;
+      return { data };
+    } catch (error) {
+      console.error('Google login error:', error);
       throw error;
     }
   },
@@ -85,7 +107,7 @@ export const getUserProfile = async (userId: string) => {
       .from('profiles')
       .select('*')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     return data;
@@ -100,7 +122,10 @@ export const updateUserProfile = async (userId: string, updates: any) => {
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .update(updates)
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', userId)
       .select()
       .single();
@@ -109,6 +134,28 @@ export const updateUserProfile = async (userId: string, updates: any) => {
     return data;
   } catch (error) {
     console.error('Error updating user profile:', error);
+    throw error;
+  }
+};
+
+// Helper function to create user profile (for OAuth users)
+export const createUserProfile = async (userId: string, profileData: any) => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .insert({
+        id: userId,
+        ...profileData,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error creating user profile:', error);
     throw error;
   }
 };
