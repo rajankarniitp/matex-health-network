@@ -85,7 +85,7 @@ export const useAuth = () => {
       console.log('Fetching profile for user:', userId);
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, email, first_name, last_name, specialization, location, bio, phone, role, verified, avatar_url, created_at, updated_at')
+        .select('id, email, first_name, last_name, specialization, location, bio, phone, role, verified, created_at, updated_at')
         .eq('id', userId)
         .single();
 
@@ -95,7 +95,11 @@ export const useAuth = () => {
       }
 
       console.log('Profile fetched:', data);
-      setProfile(data);
+      // Add avatar_url as null since it doesn't exist in the database
+      setProfile({
+        ...data,
+        avatar_url: null
+      });
     } catch (error) {
       console.error('Error in fetchProfile:', error);
     }
