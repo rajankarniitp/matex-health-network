@@ -5,43 +5,64 @@
 ### 1. UI Components (`src/components/ui/`)
 Auto-generated shadcn/ui components. These provide the foundation for all UI elements:
 
-- **Forms**: `input.tsx`, `button.tsx`, `form.tsx`
-- **Layout**: `card.tsx`, `separator.tsx`, `sheet.tsx`
-- **Feedback**: `toast.tsx`, `alert.tsx`, `skeleton.tsx`
+- **Forms**: `input.tsx`, `button.tsx`, `form.tsx`, `label.tsx`
+- **Layout**: `card.tsx`, `separator.tsx`, `sheet.tsx`, `sidebar.tsx`
+- **Feedback**: `toast.tsx`, `alert.tsx`, `skeleton.tsx`, `sonner.tsx`
 - **Navigation**: `tabs.tsx`, `dropdown-menu.tsx`, `navigation-menu.tsx`
+- **Data Display**: `table.tsx`, `badge.tsx`, `avatar.tsx`
+- **Overlays**: `dialog.tsx`, `popover.tsx`, `tooltip.tsx`
 
 ### 2. Layout Components (`src/components/layout/`)
 
 #### `Navbar.tsx`
-- Main navigation component
-- Responsive design with mobile menu
-- Theme toggle integration
-- Authentication state handling
+- **Responsive Navigation**: Desktop full menu, mobile hamburger
+- **Authentication State**: Different menus for auth states
+- **Theme Integration**: Dark/light mode toggle
+- **Mobile Optimization**: Collapsible navigation drawer
+- **Logo Integration**: DocMateX branding with routing
 
 #### `Footer.tsx`
-- Site footer with links and branding
-- Social media links
-- Legal links
+- **Site Footer**: Links and branding
+- **Social Media**: Professional social links
+- **Legal Links**: Terms, privacy, compliance
 
 #### `DashboardLayout.tsx`
-- Layout wrapper for authenticated pages
-- Sidebar navigation
-- Header with user info
+- **Authenticated Layout**: Wrapper for logged-in users
+- **Sidebar Navigation**: Professional dashboard navigation
+- **Header Integration**: User info and quick actions
+
+#### `MobileBottomNav.tsx`
+- **Mobile Navigation**: Bottom tab bar for mobile
+- **Quick Access**: Essential features (Feed, Messages, Search, Profile)
+- **Active States**: Visual feedback for current page
 
 ### 3. Feature Components
 
-#### Home Page (`src/components/home/`)
-- `Hero.tsx`: Landing page hero section
-- `Features.tsx`: Feature showcase
-- `Stats.tsx`: Statistics display
-- `Testimonials.tsx`: User testimonials
+#### Authentication (`src/pages/Login.tsx`, `src/pages/Signup.tsx`)
+- **Social Login Integration**: Google, LinkedIn, Apple with official branding
+- **Form Validation**: Comprehensive input validation
+- **Responsive Design**: Mobile-first authentication flows
+- **Loading States**: User feedback during authentication
+- **Error Handling**: Clear error messages and recovery
 
-#### Notifications (`src/components/notifications/`)
-- `NotificationDropdown.tsx`: Notification center
+#### Chat Interface (`src/pages/Chat.tsx`)
+- **Responsive Messaging**: Adaptive layout for all screen sizes
+- **File Attachments**: Document, image, and file upload support
+- **Real-time Ready**: Prepared for backend integration
+- **Mobile Optimization**: 
+  - Full-screen chat on mobile
+  - Optimized input area with attachment options
+  - Touch-friendly interface
 
-## Component Patterns
+#### Professional Features
+- **Feed System**: Content sharing and professional discussions
+- **Networking**: Professional connections and verification
+- **Knowledge Sharing**: Research, case studies, mentorship
+- **Career Tools**: Job board and professional development
 
-### 1. Standard Component Structure
+### 4. Component Patterns
+
+#### Standard Component Structure
 ```tsx
 import React from 'react';
 import { cn } from '@/lib/utils';
@@ -67,89 +88,134 @@ const Component: React.FC<ComponentProps> = ({
 export default Component;
 ```
 
-### 2. Form Components
+#### Responsive Component Pattern
 ```tsx
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-
-const schema = z.object({
-  // validation schema
-});
-
-const FormComponent = () => {
-  const form = useForm({
-    resolver: zodResolver(schema),
-  });
-
+const ResponsiveComponent = () => {
   return (
-    <Form {...form}>
-      {/* form fields */}
-    </Form>
+    <div className="
+      flex flex-col 
+      sm:flex-row sm:gap-4 
+      md:gap-6 
+      lg:gap-8
+      p-2 sm:p-4 md:p-6
+    ">
+      <div className="w-full sm:w-1/2 lg:w-1/3">
+        {/* Mobile: full width, SM: half, LG: third */}
+      </div>
+    </div>
   );
 };
 ```
 
-### 3. Data Fetching Components
+#### Authentication Aware Component
 ```tsx
-import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 
-const DataComponent = () => {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['data-key'],
-    queryFn: fetchData,
-  });
+const AuthAwareComponent = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  if (isLoading) return <Skeleton />;
-  if (error) return <Alert>Error loading data</Alert>;
+  useEffect(() => {
+    const token = localStorage.getItem('docmatex_token');
+    setIsAuthenticated(!!token);
+  }, []);
 
-  return <div>{/* render data */}</div>;
+  if (!isAuthenticated) {
+    return <div>Please log in to access this feature</div>;
+  }
+
+  return <div>{/* Authenticated content */}</div>;
 };
 ```
 
-## Best Practices
-
-### Do's ✅
-- Use TypeScript interfaces for all props
-- Include className prop for styling flexibility
-- Use React.forwardRef for components that need refs
-- Handle loading and error states
-- Use semantic HTML elements
-- Include ARIA labels for accessibility
-
-### Don'ts ❌
-- Don't use any types
-- Don't forget error boundaries for complex components
-- Don't inline large objects in JSX
-- Don't use index as key in lists
-- Don't mutate props directly
-
-## Component Composition Examples
-
-### Modal with Form
+#### Social Login Component Pattern
 ```tsx
+const SocialLoginButton = ({ provider, icon, onClick }) => {
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      className="w-full h-11 bg-white dark:bg-gray-700"
+      onClick={() => onClick(provider)}
+    >
+      {icon}
+      Continue with {provider}
+    </Button>
+  );
+};
+```
+
+### 5. Best Practices
+
+#### Responsive Design ✅
+- Mobile-first approach with progressive enhancement
+- Use Tailwind responsive prefixes (`sm:`, `md:`, `lg:`, `xl:`)
+- Test on multiple screen sizes
+- Touch-friendly interactive elements
+
+#### Component Composition ✅
+```tsx
+// Good: Composable modal with form
 <Dialog>
   <DialogTrigger asChild>
-    <Button>Open Form</Button>
+    <Button>Add Professional Info</Button>
   </DialogTrigger>
   <DialogContent>
     <Form>
-      {/* form content */}
+      <FormField name="specialty" />
+      <FormField name="experience" />
     </Form>
   </DialogContent>
 </Dialog>
 ```
 
-### Data Table with Actions
+#### TypeScript Usage ✅
+- Define interfaces for all props
+- Use union types for constrained values
+- Leverage component prop types from shadcn/ui
+- Handle optional props appropriately
+
+#### Error Handling ✅
 ```tsx
-<Card>
-  <CardHeader>
-    <CardTitle>Data Table</CardTitle>
-  </CardHeader>
-  <CardContent>
-    <Table>
-      {/* table content */}
-    </Table>
-  </CardContent>
-</Card>
+const ComponentWithErrorHandling = () => {
+  const handleError = (error: Error) => {
+    console.error('Component error:', error);
+    toast({
+      title: "Error",
+      description: "Something went wrong",
+      variant: "destructive"
+    });
+  };
+
+  return (
+    <ErrorBoundary onError={handleError}>
+      {/* Component content */}
+    </ErrorBoundary>
+  );
+};
 ```
+
+### 6. Component Refactoring Guidelines
+
+When components exceed 250 lines:
+- Extract sub-components into separate files
+- Create custom hooks for complex logic
+- Use composition patterns
+- Separate concerns (UI vs logic)
+
+Example refactoring:
+```
+src/pages/Chat.tsx (300+ lines) →
+├── src/components/chat/ChatHeader.tsx
+├── src/components/chat/MessageList.tsx
+├── src/components/chat/MessageInput.tsx
+└── src/hooks/useChat.ts
+```
+
+### 7. Professional Healthcare Context
+
+All components should consider:
+- **Privacy**: Patient information protection
+- **Accessibility**: Medical compliance requirements
+- **Professional Standards**: Healthcare industry UX patterns
+- **Security**: Secure handling of sensitive data
+- **Verification**: Professional credential display

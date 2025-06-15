@@ -59,191 +59,320 @@ touch src/components/feature/NewComponent.tsx
 // Add navigation link
 ```
 
-### 2. Component Development Pattern
+### 2. Responsive Development Pattern
 
-#### File Structure
-```
-src/components/feature/
-├── FeatureComponent.tsx     # Main component
-├── FeatureForm.tsx         # Form component
-├── FeatureCard.tsx         # Display component
-└── index.ts                # Exports
-```
-
-#### Component Template
+#### Mobile-First Approach
 ```tsx
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-
-interface FeatureComponentProps {
-  className?: string;
-  title: string;
-  onAction?: () => void;
-}
-
-const FeatureComponent: React.FC<FeatureComponentProps> = ({
-  className,
-  title,
-  onAction
-}) => {
+const ResponsiveComponent = () => {
   return (
-    <Card className={cn("w-full", className)}>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Button onClick={onAction}>
-          Action
-        </Button>
-      </CardContent>
-    </Card>
+    <div className="
+      // Mobile (default)
+      flex flex-col p-4 text-sm
+      
+      // Small screens (640px+)
+      sm:flex-row sm:p-6 sm:text-base
+      
+      // Medium screens (768px+)
+      md:p-8 md:text-lg
+      
+      // Large screens (1024px+)
+      lg:p-10 lg:text-xl
+      
+      // Extra large (1280px+)
+      xl:p-12
+    ">
+      <div className="
+        w-full 
+        sm:w-1/2 
+        lg:w-1/3
+      ">
+        Content
+      </div>
+    </div>
   );
 };
-
-export default FeatureComponent;
 ```
 
-### 3. State Management
+#### Component Structure for Responsive Design
+```
+src/components/feature/
+├── FeatureComponent.tsx         # Main responsive component
+├── FeatureMobileView.tsx       # Mobile-specific layout
+├── FeatureDesktopView.tsx      # Desktop-specific layout
+├── FeatureCard.tsx             # Reusable card component
+└── index.ts                    # Exports
+```
 
-#### Local State
+### 3. Authentication Integration
+
+#### Current Auth Pattern
 ```tsx
-const [loading, setLoading] = useState(false);
-const [data, setData] = useState(null);
+// Check authentication status
+const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+useEffect(() => {
+  const token = localStorage.getItem('docmatex_token');
+  const user = localStorage.getItem('docmatex_user');
+  setIsAuthenticated(!!(token && user));
+}, []);
+
+// Handle login
+const handleLogin = async (credentials) => {
+  // Simulate API call
+  localStorage.setItem('docmatex_token', 'demo_token');
+  localStorage.setItem('docmatex_user', JSON.stringify(userData));
+  navigate('/feed');
+};
+
+// Handle logout
+const handleLogout = () => {
+  localStorage.removeItem('docmatex_token');
+  localStorage.removeItem('docmatex_user');
+  navigate('/login');
+};
 ```
 
-#### Form State
+#### Social Login Implementation (Ready for Backend)
+```tsx
+const handleSocialLogin = (provider: 'google' | 'linkedin' | 'apple') => {
+  // Currently shows "Coming Soon"
+  toast({
+    title: "Coming Soon!",
+    description: `${provider} login will be available soon.`,
+  });
+  
+  // Future implementation:
+  // window.location.href = `/auth/${provider}`;
+};
+```
+
+### 4. Chat Interface Development
+
+#### Responsive Chat Pattern
+```tsx
+const ChatInterface = () => {
+  return (
+    <div className="flex flex-col h-screen">
+      {/* Header - responsive height */}
+      <div className="h-16 sm:h-20 border-b">
+        <ChatHeader />
+      </div>
+      
+      {/* Messages - flexible content area */}
+      <div className="flex-1 overflow-y-auto p-2 sm:p-4">
+        <MessageList />
+      </div>
+      
+      {/* Input - responsive input area */}
+      <div className="p-2 sm:p-4 border-t">
+        <MessageInput />
+      </div>
+    </div>
+  );
+};
+```
+
+#### File Attachment Pattern
+```tsx
+const AttachmentButton = ({ type, icon, onClick }) => {
+  return (
+    <button
+      onClick={() => onClick(type)}
+      className="
+        p-2 rounded-lg
+        text-gray-500 hover:text-gray-700
+        hover:bg-gray-100
+        transition-colors
+      "
+      title={`Attach ${type}`}
+    >
+      {icon}
+    </button>
+  );
+};
+```
+
+### 5. State Management
+
+#### Local State for UI
+```tsx
+const [isOpen, setIsOpen] = useState(false);
+const [selectedTab, setSelectedTab] = useState('tab1');
+```
+
+#### Form State with Validation
 ```tsx
 const form = useForm({
   resolver: zodResolver(schema),
   defaultValues: {
-    field: ''
+    email: '',
+    password: '',
+    rememberMe: false
   }
 });
 ```
 
-#### Server State
+#### Server State (Future)
 ```tsx
 const { data, isLoading, error } = useQuery({
-  queryKey: ['feature', id],
-  queryFn: () => fetchFeature(id),
+  queryKey: ['messages', chatId],
+  queryFn: () => fetchMessages(chatId),
+  enabled: !!chatId,
 });
 ```
 
-### 4. Styling Guidelines
+### 6. Styling Guidelines
 
-#### Tailwind Classes
-- Use responsive prefixes: `sm:`, `md:`, `lg:`
-- Use semantic spacing: `p-4`, `m-2`, `space-y-4`
-- Use color system: `bg-primary`, `text-secondary`
-
-#### Component Variants
-```tsx
-const variants = {
-  default: "bg-white border",
-  outlined: "border-2 bg-transparent",
-  filled: "bg-primary text-white"
-};
-```
-
-### 5. Error Handling
-
-#### Component Level
-```tsx
-try {
-  // risky operation
-} catch (error) {
-  console.error('Feature error:', error);
-  toast({
-    title: "Error",
-    description: "Something went wrong",
-    variant: "destructive"
-  });
+#### Tailwind Responsive Classes
+```css
+/* Mobile first approach */
+.responsive-element {
+  @apply 
+    p-2 text-sm                 /* Mobile */
+    sm:p-4 sm:text-base         /* Small screens */
+    md:p-6 md:text-lg           /* Medium screens */
+    lg:p-8 lg:text-xl           /* Large screens */
+    xl:p-10 xl:text-2xl;        /* Extra large */
 }
 ```
 
-#### API Level
+#### Component Variants
 ```tsx
-const { data, error } = useQuery({
-  queryKey: ['data'],
-  queryFn: fetchData,
-  onError: (error) => {
-    console.error('API Error:', error);
+const buttonVariants = {
+  default: "bg-blue-600 text-white",
+  outline: "border border-gray-300 bg-transparent",
+  ghost: "bg-transparent hover:bg-gray-100"
+};
+
+const sizeVariants = {
+  sm: "px-3 py-1.5 text-sm",
+  md: "px-4 py-2 text-base",
+  lg: "px-6 py-3 text-lg"
+};
+```
+
+### 7. Error Handling
+
+#### Component Level Error Handling
+```tsx
+const ComponentWithErrorHandling = () => {
+  const [error, setError] = useState(null);
+
+  const handleError = (err: Error) => {
+    setError(err.message);
+    console.error('Component error:', err);
+    
+    toast({
+      title: "Error",
+      description: err.message,
+      variant: "destructive"
+    });
+  };
+
+  if (error) {
+    return (
+      <div className="p-4 border border-red-200 rounded-lg">
+        <p className="text-red-600">Error: {error}</p>
+        <Button onClick={() => setError(null)}>
+          Try Again
+        </Button>
+      </div>
+    );
   }
-});
+
+  return <div>{/* Normal component content */}</div>;
+};
 ```
 
-## Code Quality Standards
+### 8. Testing Approach
 
-### TypeScript
-- Always define interfaces for props
-- Use proper return types for functions
-- Avoid `any` type
-- Use union types for constrained values
-
-### React Best Practices
-- Use functional components with hooks
-- Implement proper dependency arrays
-- Use React.memo for performance optimization
-- Handle cleanup in useEffect
-
-### Performance
-- Lazy load heavy components
-- Optimize images and assets
-- Use proper keys in lists
-- Avoid unnecessary re-renders
-
-## Testing Approach
-
-### Component Testing
+#### Component Testing
 ```tsx
-import { render, screen } from '@testing-library/react';
-import FeatureComponent from './FeatureComponent';
+import { render, screen, fireEvent } from '@testing-library/react';
+import LoginForm from './LoginForm';
 
-test('renders component correctly', () => {
-  render(<FeatureComponent title="Test" />);
-  expect(screen.getByText('Test')).toBeInTheDocument();
+test('social login shows coming soon message', () => {
+  render(<LoginForm />);
+  
+  const googleButton = screen.getByText('Continue with Google');
+  fireEvent.click(googleButton);
+  
+  expect(screen.getByText('Coming Soon!')).toBeInTheDocument();
 });
 ```
 
-### Hook Testing
+#### Responsive Testing
 ```tsx
-import { renderHook } from '@testing-library/react';
-import useCustomHook from './useCustomHook';
+test('chat interface adapts to mobile', () => {
+  // Mock mobile viewport
+  Object.defineProperty(window, 'innerWidth', {
+    writable: true,
+    configurable: true,
+    value: 375,
+  });
 
-test('hook returns expected value', () => {
-  const { result } = renderHook(() => useCustomHook());
-  expect(result.current.value).toBe(expectedValue);
+  render(<ChatInterface />);
+  
+  // Test mobile-specific elements
+  expect(screen.getByTestId('mobile-chat-input')).toBeInTheDocument();
 });
 ```
 
-## Debugging
+### 9. Performance Optimization
 
-### Browser DevTools
-- Use React Developer Tools extension
-- Monitor network requests
-- Check console for errors
-- Use Performance tab for optimization
+#### Code Splitting
+```tsx
+const LazyComponent = lazy(() => import('./HeavyComponent'));
 
-### Common Issues
-1. **Hydration Mismatch**: Check server/client rendering differences
-2. **Memory Leaks**: Cleanup useEffect subscriptions
-3. **Performance**: Use React Profiler to identify bottlenecks
-4. **State Updates**: Ensure proper dependency arrays
+const App = () => (
+  <Suspense fallback={<LoadingSkeleton />}>
+    <LazyComponent />
+  </Suspense>
+);
+```
 
-## Deployment
+#### Image Optimization
+```tsx
+const OptimizedImage = ({ src, alt, className }) => (
+  <img
+    src={src}
+    alt={alt}
+    className={className}
+    loading="lazy"
+    decoding="async"
+  />
+);
+```
 
-### Build Process
+### 10. Deployment Preparation
+
+#### Build Process
 ```bash
 npm run build      # Create production build
 npm run preview    # Test production build locally
 ```
 
-### Pre-deployment Checklist
-- [ ] All TypeScript errors resolved
+#### Pre-deployment Checklist
+- [ ] All responsive breakpoints tested
+- [ ] Social login buttons show "Coming Soon"
+- [ ] No TypeScript errors
 - [ ] No console errors in production
-- [ ] Environment variables configured
-- [ ] SEO meta tags updated
-- [ ] Analytics tracking verified
-- [ ] Error monitoring active
+- [ ] Authentication flow works
+- [ ] Mobile navigation functions properly
+- [ ] Chat interface responsive on all devices
+- [ ] File attachment icons display correctly
+
+### 11. Future Backend Integration
+
+#### Supabase Integration Preparation
+- All authentication flows ready for OAuth
+- Chat interface ready for real-time messaging
+- File attachment ready for storage integration
+- User management ready for database integration
+
+#### API Integration Points
+- Authentication endpoints
+- Real-time messaging
+- File upload endpoints
+- User profile management
+- Professional verification
