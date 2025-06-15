@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Search, Send, Paperclip, Phone, Video, MoreVertical, Image as ImageIcon, File } from 'lucide-react';
+import { Search, Send, Paperclip, Phone, Video, MoreVertical, Image as ImageIcon, File, ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
 
 const Messages = () => {
-  const [selectedChat, setSelectedChat] = useState(1);
+  const [selectedChat, setSelectedChat] = useState<number | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [messages, setMessages] = useState([
     {
@@ -143,11 +143,15 @@ const Messages = () => {
 
   const selectedConversation = conversations.find(c => c.id === selectedChat);
 
+  const handleBackToList = () => {
+    setSelectedChat(null);
+  };
+
   return (
     <DashboardLayout>
       <div className="h-[calc(100vh-12rem)] flex bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25">
-        {/* Conversations List */}
-        <div className="w-1/3 border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+        {/* Conversations List - Show on desktop always, on mobile only when no chat selected */}
+        <div className={`${selectedChat ? 'hidden md:block' : 'block'} w-full md:w-1/3 border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900`}>
           <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <h2 className="text-lg sm:text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">Messages</h2>
             <div className="relative">
@@ -200,105 +204,131 @@ const Messages = () => {
           </div>
         </div>
 
-        {/* Chat Area */}
-        <div className="flex-1 flex flex-col">
-          {/* Chat Header */}
-          <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-gray-800">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
-                <AvatarImage src="" alt={selectedConversation?.name} />
-                <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 text-xs sm:text-sm">
-                  {selectedConversation?.avatar}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base">{selectedConversation?.name}</h3>
-                <div className="flex items-center space-x-2">
-                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">{selectedConversation?.specialization}</p>
-                  <span className="text-xs text-gray-300 dark:text-gray-600">•</span>
-                  <p className={`text-xs sm:text-sm ${selectedConversation?.online ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'}`}>
-                    {selectedConversation?.online ? 'Online' : 'Offline'}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="flex space-x-1 sm:space-x-2">
-              <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1 sm:p-2">
-                <Phone className="h-3 w-3 sm:h-4 sm:w-4" />
-              </Button>
-              <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1 sm:p-2">
-                <Video className="h-3 w-3 sm:h-4 sm:w-4" />
-              </Button>
-              <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1 sm:p-2">
-                <MoreVertical className="h-3 w-3 sm:h-4 sm:w-4" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-900">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.isMe ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-xs lg:max-w-md px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-sm sm:text-base ${
-                    message.isMe
-                      ? 'bg-blue-600 dark:bg-blue-500 text-white rounded-br-sm'
-                      : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-bl-sm shadow-sm dark:shadow-gray-900/25'
-                  }`}
+        {/* Chat Area - Show only when a chat is selected */}
+        {selectedChat && (
+          <div className={`${selectedChat ? 'block' : 'hidden'} w-full md:flex-1 flex flex-col`}>
+            {/* Chat Header */}
+            <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-gray-800">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                {/* Back button for mobile */}
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="md:hidden p-1 mr-2"
+                  onClick={handleBackToList}
                 >
-                  <p className="text-xs sm:text-sm">{message.content}</p>
-                  <div className="flex items-center justify-between mt-2">
-                    <p className={`text-xs ${message.isMe ? 'text-blue-100 dark:text-blue-200' : 'text-gray-500 dark:text-gray-400'}`}>
-                      {message.timestamp}
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
+                  <AvatarImage src="" alt={selectedConversation?.name} />
+                  <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 text-xs sm:text-sm">
+                    {selectedConversation?.avatar}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base">{selectedConversation?.name}</h3>
+                  <div className="flex items-center space-x-2">
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">{selectedConversation?.specialization}</p>
+                    <span className="text-xs text-gray-300 dark:text-gray-600">•</span>
+                    <p className={`text-xs sm:text-sm ${selectedConversation?.online ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'}`}>
+                      {selectedConversation?.online ? 'Online' : 'Offline'}
                     </p>
-                    {message.isMe && (
-                      <div className="flex space-x-1">
-                        <div className={`w-1 h-1 rounded-full ${message.read ? 'bg-blue-200 dark:bg-blue-300' : 'bg-blue-300 dark:bg-blue-400'}`}></div>
-                        <div className={`w-1 h-1 rounded-full ${message.read ? 'bg-blue-200 dark:bg-blue-300' : 'bg-blue-300 dark:bg-blue-400'}`}></div>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* Message Input */}
-          <div className="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-            <div className="flex space-x-1 sm:space-x-2 items-end">
-              <div className="flex space-x-1">
+              <div className="flex space-x-1 sm:space-x-2">
                 <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1 sm:p-2">
-                  <Paperclip className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <Phone className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
                 <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1 sm:p-2">
-                  <ImageIcon className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <Video className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
                 <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1 sm:p-2">
-                  <File className="h-3 w-3 sm:h-4 sm:w-4" />
-                </Button>
-              </div>
-              <div className="flex-1 flex space-x-1 sm:space-x-2">
-                <Input
-                  placeholder="Type a message..."
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  className="flex-1 text-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                />
-                <Button 
-                  onClick={handleSendMessage}
-                  disabled={!newMessage.trim()}
-                  className="px-3 sm:px-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-                >
-                  <Send className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <MoreVertical className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
             </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-900">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.isMe ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-xs lg:max-w-md px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-sm sm:text-base ${
+                      message.isMe
+                        ? 'bg-blue-600 dark:bg-blue-500 text-white rounded-br-sm'
+                        : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-bl-sm shadow-sm dark:shadow-gray-900/25'
+                    }`}
+                  >
+                    <p className="text-xs sm:text-sm">{message.content}</p>
+                    <div className="flex items-center justify-between mt-2">
+                      <p className={`text-xs ${message.isMe ? 'text-blue-100 dark:text-blue-200' : 'text-gray-500 dark:text-gray-400'}`}>
+                        {message.timestamp}
+                      </p>
+                      {message.isMe && (
+                        <div className="flex space-x-1">
+                          <div className={`w-1 h-1 rounded-full ${message.read ? 'bg-blue-200 dark:bg-blue-300' : 'bg-blue-300 dark:bg-blue-400'}`}></div>
+                          <div className={`w-1 h-1 rounded-full ${message.read ? 'bg-blue-200 dark:bg-blue-300' : 'bg-blue-300 dark:bg-blue-400'}`}></div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Message Input */}
+            <div className="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+              <div className="flex space-x-1 sm:space-x-2 items-end">
+                <div className="flex space-x-1">
+                  <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1 sm:p-2">
+                    <Paperclip className="h-3 w-3 sm:h-4 sm:w-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1 sm:p-2">
+                    <ImageIcon className="h-3 w-3 sm:h-4 sm:w-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1 sm:p-2">
+                    <File className="h-3 w-3 sm:h-4 sm:w-4" />
+                  </Button>
+                </div>
+                <div className="flex-1 flex space-x-1 sm:space-x-2">
+                  <Input
+                    placeholder="Type a message..."
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                    className="flex-1 text-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                  />
+                  <Button 
+                    onClick={handleSendMessage}
+                    disabled={!newMessage.trim()}
+                    className="px-3 sm:px-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+                  >
+                    <Send className="h-3 w-3 sm:h-4 sm:w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Empty state when no chat selected on desktop */}
+        {!selectedChat && (
+          <div className="hidden md:flex flex-1 items-center justify-center bg-gray-50 dark:bg-gray-900">
+            <div className="text-center">
+              <div className="mx-auto h-24 w-24 text-gray-400 dark:text-gray-500 mb-4">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Select a conversation</h3>
+              <p className="text-gray-500 dark:text-gray-400">Choose a conversation from the list to start messaging</p>
+            </div>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
