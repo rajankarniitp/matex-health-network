@@ -109,67 +109,67 @@ const Chat = () => {
 
   return (
     <DashboardLayout>
-      <div className="h-[calc(100vh-12rem)] bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col">
+      <div className="h-[calc(100vh-8rem)] sm:h-[calc(100vh-10rem)] md:h-[calc(100vh-12rem)] bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center space-x-3">
+        <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 min-h-[64px] sm:min-h-[72px]">
+          <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => navigate('/messages')}
-              className="lg:hidden"
+              className="lg:hidden p-1 sm:p-2 flex-shrink-0"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
-            <div className="relative">
-              <Avatar className="h-10 w-10">
+            <div className="relative flex-shrink-0">
+              <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
                 <AvatarImage src="" alt={currentConversation.name} />
-                <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300">
+                <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 text-xs sm:text-sm">
                   {currentConversation.avatar}
                 </AvatarFallback>
               </Avatar>
               {currentConversation.online && (
-                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
+                <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
               )}
             </div>
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+            <div className="min-w-0 flex-1">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base truncate">
                 {currentConversation.name}
               </h3>
-              <p className="text-sm text-blue-600 dark:text-blue-400">
+              <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 truncate">
                 {currentConversation.specialization}
               </p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm">
-              <Phone className="h-5 w-5" />
+          <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+            <Button variant="ghost" size="sm" className="p-1.5 sm:p-2">
+              <Phone className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
-            <Button variant="ghost" size="sm">
-              <Video className="h-5 w-5" />
+            <Button variant="ghost" size="sm" className="p-1.5 sm:p-2">
+              <Video className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
-            <Button variant="ghost" size="sm">
-              <MoreVertical className="h-5 w-5" />
+            <Button variant="ghost" size="sm" className="p-1.5 sm:p-2">
+              <MoreVertical className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
           </div>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 sm:space-y-4">
           {messages.map((msg) => (
             <div
               key={msg.id}
               className={`flex ${msg.senderId === 'me' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                className={`max-w-[85%] sm:max-w-xs lg:max-w-md px-3 py-2 sm:px-4 sm:py-2 rounded-lg ${
                   msg.senderId === 'me'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
+                    ? 'bg-blue-600 text-white rounded-br-md'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-bl-md'
                 }`}
               >
-                <p className="text-sm">{msg.content}</p>
+                <p className="text-sm sm:text-base leading-relaxed break-words">{msg.content}</p>
                 <p className={`text-xs mt-1 ${
                   msg.senderId === 'me' ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'
                 }`}>
@@ -181,54 +181,68 @@ const Chat = () => {
         </div>
 
         {/* Message Input with Attachment Options */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center space-x-2">
-            {/* Attachment Options */}
-            <div className="flex items-center space-x-1">
+        <div className="p-2 sm:p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <div className="flex items-end space-x-2">
+            {/* Attachment Options - Hidden on very small screens */}
+            <div className="hidden xs:flex items-center space-x-1 flex-shrink-0">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={handleFileAttachment}
+                className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <Paperclip className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 dark:text-gray-400" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={handleImageAttachment}
+                className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <Image className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 dark:text-gray-400" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={handleDocumentAttachment}
+                className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 dark:text-gray-400" />
+              </Button>
+            </div>
+            
+            {/* Message Input */}
+            <div className="flex-1 flex items-center space-x-2">
+              <Input
+                placeholder="Type a message..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="flex-1 min-h-[40px] sm:min-h-[44px] text-sm sm:text-base"
+              />
+              
+              {/* Send Button */}
+              <Button 
+                onClick={sendMessage}
+                disabled={!message.trim()}
+                size="sm"
+                className="bg-blue-600 hover:bg-blue-700 p-2 sm:p-2.5 flex-shrink-0 min-w-[40px] sm:min-w-[44px] h-[40px] sm:h-[44px]"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Attachment Options for very small screens - show as menu */}
+            <div className="xs:hidden flex-shrink-0">
               <Button 
                 variant="ghost" 
                 size="sm"
                 onClick={handleFileAttachment}
                 className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
-                <Paperclip className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={handleImageAttachment}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                <Image className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={handleDocumentAttachment}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                <FileText className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                <Paperclip className="h-4 w-4 text-gray-500 dark:text-gray-400" />
               </Button>
             </div>
-            
-            {/* Message Input */}
-            <Input
-              placeholder="Type a message..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              className="flex-1"
-            />
-            
-            {/* Send Button */}
-            <Button 
-              onClick={sendMessage}
-              disabled={!message.trim()}
-              size="sm"
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
           </div>
         </div>
       </div>
