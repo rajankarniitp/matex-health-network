@@ -190,19 +190,19 @@ const Feed = () => {
     <DashboardLayout>
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Create Post */}
-        <Card>
+        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <CardHeader>
-            <CardTitle>Share with your network</CardTitle>
+            <CardTitle className="text-gray-900 dark:text-gray-100">Share with your network</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center space-x-3 mb-4">
               <Avatar className="h-10 w-10">
                 <AvatarImage src="" alt="Your profile" />
-                <AvatarFallback className="bg-blue-100 text-blue-600">JD</AvatarFallback>
+                <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300">JD</AvatarFallback>
               </Avatar>
               <div>
-                <p className="font-semibold">Dr. John Doe</p>
-                <p className="text-sm text-gray-500">General Medicine</p>
+                <p className="font-semibold text-gray-900 dark:text-gray-100">Dr. John Doe</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">General Medicine</p>
               </div>
             </div>
             
@@ -210,20 +210,20 @@ const Feed = () => {
               placeholder="What's on your mind? Share your medical insights, achievements, or thoughts with fellow healthcare professionals..."
               value={newPost}
               onChange={(e) => setNewPost(e.target.value)}
-              className="min-h-[120px] resize-none border-gray-200"
+              className="min-h-[120px] resize-none border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
             />
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-0">
               <div className="flex items-center space-x-4">
-                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-blue-600">
+                <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700">
                   <Image className="h-4 w-4 mr-2" />
                   Photo
                 </Button>
-                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-blue-600">
+                <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700">
                   <Video className="h-4 w-4 mr-2" />
                   Video
                 </Button>
-                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-blue-600">
+                <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700">
                   <FileText className="h-4 w-4 mr-2" />
                   Document
                 </Button>
@@ -231,23 +231,23 @@ const Feed = () => {
               
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Select value={privacy} onValueChange={setPrivacy}>
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger className="w-32 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="public">
+                  <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                    <SelectItem value="public" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <div className="flex items-center space-x-2">
                         <Globe className="h-4 w-4" />
                         <span>Public</span>
                       </div>
                     </SelectItem>
-                    <SelectItem value="mates">
+                    <SelectItem value="mates" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <div className="flex items-center space-x-2">
                         <Users className="h-4 w-4" />
                         <span>Mates</span>
                       </div>
                     </SelectItem>
-                    <SelectItem value="private">
+                    <SelectItem value="private" className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <div className="flex items-center space-x-2">
                         <Lock className="h-4 w-4" />
                         <span>Only Me</span>
@@ -256,9 +256,9 @@ const Feed = () => {
                   </SelectContent>
                 </Select>
                 <Button
-                  onClick={handlePostSubmit}
+                  onClick={() => {/* handlePostSubmit */}}
                   disabled={!newPost.trim()}
-                  className="sm:ml-2 flex-shrink-0"
+                  className="sm:ml-2 flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   Post
                 </Button>
@@ -270,12 +270,12 @@ const Feed = () => {
         {/* Posts Feed */}
         <div className="space-y-6">
           {posts.map((post) => (
-            <Card key={post.id} className="hover:shadow-md transition-shadow">
+            <Card key={post.id} className="hover:shadow-md transition-shadow bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
               <CardContent className="p-6">
                 <div className="flex items-start space-x-3">
                   <Avatar className="h-12 w-12">
                     <AvatarImage src="" alt={post.author} />
-                    <AvatarFallback className="bg-blue-100 text-blue-600">
+                    <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300">
                       {post.author.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
@@ -284,35 +284,35 @@ const Feed = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="flex items-center space-x-2">
-                          <h3 className="text-sm font-semibold text-gray-900">{post.author}</h3>
+                          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{post.author}</h3>
                           {post.verified && (
-                            <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-600">
+                            <Badge variant="secondary" className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300">
                               ✓ Verified
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-gray-500">{post.role} • {post.specialization}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{post.role} • {post.specialization}</p>
                         <div className="flex items-center space-x-1 mt-1">
-                          <span className="text-xs text-gray-400">{post.time}</span>
-                          <span className="text-xs text-gray-400">•</span>
-                          {getPrivacyIcon(post.privacy)}
+                          <span className="text-xs text-gray-400 dark:text-gray-500">{post.time}</span>
+                          <span className="text-xs text-gray-400 dark:text-gray-500">•</span>
+                          <span className="text-gray-400 dark:text-gray-500">{getPrivacyIcon(post.privacy)}</span>
                         </div>
                       </div>
                       
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </div>
                     
                     <div className="mt-4">
-                      <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{post.content}</p>
+                      <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">{post.content}</p>
                       
                       {post.image && (
                         <div className="mt-4">
                           <img 
                             src={post.image} 
                             alt="Post attachment" 
-                            className="rounded-lg max-w-full h-auto border"
+                            className="rounded-lg max-w-full h-auto border border-gray-200 dark:border-gray-700"
                           />
                         </div>
                       )}
@@ -320,7 +320,7 @@ const Feed = () => {
                     
                     {/* Reactions Summary */}
                     {(post.reactions.like > 0 || post.reactions.heart > 0) && (
-                      <div className="flex items-center justify-between mt-4 pt-3 border-t">
+                      <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
                         <div className="flex items-center space-x-2">
                           <div className="flex -space-x-1">
                             {post.reactions.like > 0 && (
@@ -334,12 +334,12 @@ const Feed = () => {
                               </div>
                             )}
                           </div>
-                          <span className="text-sm text-gray-500">
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
                             {post.reactions.like + post.reactions.heart} reactions
                           </span>
                         </div>
                         
-                        <div className="flex space-x-4 text-sm text-gray-500">
+                        <div className="flex space-x-4 text-sm text-gray-500 dark:text-gray-400">
                           <span>{post.comments} comments</span>
                           <span>{post.shares} shares</span>
                         </div>
@@ -347,22 +347,22 @@ const Feed = () => {
                     )}
                     
                     {/* Action Buttons */}
-                    <div className="flex items-center justify-between mt-4 pt-3 border-t">
+                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
                       <div className="flex items-center space-x-1">
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          onClick={() => handleLike(post.id)}
-                          className={`${post.liked ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600'}`}
+                          onClick={() => {/* handleLike(post.id) */}}
+                          className={`${post.liked ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                         >
                           <ThumbsUp className={`h-4 w-4 mr-1 ${post.liked ? 'fill-current' : ''}`} />
                           Like
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-gray-600 hover:text-blue-600">
+                        <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700">
                           <MessageCircle className="h-4 w-4 mr-1" />
                           Comment
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-gray-600 hover:text-blue-600">
+                        <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700">
                           <Share2 className="h-4 w-4 mr-1" />
                           Share
                         </Button>
@@ -371,8 +371,8 @@ const Feed = () => {
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        onClick={() => handleSave(post.id)}
-                        className={`${post.saved ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600'}`}
+                        onClick={() => {/* handleSave(post.id) */}}
+                        className={`${post.saved ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                       >
                         {post.saved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
                       </Button>
@@ -386,7 +386,7 @@ const Feed = () => {
 
         {/* Load More */}
         <div className="text-center py-6">
-          <Button variant="outline" className="px-8">
+          <Button variant="outline" className="px-8 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
             Load More Posts
           </Button>
         </div>

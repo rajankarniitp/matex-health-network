@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
+import ThemeToggle from '@/components/ui/theme-toggle';
 import {
   Home,
   Users,
@@ -63,7 +64,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const user = JSON.parse(localStorage.getItem('docmatex_user') || '{}');
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
@@ -115,7 +116,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
       {/* Static sidebar for desktop */}
       <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 z-30">
-        <div className="flex-1 flex flex-col min-h-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+        <div className="flex-1 flex flex-col min-h-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm transition-colors">
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
             <div className="flex items-center flex-shrink-0 px-4 space-x-3 mb-6">
               <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg p-2 shadow-lg flex items-center justify-center w-10 h-10">
@@ -152,7 +153,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       {/* Main content */}
       <div className="md:pl-64 flex flex-col flex-1">
         {/* Header */}
-        <header className="bg-white dark:bg-gray-800 shadow-sm dark:shadow-gray-700/50 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20 backdrop-blur-sm bg-white/95 dark:bg-gray-800/95">
+        <header className="bg-white dark:bg-gray-800 shadow-sm dark:shadow-gray-700/50 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20 backdrop-blur-sm bg-white/95 dark:bg-gray-800/95 transition-colors">
           <div className="px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               {/* Mobile menu button */}
@@ -173,6 +174,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               </div>
 
               <div className="flex items-center space-x-3 md:space-x-4">
+                <ThemeToggle />
                 <NotificationDropdown />
 
                 <DropdownMenu>
@@ -219,7 +221,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </header>
 
         {/* Main content */}
-        <main className="flex-1 bg-gray-50 dark:bg-gray-900">
+        <main className="flex-1 bg-gray-50 dark:bg-gray-900 transition-colors">
           <div className="py-4 sm:py-6">
             <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
               {children}

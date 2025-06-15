@@ -101,7 +101,7 @@ const Chat = () => {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-full">
-          <p className="text-gray-500">Conversation not found</p>
+          <p className="text-gray-500 dark:text-gray-400">Conversation not found</p>
         </div>
       </DashboardLayout>
     );
@@ -109,15 +109,15 @@ const Chat = () => {
 
   return (
     <DashboardLayout>
-      <div className="h-[calc(100vh-8rem)] sm:h-[calc(100vh-10rem)] md:h-[calc(100vh-12rem)] bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col">
+      <div className="h-[calc(100vh-8rem)] sm:h-[calc(100vh-10rem)] md:h-[calc(100vh-12rem)] bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex flex-col transition-colors">
         {/* Header */}
-        <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 min-h-[64px] sm:min-h-[72px]">
+        <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 min-h-[64px] sm:min-h-[72px] bg-white dark:bg-gray-800">
           <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => navigate('/messages')}
-              className="lg:hidden p-1 sm:p-2 flex-shrink-0"
+              className="lg:hidden p-1 sm:p-2 flex-shrink-0 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
@@ -143,20 +143,20 @@ const Chat = () => {
           </div>
           
           <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
-            <Button variant="ghost" size="sm" className="p-1.5 sm:p-2">
+            <Button variant="ghost" size="sm" className="p-1.5 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
               <Phone className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
-            <Button variant="ghost" size="sm" className="p-1.5 sm:p-2">
+            <Button variant="ghost" size="sm" className="p-1.5 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
               <Video className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
-            <Button variant="ghost" size="sm" className="p-1.5 sm:p-2">
+            <Button variant="ghost" size="sm" className="p-1.5 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
               <MoreVertical className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
           </div>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 sm:space-y-4">
+        <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-900">
           {messages.map((msg) => (
             <div
               key={msg.id}
@@ -166,7 +166,7 @@ const Chat = () => {
                 className={`max-w-[85%] sm:max-w-xs lg:max-w-md px-3 py-2 sm:px-4 sm:py-2 rounded-lg ${
                   msg.senderId === 'me'
                     ? 'bg-blue-600 text-white rounded-br-md'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-bl-md'
+                    : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-bl-md border border-gray-200 dark:border-gray-600'
                 }`}
               >
                 <p className="text-sm sm:text-base leading-relaxed break-words">{msg.content}</p>
@@ -189,25 +189,25 @@ const Chat = () => {
                 variant="ghost" 
                 size="sm"
                 onClick={handleFileAttachment}
-                className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
               >
-                <Paperclip className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 dark:text-gray-400" />
+                <Paperclip className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
               <Button 
                 variant="ghost" 
                 size="sm"
                 onClick={handleImageAttachment}
-                className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
               >
-                <Image className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 dark:text-gray-400" />
+                <Image className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
               <Button 
                 variant="ghost" 
                 size="sm"
                 onClick={handleDocumentAttachment}
-                className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
               >
-                <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 dark:text-gray-400" />
+                <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             </div>
             
@@ -218,7 +218,7 @@ const Chat = () => {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="flex-1 min-h-[40px] sm:min-h-[44px] text-sm sm:text-base"
+                className="flex-1 min-h-[40px] sm:min-h-[44px] text-sm sm:text-base bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
               />
               
               {/* Send Button */}
@@ -226,7 +226,7 @@ const Chat = () => {
                 onClick={sendMessage}
                 disabled={!message.trim()}
                 size="sm"
-                className="bg-blue-600 hover:bg-blue-700 p-2 sm:p-2.5 flex-shrink-0 min-w-[40px] sm:min-w-[44px] h-[40px] sm:h-[44px]"
+                className="bg-blue-600 hover:bg-blue-700 p-2 sm:p-2.5 flex-shrink-0 min-w-[40px] sm:min-w-[44px] h-[40px] sm:h-[44px] disabled:opacity-50"
               >
                 <Send className="h-4 w-4" />
               </Button>
@@ -238,9 +238,9 @@ const Chat = () => {
                 variant="ghost" 
                 size="sm"
                 onClick={handleFileAttachment}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
               >
-                <Paperclip className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                <Paperclip className="h-4 w-4" />
               </Button>
             </div>
           </div>
