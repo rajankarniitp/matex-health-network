@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -9,63 +8,40 @@ import { Eye, EyeOff, Mail, Lock, Loader2, Wifi } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { authService } from '@/services/auth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth, useLogin } from '@/hooks/useAuth';
 
 const Login = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const loginMutation = useLogin();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: 'demo@docmatex.com',
     password: '123456',
     rememberMe: false
   });
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // Redirect if already logged in
     if (!authLoading && user) {
+      console.log('User already logged in, redirecting to feed');
       navigate('/feed');
     }
   }, [user, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      console.log('Attempting login with:', { email: formData.email });
-      
-      const response = await authService.login({
-        email: formData.email,
-        password: formData.password,
-      });
-      
-      console.log('Login successful:', response);
-
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully logged in to DocMateX.",
-      });
-
-      // Navigation will be handled by useEffect when user state updates
-    } catch (error: any) {
-      console.error('Login error:', error);
-      
-      let errorMessage = "Please check your credentials and try again.";
-      
-      if (error.message) {
-        errorMessage = error.message;
+    console.log('Form submitted with email:', formData.email);
+    
+    loginMutation.mutate({
+      email: formData.email,
+      password: formData.password,
+    }, {
+      onSuccess: () => {
+        console.log('Login successful, navigating to feed');
+        navigate('/feed');
       }
-
-      toast({
-        title: "Login Failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,7 +54,6 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      setIsLoading(true);
       console.log('Starting Google authentication...');
       
       await authService.loginWithGoogle();
@@ -88,7 +63,6 @@ const Login = () => {
       
     } catch (error: any) {
       console.error('Google authentication failed:', error);
-      setIsLoading(false);
       
       toast({
         title: "Google Login Error",
@@ -117,6 +91,8 @@ const Login = () => {
       </div>
     );
   }
+
+  const isLoading = loginMutation.isPending;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-6 px-4 sm:px-6 lg:px-8">
