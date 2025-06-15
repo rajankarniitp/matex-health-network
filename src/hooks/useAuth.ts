@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 interface Profile {
   id: string;
@@ -16,6 +17,11 @@ interface Profile {
   verified: boolean | null;
   created_at: string | null;
   updated_at: string | null;
+}
+
+interface LoginCredentials {
+  email: string;
+  password: string;
 }
 
 export const useAuth = () => {
@@ -113,5 +119,61 @@ export const useAuth = () => {
     profile,
     loading,
     signOut,
+  };
+};
+
+export const useLogin = () => {
+  const [isPending, setIsPending] = useState(false);
+
+  const mutate = async (
+    credentials: LoginCredentials,
+    options?: {
+      onSuccess?: () => void;
+      onError?: (error: any) => void;
+    }
+  ) => {
+    setIsPending(true);
+    try {
+      console.log('Attempting login with email:', credentials.email);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: credentials.email,
+        password: credentials.password,
+      });
+
+      if (error) {
+        console.error('Login error:', error);
+        toast({
+          title: "Login Failed",
+          description: error.message || "Invalid email or password. Please try again.",
+          variant: "destructive",
+        });
+        options?.onError?.(error);
+        return;
+      }
+
+      console.log('Login successful:', data);
+      toast({
+        title: "Welcome back!",
+        description: "You have successfully logged in.",
+      });
+      
+      options?.onSuccess?.();
+    } catch (error) {
+      console.error('Unexpected login error:', error);
+      toast({
+        title: "Login Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+      options?.onError?.(error);
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  return {
+    mutate,
+    isPending,
   };
 };
