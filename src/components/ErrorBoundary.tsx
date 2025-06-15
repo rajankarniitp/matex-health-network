@@ -1,6 +1,5 @@
 
 import React from 'react';
-import * as Sentry from '@sentry/react';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 
@@ -24,15 +23,6 @@ class ErrorBoundary extends React.Component<
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Error caught by boundary:', error, errorInfo);
-    
-    // Send error to Sentry
-    Sentry.captureException(error, {
-      contexts: {
-        react: {
-          componentStack: errorInfo.componentStack,
-        },
-      },
-    });
   }
 
   handleReset = () => {
@@ -49,7 +39,7 @@ class ErrorBoundary extends React.Component<
               Something went wrong
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              We've been notified about this error and will fix it soon.
+              There was an error loading the application. Please try again.
             </p>
             <div className="space-y-3">
               <Button onClick={this.handleReset} className="w-full">
@@ -58,10 +48,10 @@ class ErrorBoundary extends React.Component<
               </Button>
               <Button
                 variant="outline"
-                onClick={() => window.location.reload()}
+                onClick={() => window.location.href = '/'}
                 className="w-full"
               >
-                Reload Page
+                Go to Home
               </Button>
             </div>
             {import.meta.env.DEV && this.state.error && (

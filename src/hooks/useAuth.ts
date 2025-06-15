@@ -1,81 +1,117 @@
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { authService } from '@/services/auth';
-import { useAuth as useAuthContext } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
+import { useState, useEffect } from 'react';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Profile {
+  id: string;
+  email: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  specialization: string | null;
+  location: string | null;
+  bio: string | null;
+  phone: string | null;
+  role: string | null;
+  verified: boolean | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
 
 export const useAuth = () => {
-  return useAuthContext();
-};
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
 
-export const useLogin = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: authService.login,
-    onSuccess: (data) => {
-      console.log('Login mutation successful:', data);
-      queryClient.invalidateQueries({ queryKey: ['auth'] });
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully logged in.",
-      });
-    },
-    onError: (error: any) => {
-      console.error('Login mutation error:', error);
-      toast({
-        title: "Login Failed",
-        description: error.message || "Please check your credentials and try again.",
-        variant: "destructive",
-      });
-    },
-  });
-};
+  useEffect(() => {
+    console.log('useAuth: Setting up auth listener...');
+    
+    // Get initial session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error getting initial session:', error);
+        } else {
+          console.log('Initial session:', initialSession);
+          setSession(initialSession);
+          setUser(initialSession?.user ?? null);
+          
+          if (initialSession?.user) {
+            await fetchProfile(initialSession.user.id);
+          }
+        }
+      } catch (error) {
+        console.error('Error in getInitialSession:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-export const useSignup = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: authService.signup,
-    onSuccess: (data) => {
-      console.log('Signup mutation successful:', data);
-      queryClient.invalidateQueries({ queryKey: ['auth'] });
-      toast({
-        title: "Account Created!",
-        description: "Your account has been created successfully.",
-      });
-    },
-    onError: (error: any) => {
-      console.error('Signup mutation error:', error);
-      toast({
-        title: "Signup Failed",
-        description: error.message || "Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-};
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.id);
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        } else {
+          setProfile(null);
+        }
+        
+        setLoading(false);
+      }
+    );
 
-export const useLogout = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: authService.logout,
-    onSuccess: () => {
-      console.log('Logout mutation successful');
-      queryClient.clear();
-      toast({
-        title: "Logged Out",
-        description: "You have been successfully logged out.",
-      });
-    },
-    onError: (error: any) => {
-      console.error('Logout mutation error:', error);
-      toast({
-        title: "Logout Error",
-        description: "There was an error logging out.",
-        variant: "destructive",
-      });
-    },
-  });
+    getInitialSession();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const fetchProfile = async (userId: string) => {
+    try {
+      console.log('Fetching profile for user:', userId);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return;
+      }
+
+      console.log('Profile fetched:', data);
+      setProfile(data);
+    } catch (error) {
+      console.error('Error in fetchProfile:', error);
+    }
+  };
+
+  const signOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error signing out:', error);
+        throw error;
+      }
+    } catch (error) {
+      console.error('Error in signOut:', error);
+      throw error;
+    }
+  };
+
+  return {
+    user,
+    session,
+    profile,
+    loading,
+    signOut,
+  };
 };

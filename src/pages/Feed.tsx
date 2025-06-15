@@ -18,21 +18,22 @@ import {
   Users,
   Lock,
   MoreHorizontal,
-  Heart,
   Bookmark,
-  BookmarkCheck
 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { usePosts, useCreatePost, useToggleLike } from '@/hooks/useApi';
 
 const Feed = () => {
   const [newPost, setNewPost] = useState('');
   const [privacy, setPrivacy] = useState('public');
-  const { user, profile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuthContext();
   
-  const { data: posts, isLoading: postsLoading } = usePosts();
+  const { data: posts, isLoading: postsLoading, error: postsError } = usePosts();
   const createPostMutation = useCreatePost();
   const toggleLikeMutation = useToggleLike();
+
+  console.log('Feed: Auth state:', { user: !!user, profile: !!profile, authLoading });
+  console.log('Feed: Posts state:', { posts: posts?.length, postsLoading, postsError });
 
   const handlePostSubmit = () => {
     if (!newPost.trim()) {
@@ -54,7 +55,6 @@ const Feed = () => {
   };
 
   const handleSave = (postId: string) => {
-    // TODO: Implement save functionality
     console.log('Save post:', postId);
   };
 
@@ -67,8 +67,37 @@ const Feed = () => {
     }
   };
 
+  if (authLoading) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-2xl mx-auto flex items-center justify-center min-h-[400px]">
+          <p className="text-gray-500 dark:text-gray-400">Loading...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   if (!user) {
-    return <div>Please log in to view the feed.</div>;
+    return (
+      <DashboardLayout>
+        <div className="max-w-2xl mx-auto flex items-center justify-center min-h-[400px]">
+          <p className="text-gray-500 dark:text-gray-400">Please log in to view the feed.</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (postsError) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-2xl mx-auto flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <p className="text-red-500 mb-2">Error loading posts</p>
+            <p className="text-gray-500 text-sm">{postsError.message}</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
   }
 
   return (
