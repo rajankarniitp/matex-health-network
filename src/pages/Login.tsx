@@ -9,6 +9,7 @@ import { toast } from '@/hooks/use-toast';
 import { authService } from '@/services/auth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -75,11 +76,54 @@ const Login = () => {
     }));
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      setIsLoading(true);
+      console.log('Attempting Google login...');
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/feed`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+
+      if (error) {
+        console.error('Google login error:', error);
+        toast({
+          title: "Google Login Failed",
+          description: error.message || "Failed to login with Google. Please try again.",
+          variant: "destructive",
+        });
+      } else {
+        console.log('Google login initiated:', data);
+        // The redirect will happen automatically
+      }
+    } catch (error: any) {
+      console.error('Google login error:', error);
+      toast({
+        title: "Google Login Failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSocialLogin = (provider: string) => {
-    toast({
-      title: "Coming Soon!",
-      description: `${provider} login will be available soon.`,
-    });
+    if (provider === 'Google') {
+      handleGoogleLogin();
+    } else {
+      toast({
+        title: "Coming Soon!",
+        description: `${provider} login will be available soon.`,
+      });
+    }
   };
 
   // Show loading while checking auth state
@@ -138,6 +182,7 @@ const Login = () => {
                 variant="outline"
                 className="w-full h-11 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600"
                 onClick={() => handleSocialLogin('Google')}
+                disabled={isLoading}
               >
                 <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -153,6 +198,7 @@ const Login = () => {
                 variant="outline"
                 className="w-full h-11 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600"
                 onClick={() => handleSocialLogin('LinkedIn')}
+                disabled={isLoading}
               >
                 <svg className="w-5 h-5 mr-3" fill="#0A66C2" viewBox="0 0 24 24">
                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
@@ -165,6 +211,7 @@ const Login = () => {
                 variant="outline"
                 className="w-full h-11 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600"
                 onClick={() => handleSocialLogin('Apple')}
+                disabled={isLoading}
               >
                 <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12.017 0C8.396 0 8.025.044 7.333.14 5.882.372 4.85 1.025 4.85 1.025S3.646 1.677 3.646 3.14c0 .696.177 1.4.177 1.4s-.177.704-.177 1.4c0 1.463 1.204 2.115 1.204 2.115s1.032.653 2.483.885c.692.096 1.063.14 4.684.14s3.992-.044 4.684-.14c1.451-.232 2.483-.885 2.483-.885s1.204-.652 1.204-2.115c0-.696-.177-1.4-.177-1.4s.177-.704.177-1.4c0-1.463-1.204-2.115-1.204-2.115S18.118.372 16.667.14C15.975.044 15.604 0 12.017 0z"/>
