@@ -1,4 +1,3 @@
-
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,9 +7,29 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search as SearchIcon, MapPin, Users, FileText, Calendar, UserPlus } from 'lucide-react';
 import { useState } from 'react';
+import { useSEO } from '@/hooks/useSEO';
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState('');
+
+  // SEO optimization for search page
+  useSEO({
+    title: 'Search',
+    description: 'Find healthcare professionals, medical research, events, and case studies. Connect with experts in your field of medicine.',
+    keywords: 'search doctors, find medical professionals, healthcare experts, medical research search, medical events, case studies',
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Search - DocMateX",
+      "description": "Find healthcare professionals, medical research, events, and case studies",
+      "url": "https://matex-health-network.lovable.app/search",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "DocMateX",
+        "url": "https://matex-health-network.lovable.app/"
+      }
+    }
+  });
 
   const searchResults = {
     people: [

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
@@ -7,11 +6,40 @@ import Features from '@/components/home/Features';
 import Stats from '@/components/home/Stats';
 import Testimonials from '@/components/home/Testimonials';
 import Footer from '@/components/layout/Footer';
+import { useSEO } from '@/hooks/useSEO';
 
 const Index = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  // SEO optimization for home page
+  useSEO({
+    title: 'Home',
+    description: 'Join the premier network for healthcare professionals. Connect with doctors, share research, collaborate on case studies, and advance medicine together.',
+    keywords: 'doctor network, medical professionals, healthcare collaboration, medical research, case studies, medical mentorship, healthcare jobs',
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "DocMateX",
+      "description": "Premier online network for doctors, medical researchers, and healthcare professionals",
+      "url": "https://matex-health-network.lovable.app/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://matex-health-network.lovable.app/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "DocMateX",
+        "url": "https://matex-health-network.lovable.app/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://lovable.dev/openbraph-image-p98pqg.png"
+        }
+      }
+    }
+  });
 
   useEffect(() => {
     const token = localStorage.getItem('docmatex_token');

@@ -1,4 +1,3 @@
-
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,8 +5,33 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FileText, Download, Eye, Heart, MessageCircle, Share, Upload, Search } from 'lucide-react';
+import { useSEO } from '@/hooks/useSEO';
 
 const Research = () => {
+  // SEO optimization for research page
+  useSEO({
+    title: 'Research Hub',
+    description: 'Discover and share cutting-edge medical research papers, clinical studies, and scientific publications with the global healthcare community.',
+    keywords: 'medical research, clinical studies, research papers, scientific publications, medical journals, healthcare research',
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Research Hub - DocMateX",
+      "description": "Discover and share cutting-edge medical research papers, clinical studies, and scientific publications",
+      "url": "https://matex-health-network.lovable.app/research",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "DocMateX",
+        "url": "https://matex-health-network.lovable.app/"
+      },
+      "about": {
+        "@type": "Thing",
+        "name": "Medical Research",
+        "description": "Platform for sharing and discovering medical research papers and clinical studies"
+      }
+    }
+  });
+
   const papers = [
     {
       id: 1,
