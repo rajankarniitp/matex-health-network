@@ -22,6 +22,13 @@ const Login = () => {
   const [connectionStatus, setConnectionStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
 
   useEffect(() => {
+    // Check if user is already logged in
+    const token = localStorage.getItem('token') || localStorage.getItem('docmatex_token');
+    if (token) {
+      navigate('/feed');
+      return;
+    }
+
     // Test backend connection on component mount
     const checkConnection = async () => {
       try {
@@ -34,7 +41,7 @@ const Login = () => {
     };
 
     checkConnection();
-  }, []);
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +68,10 @@ const Login = () => {
           description: "You have successfully logged in to DocMateX.",
         });
 
+        // Set connection status to connected since login worked
+        setConnectionStatus('connected');
+        
+        // Navigate to feed/dashboard
         navigate('/feed');
       } else {
         throw new Error('No token received from server');
@@ -99,6 +110,16 @@ const Login = () => {
     });
   };
 
+  const retryConnection = async () => {
+    setConnectionStatus('checking');
+    try {
+      const isConnected = await testConnection();
+      setConnectionStatus(isConnected ? 'connected' : 'disconnected');
+    } catch (error) {
+      setConnectionStatus('disconnected');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-6 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-6 sm:space-y-8">
@@ -124,11 +145,28 @@ const Login = () => {
         </div>
 
         {/* Connection Status Alert */}
+        {connectionStatus === 'checking' && (
+          <Alert>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <AlertDescription>
+              Checking server connection...
+            </AlertDescription>
+          </Alert>
+        )}
+
         {connectionStatus === 'disconnected' && (
           <Alert variant="destructive">
             <WifiOff className="h-4 w-4" />
-            <AlertDescription>
-              Unable to connect to the server. Please check your internet connection or try again later.
+            <AlertDescription className="flex items-center justify-between">
+              <span>Unable to connect to the server. Please try again.</span>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={retryConnection}
+                className="ml-2"
+              >
+                Retry
+              </Button>
             </AlertDescription>
           </Alert>
         )}
@@ -281,7 +319,7 @@ const Login = () => {
 
               <Button
                 type="submit"
-                disabled={isLoading || connectionStatus === 'disconnected'}
+                disabled={isLoading}
                 className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 sm:py-3 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
