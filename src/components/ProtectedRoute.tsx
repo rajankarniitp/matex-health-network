@@ -1,6 +1,7 @@
 
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -8,15 +9,23 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token") || localStorage.getItem("docmatex_token");
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    if (!token) {
+    if (!loading && !user) {
       navigate("/login");
     }
-  }, [token, navigate]);
+  }, [user, loading, navigate]);
 
-  if (!token) {
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
     return null;
   }
 

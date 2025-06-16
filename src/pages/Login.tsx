@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,14 +6,15 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Eye, EyeOff, Mail, Lock, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { authAPI } from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { signIn } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: 'demo@docmatex.com',
-    password: '123456',
+    email: '',
+    password: '',
     rememberMe: false
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -26,36 +26,24 @@ const Login = () => {
     try {
       console.log('Attempting login with:', { email: formData.email });
       
-      const response = await authAPI.login(formData.email, formData.password);
-      console.log('Login response:', response);
+      const { error } = await signIn(formData.email, formData.password);
       
-      // Store token in localStorage
-      if (response.token) {
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('docmatex_token', response.token); // Keep for compatibility
-        
-        // Store user data if provided
-        if (response.user) {
-          localStorage.setItem('docmatex_user', JSON.stringify(response.user));
-        }
-
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully logged in to DocMateX.",
-        });
-
-        navigate('/feed');
-      } else {
-        throw new Error('No token received from server');
+      if (error) {
+        throw error;
       }
+
+      toast({
+        title: "Welcome back!",
+        description: "You have successfully logged in to DocMateX.",
+      });
+
+      navigate('/feed');
     } catch (error: any) {
       console.error('Login error:', error);
       
       let errorMessage = "Please check your credentials and try again.";
       
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.message) {
+      if (error.message) {
         errorMessage = error.message;
       }
 

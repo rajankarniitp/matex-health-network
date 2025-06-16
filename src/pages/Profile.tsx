@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { userAPI } from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
 import LoadingSkeleton from '@/components/ui/loading-skeleton';
 import {
   Edit,
@@ -28,22 +29,20 @@ import {
   Star
 } from 'lucide-react';
 
-// ... keep existing code (imports and interfaces)
-
 const Profile = () => {
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: '',
+    first_name: '',
+    last_name: '',
     email: '',
     phone: '',
     role: '',
     specialization: '',
     location: '',
     bio: '',
-    education: '',
-    experience: '',
-    joinDate: '',
     verified: false
   });
 
@@ -103,51 +102,26 @@ const Profile = () => {
       const response = await userAPI.getProfile();
       console.log('Profile response:', response);
       
-      if (response.user || response) {
-        const userData = response.user || response;
+      if (response.user) {
+        const userData = response.user;
         setProfileData({
-          name: userData.name || userData.firstName + ' ' + userData.lastName || 'Dr. User',
+          first_name: userData.first_name || '',
+          last_name: userData.last_name || '',
           email: userData.email || '',
           phone: userData.phone || '',
-          role: userData.role || userData.specialization || 'Doctor',
-          specialization: userData.specialization || userData.specialty || '',
-          location: userData.location || userData.address || '',
-          bio: userData.bio || userData.description || '',
-          education: userData.education || '',
-          experience: userData.experience || '',
-          joinDate: userData.joinDate || userData.createdAt || 'Recently',
-          verified: userData.verified || userData.isVerified || false
+          role: userData.role || 'doctor',
+          specialization: userData.specialization || '',
+          location: userData.location || '',
+          bio: userData.bio || '',
+          verified: userData.verified || false
         });
       }
     } catch (error: any) {
       console.error('Profile fetch error:', error);
       
-      // Fallback to localStorage data if API fails
-      const storedUser = localStorage.getItem('docmatex_user');
-      if (storedUser) {
-        try {
-          const userData = JSON.parse(storedUser);
-          setProfileData({
-            name: userData.name || 'Dr. User',
-            email: userData.email || '',
-            phone: userData.phone || '',
-            role: userData.role || 'Doctor',
-            specialization: userData.specialization || '',
-            location: userData.location || '',
-            bio: userData.bio || '',
-            education: userData.education || '',
-            experience: userData.experience || '',
-            joinDate: userData.joinDate || 'Recently',
-            verified: userData.verified || false
-          });
-        } catch (parseError) {
-          console.error('Error parsing stored user data:', parseError);
-        }
-      }
-      
       toast({
         title: "Error Loading Profile",
-        description: "Using cached profile data. Please refresh to try again.",
+        description: "Could not load profile data. Please try refreshing the page.",
         variant: "destructive",
       });
     } finally {
@@ -155,12 +129,28 @@ const Profile = () => {
     }
   };
 
-  const handleSave = () => {
-    setIsEditing(false);
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been successfully updated.",
-    });
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      
+      await userAPI.updateProfile(profileData);
+      
+      setIsEditing(false);
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been successfully updated.",
+      });
+    } catch (error: any) {
+      console.error('Profile update error:', error);
+      
+      toast({
+        title: "Update Failed",
+        description: "Could not update profile. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -169,6 +159,10 @@ const Profile = () => {
       [field]: value
     }));
   };
+
+  const displayName = profileData.first_name && profileData.last_name 
+    ? `${profileData.first_name} ${profileData.last_name}` 
+    : profileData.first_name || 'User';
 
   if (isLoading) {
     return (
@@ -191,9 +185,9 @@ const Profile = () => {
             <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-6">
               <div className="relative flex-shrink-0">
                 <Avatar className="h-24 w-24 ring-2 ring-border dark:ring-border">
-                  <AvatarImage src="" alt={profileData.name} />
+                  <AvatarImage src="" alt={displayName} />
                   <AvatarFallback className="text-2xl font-semibold bg-primary text-primary-foreground">
-                    {profileData.name.split(' ').map(n => n[0]).join('')}
+                    {displayName.split(' ').map(n => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
                 <Button 
@@ -209,7 +203,7 @@ const Profile = () => {
                   <div className="space-y-2">
                     <div className="flex items-center space-x-3">
                       <h1 className="text-2xl sm:text-3xl font-bold text-foreground dark:text-foreground">
-                        {profileData.name || 'Dr. User'}
+                        Dr. {displayName}
                       </h1>
                       {profileData.verified && (
                         <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 flex items-center">
@@ -230,9 +224,9 @@ const Profile = () => {
                     onClick={() => isEditing ? handleSave() : setIsEditing(!isEditing)}
                     variant={isEditing ? "default" : "outline"}
                     className="self-start sm:self-auto"
-                    disabled={isLoading}
+                    disabled={isSaving}
                   >
-                    {isLoading ? (
+                    {isSaving ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     ) : (
                       <Edit className="h-4 w-4 mr-2" />
@@ -250,7 +244,7 @@ const Profile = () => {
                   )}
                   <div className="flex items-center space-x-2">
                     <Calendar className="h-4 w-4" />
-                    <span>Joined {profileData.joinDate}</span>
+                    <span>Joined Recently</span>
                   </div>
                 </div>
               </div>
@@ -292,6 +286,29 @@ const Profile = () => {
               <CardContent className="space-y-6">
                 {isEditing ? (
                   <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
+                          First Name
+                        </label>
+                        <Input
+                          value={profileData.first_name}
+                          onChange={(e) => handleInputChange('first_name', e.target.value)}
+                          className="bg-background dark:bg-input text-foreground dark:text-foreground"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
+                          Last Name
+                        </label>
+                        <Input
+                          value={profileData.last_name}
+                          onChange={(e) => handleInputChange('last_name', e.target.value)}
+                          className="bg-background dark:bg-input text-foreground dark:text-foreground"
+                        />
+                      </div>
+                    </div>
+                    
                     <div>
                       <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
                         Bio
@@ -305,16 +322,6 @@ const Profile = () => {
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
-                          Email
-                        </label>
-                        <Input
-                          value={profileData.email}
-                          onChange={(e) => handleInputChange('email', e.target.value)}
-                          className="bg-background dark:bg-input text-foreground dark:text-foreground"
-                        />
-                      </div>
                       <div>
                         <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
                           Phone
@@ -346,32 +353,6 @@ const Profile = () => {
                         />
                       </div>
                     </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
-                        Education
-                      </label>
-                      <Input
-                        value={profileData.education}
-                        onChange={(e) => handleInputChange('education', e.target.value)}
-                        className="bg-background dark:bg-input text-foreground dark:text-foreground"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
-                        Experience
-                      </label>
-                      <Input
-                        value={profileData.experience}
-                        onChange={(e) => handleInputChange('experience', e.target.value)}
-                        className="bg-background dark:bg-input text-foreground dark:text-foreground"
-                      />
-                    </div>
-                    
-                    <Button onClick={handleSave} className="bg-primary hover:bg-primary/90">
-                      Save Changes
-                    </Button>
                   </div>
                 ) : (
                   <div className="space-y-6">
@@ -380,7 +361,7 @@ const Profile = () => {
                         Bio
                       </h3>
                       <p className="text-muted-foreground dark:text-muted-foreground leading-relaxed">
-                        {profileData.bio}
+                        {profileData.bio || 'No bio available.'}
                       </p>
                     </div>
                     
@@ -399,7 +380,7 @@ const Profile = () => {
                           <div className="flex items-center space-x-3">
                             <Phone className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
                             <span className="text-muted-foreground dark:text-muted-foreground">
-                              {profileData.phone}
+                              {profileData.phone || 'Not provided'}
                             </span>
                           </div>
                         </div>
@@ -412,18 +393,18 @@ const Profile = () => {
                         <div className="space-y-3">
                           <div>
                             <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-                              Education:
+                              Role:
                             </span>
                             <p className="text-foreground dark:text-foreground">
-                              {profileData.education}
+                              {profileData.role || 'Not specified'}
                             </p>
                           </div>
                           <div>
                             <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-                              Current Position:
+                              Specialization:
                             </span>
                             <p className="text-foreground dark:text-foreground">
-                              {profileData.experience}
+                              {profileData.specialization || 'Not specified'}
                             </p>
                           </div>
                         </div>

@@ -1,52 +1,71 @@
 
-import axios from 'axios';
-
-const BASE_URL = 'https://docmatex-api.onrender.com';
-
-// Create axios instance
-const api = axios.create({
-  baseURL: BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Add token to requests if available
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Handle token expiration
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('docmatex_user');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
+import { supabase } from '@/integrations/supabase/client';
 
 // Auth API
 export const authAPI = {
   login: async (email: string, password: string) => {
-    const response = await api.post('/api/auth/login', { email, password });
-    return response.data;
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    
+    if (error) throw error;
+    
+    return {
+      user: data.user,
+      session: data.session,
+      token: data.session?.access_token
+    };
+  },
+
+  logout: async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
   },
 };
 
 // User API
 export const userAPI = {
   getProfile: async () => {
-    const response = await api.get('/api/users/profile');
-    return response.data;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('No authenticated user');
+
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (error) throw error;
+    
+    return {
+      user: {
+        ...user,
+        ...profile,
+        name: profile?.first_name && profile?.last_name 
+          ? `${profile.first_name} ${profile.last_name}` 
+          : profile?.first_name || 'User'
+      }
+    };
+  },
+
+  updateProfile: async (profileData: any) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('No authenticated user');
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .upsert({
+        id: user.id,
+        ...profileData,
+        updated_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   },
 };
 
-export default api;
+export default supabase;
