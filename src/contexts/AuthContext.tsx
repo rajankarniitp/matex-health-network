@@ -8,6 +8,7 @@ interface AuthContextType {
   session: Session | null;
   signUp: (email: string, password: string, userData?: any) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   loading: boolean;
 }
@@ -30,10 +31,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // Auto-create profile for new users
+        if (event === 'SIGNED_IN' && session?.user) {
+          const { data: existingProfile } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('id', session.user.id)
+            .maybeSingle();
+
+          if (!existingProfile) {
+            const { error } = await supabase
+              .from('profiles')
+              .insert({
+                id: session.user.id,
+                email: session.user.email,
+                first_name: session.user.user_metadata?.first_name || session.user.user_metadata?.full_name?.split(' ')[0] || '',
+                last_name: session.user.user_metadata?.last_name || session.user.user_metadata?.full_name?.split(' ').slice(1).join(' ') || '',
+              });
+
+            if (error) {
+              console.error('Error creating profile:', error);
+            }
+          }
+        }
+        
         setLoading(false);
       }
     );
@@ -50,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signUp = async (email: string, password: string, userData?: any) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${window.location.origin}/dashboard`;
     
     const { error } = await supabase.auth.signUp({
       email,
@@ -73,6 +99,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`
+      }
+    });
+    
+    return { error };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
   };
@@ -82,6 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     session,
     signUp,
     signIn,
+    signInWithGoogle,
     signOut,
     loading,
   };
