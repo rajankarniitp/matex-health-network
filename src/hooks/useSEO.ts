@@ -23,11 +23,17 @@ export const useSEO = (customSEO?: UseSEOOptions) => {
     const seoData = {
       ...defaultSEO,
       ...customSEO,
-      url: `https://matex-health-network.lovable.app${location.pathname}`
+      url: `https://matex-health-network.lovable.app${location.pathname}`,
+      image: customSEO?.image || defaultSEO.image || 'https://matex-health-network.lovable.app/lovable-uploads/84147cf3-76ff-47ed-8414-b86ab0dd0c76.png'
     };
 
     // Update page SEO
     SEOService.updatePageSEO(seoData);
+    
+    // Update page title for better UX
+    document.title = seoData.title 
+      ? `${seoData.title} | DocMateX - India's Premier Medical Network` 
+      : 'DocMateX - India\'s Premier Medical Networking Platform | Connect, Collaborate & Advance Healthcare';
   }, [location.pathname, customSEO]);
 
   return {
@@ -36,7 +42,8 @@ export const useSEO = (customSEO?: UseSEOOptions) => {
       const seoData = {
         ...defaultSEO,
         ...newSEO,
-        url: `https://matex-health-network.lovable.app${location.pathname}`
+        url: `https://matex-health-network.lovable.app${location.pathname}`,
+        image: newSEO?.image || defaultSEO.image || 'https://matex-health-network.lovable.app/lovable-uploads/84147cf3-76ff-47ed-8414-b86ab0dd0c76.png'
       };
       SEOService.updatePageSEO(seoData);
     }
