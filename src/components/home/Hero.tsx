@@ -81,31 +81,54 @@ const Hero = () => {
             <div className="w-24 h-1 bg-blue-600 dark:bg-blue-400 mx-auto rounded-full"></div>
           </div>
           
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="mb-8">
-              <h3 className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                Rajan Kumar Karn
-              </h3>
-              <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 font-medium mb-4">
-                Alumni, Indian Institute of Technology (IIT) Patna
-              </p>
-              <div className="flex justify-center items-center gap-2 mb-6">
-                <Trophy className="h-5 w-5 text-yellow-500" />
-                <span className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Engineering Excellence & Healthcare Innovation</span>
+          <div className="max-w-5xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+              {/* Founder Image */}
+              <div className="flex justify-center lg:justify-end">
+                <div className="relative">
+                  <div className="w-80 h-80 sm:w-96 sm:h-96 rounded-2xl overflow-hidden shadow-2xl">
+                    <img 
+                      src="/lovable-uploads/bd694b09-8f4f-4668-abcb-b8f9bbdf8208.png" 
+                      alt="Rajan Kumar Karn - Founder of DocMateX" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="absolute -bottom-4 -right-4 bg-blue-600 dark:bg-blue-500 rounded-full p-4 shadow-lg">
+                    <Trophy className="h-8 w-8 text-white" />
+                  </div>
+                </div>
               </div>
-            </div>
-            
-            <blockquote className="text-lg sm:text-xl lg:text-2xl text-gray-700 dark:text-gray-300 leading-relaxed italic mb-8">
-              "Healthcare professionals dedicate their lives to saving others, yet they often lack a dedicated platform to connect, collaborate, and grow professionally. DocMateX bridges this gap by creating India's first comprehensive medical networking ecosystem."
-            </blockquote>
-            
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6 sm:p-8">
-              <h4 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                Vision Behind DocMateX
-              </h4>
-              <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                Born from the vision to revolutionize healthcare collaboration in India, DocMateX was created to empower medical professionals with cutting-edge networking tools, research opportunities, and knowledge sharing capabilities. Our mission is to build a trusted ecosystem where healthcare excellence thrives through meaningful connections.
-              </p>
+              
+              {/* Founder Details */}
+              <div className="text-center lg:text-left space-y-6">
+                <div>
+                  <h3 className="text-3xl sm:text-4xl font-bold text-blue-600 dark:text-blue-400 mb-3">
+                    Rajan Kumar Karn
+                  </h3>
+                  <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-400 font-semibold mb-4">
+                    Founder & CEO, DocMateX
+                  </p>
+                  <div className="flex justify-center lg:justify-start items-center gap-2 mb-4">
+                    <Award className="h-6 w-6 text-yellow-500" />
+                    <span className="text-lg text-gray-700 dark:text-gray-300 font-medium">
+                      Alumni, Indian Institute of Technology (IIT) Patna
+                    </span>
+                  </div>
+                </div>
+                
+                <blockquote className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 leading-relaxed italic border-l-4 border-blue-600 pl-6">
+                  "Healthcare professionals dedicate their lives to saving others, yet they often lack a dedicated platform to connect, collaborate, and grow professionally. DocMateX bridges this gap by creating India's first comprehensive medical networking ecosystem."
+                </blockquote>
+                
+                <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-6 border border-blue-200 dark:border-blue-700">
+                  <h4 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+                    Vision Behind DocMateX
+                  </h4>
+                  <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                    Born from the vision to revolutionize healthcare collaboration in India, DocMateX was created to empower medical professionals with cutting-edge networking tools, research opportunities, and knowledge sharing capabilities.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
