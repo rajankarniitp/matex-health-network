@@ -1,228 +1,166 @@
 
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import DashboardLayout from "@/components/layout/DashboardLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Users, Plus } from "lucide-react";
-import { eventsAPI } from "@/services/api";
-import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { format } from "date-fns";
+import DashboardLayout from '@/components/layout/DashboardLayout';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Clock, MapPin, Users, ExternalLink, Filter } from 'lucide-react';
 
 const Events = () => {
-  const [showCreateEvent, setShowCreateEvent] = useState(false);
-  const [newEvent, setNewEvent] = useState({
-    title: "",
-    description: "",
-    date_time: "",
-    location: "",
-    max_participants: "",
-  });
-
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const { data: events, isLoading } = useQuery({
-    queryKey: ['events'],
-    queryFn: eventsAPI.getEvents,
-  });
-
-  const createEventMutation = useMutation({
-    mutationFn: eventsAPI.createEvent,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['events'] });
-      setNewEvent({
-        title: "",
-        description: "",
-        date_time: "",
-        location: "",
-        max_participants: "",
-      });
-      setShowCreateEvent(false);
-      toast({
-        title: "Success",
-        description: "Event created successfully!",
-      });
+  const events = [
+    {
+      id: 1,
+      title: 'International Cardiology Conference 2024',
+      date: 'March 15-17, 2024',
+      time: '9:00 AM - 6:00 PM',
+      location: 'New York Convention Center',
+      type: 'Conference',
+      attendees: 1250,
+      price: '$599',
+      description: 'Join leading cardiologists from around the world for the latest in cardiac care...',
+      tags: ['Cardiology', 'CME Credits', 'Networking'],
+      organizer: 'American Heart Association',
+      isVirtual: false,
+      registered: false
     },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+    {
+      id: 2,
+      title: 'Emergency Medicine Webinar: Trauma Care',
+      date: 'March 20, 2024',
+      time: '2:00 PM - 4:00 PM EST',
+      location: 'Online',
+      type: 'Webinar',
+      attendees: 500,
+      price: 'Free',
+      description: 'Learn the latest protocols in trauma care and emergency response...',
+      tags: ['Emergency Medicine', 'Trauma', 'Free CME'],
+      organizer: 'Emergency Medicine Society',
+      isVirtual: true,
+      registered: true
     },
-  });
+    {
+      id: 3,
+      title: 'Pediatric Surgery Workshop',
+      date: 'April 5, 2024',
+      time: '10:00 AM - 5:00 PM',
+      location: 'Children\'s Hospital Boston',
+      type: 'Workshop',
+      attendees: 50,
+      price: '$299',
+      description: 'Hands-on workshop covering minimally invasive pediatric surgical techniques...',
+      tags: ['Pediatrics', 'Surgery', 'Hands-on'],
+      organizer: 'Pediatric Surgery Association',
+      isVirtual: false,
+      registered: false
+    }
+  ];
 
-  const registerEventMutation = useMutation({
-    mutationFn: eventsAPI.registerForEvent,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['events'] });
-      toast({
-        title: "Success",
-        description: "Successfully registered for event!",
-      });
+  const upcomingEvents = [
+    {
+      id: 4,
+      title: 'AI in Medicine Summit',
+      date: 'May 10, 2024',
+      type: 'Summit',
+      isVirtual: true
     },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleCreateEvent = (e: React.FormEvent) => {
-    e.preventDefault();
-    const eventData = {
-      ...newEvent,
-      max_participants: newEvent.max_participants ? parseInt(newEvent.max_participants) : undefined,
-    };
-    createEventMutation.mutate(eventData);
-  };
-
-  const handleRegister = (eventId: string) => {
-    registerEventMutation.mutate(eventId);
-  };
-
-  if (isLoading) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      </DashboardLayout>
-    );
-  }
+    {
+      id: 5,
+      title: 'Oncology Research Symposium',
+      date: 'May 25, 2024',
+      type: 'Symposium',
+      isVirtual: false
+    }
+  ];
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
+        {/* Header */}
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">Medical Events</h1>
-          <Dialog open={showCreateEvent} onOpenChange={setShowCreateEvent}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Event
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Create New Event</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleCreateEvent} className="space-y-4">
-                <div>
-                  <Label htmlFor="title">Event Title</Label>
-                  <Input
-                    id="title"
-                    value={newEvent.title}
-                    onChange={(e) => setNewEvent(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="e.g. Cardiology Conference 2024"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={newEvent.description}
-                    onChange={(e) => setNewEvent(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="Describe the event, agenda, speakers..."
-                    rows={4}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="date_time">Date & Time</Label>
-                    <Input
-                      id="date_time"
-                      type="datetime-local"
-                      value={newEvent.date_time}
-                      onChange={(e) => setNewEvent(prev => ({ ...prev, date_time: e.target.value }))}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="location">Location</Label>
-                    <Input
-                      id="location"
-                      value={newEvent.location}
-                      onChange={(e) => setNewEvent(prev => ({ ...prev, location: e.target.value }))}
-                      placeholder="e.g. Medical Center Auditorium"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="max_participants">Max Participants (Optional)</Label>
-                  <Input
-                    id="max_participants"
-                    type="number"
-                    value={newEvent.max_participants}
-                    onChange={(e) => setNewEvent(prev => ({ ...prev, max_participants: e.target.value }))}
-                    placeholder="e.g. 100"
-                  />
-                </div>
-
-                <Button type="submit" disabled={createEventMutation.isPending}>
-                  {createEventMutation.isPending ? "Creating..." : "Create Event"}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Medical Events</h1>
+            <p className="text-gray-600">Conferences, webinars, and continuing education</p>
+          </div>
+          <Button>Create Event</Button>
         </div>
 
-        <div className="grid gap-6">
-          {events?.map((event: any) => (
-            <Card key={event.id}>
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-xl">{event.title}</CardTitle>
-                    <CardDescription className="flex items-center space-x-4 mt-2">
-                      <span className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        {format(new Date(event.date_time), "PPP 'at' p")}
-                      </span>
-                      {event.location && (
-                        <span className="flex items-center">
-                          <MapPin className="h-4 w-4 mr-1" />
-                          {event.location}
-                        </span>
-                      )}
-                    </CardDescription>
-                  </div>
-                  <div className="flex flex-col items-end space-y-2">
-                    {event.max_participants && (
-                      <Badge variant="outline">
-                        <Users className="h-3 w-3 mr-1" />
-                        Max {event.max_participants}
+        {/* Filters */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex gap-4 flex-wrap">
+              <Button variant="outline">
+                <Filter className="h-4 w-4 mr-2" />
+                All Events
+              </Button>
+              <Button variant="outline">Conferences</Button>
+              <Button variant="outline">Webinars</Button>
+              <Button variant="outline">Workshops</Button>
+              <Button variant="outline">CME Credits</Button>
+              <Button variant="outline">Free Events</Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Featured Events */}
+        <div className="space-y-6">
+          {events.map((event) => (
+            <Card key={event.id} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-xl font-semibold">{event.title}</h3>
+                      <Badge variant={event.isVirtual ? 'secondary' : 'default'}>
+                        {event.isVirtual ? 'Virtual' : 'In-Person'}
                       </Badge>
-                    )}
-                    <Badge variant="secondary">
-                      {event.event_registrations?.[0]?.count || 0} registered
-                    </Badge>
+                      <Badge variant="outline">{event.type}</Badge>
+                    </div>
+                    <p className="text-gray-600 mb-3">{event.organizer}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Calendar className="h-4 w-4" />
+                        {event.date}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Clock className="h-4 w-4" />
+                        {event.time}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <MapPin className="h-4 w-4" />
+                        {event.location}
+                      </div>
+                    </div>
+                    <p className="text-gray-700 mb-4">{event.description}</p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {event.tags.map((tag) => (
+                        <Badge key={tag} variant="outline" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-1">
+                        <Users className="h-4 w-4" />
+                        {event.attendees} attendees
+                      </div>
+                      <div className="font-semibold text-green-600">
+                        {event.price}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 mb-4">{event.description}</p>
-                <div className="flex justify-between items-center">
-                  <div className="text-sm text-gray-500">
-                    Organized by {event.profiles?.first_name} {event.profiles?.last_name}
-                  </div>
-                  <Button 
-                    onClick={() => handleRegister(event.id)}
-                    disabled={registerEventMutation.isPending}
-                  >
-                    {registerEventMutation.isPending ? "Registering..." : "Register"}
+                <div className="flex gap-3">
+                  {event.registered ? (
+                    <Button variant="outline">
+                      Registered ✓
+                    </Button>
+                  ) : (
+                    <Button>
+                      Register Now
+                    </Button>
+                  )}
+                  <Button variant="outline">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    View Details
                   </Button>
                 </div>
               </CardContent>
@@ -230,17 +168,56 @@ const Events = () => {
           ))}
         </div>
 
-        {(!events || events.length === 0) && (
-          <Card>
-            <CardContent className="text-center py-12">
-              <p className="text-gray-500 mb-4">No events scheduled yet.</p>
-              <Button onClick={() => setShowCreateEvent(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create First Event
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+        {/* Upcoming Events */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Upcoming Events</CardTitle>
+            <CardDescription>Don't miss these upcoming medical events</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {upcomingEvents.map((event) => (
+                <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div>
+                    <h4 className="font-semibold">{event.title}</h4>
+                    <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                      <span>{event.date}</span>
+                      <Badge variant={event.isVirtual ? 'secondary' : 'default'} className="text-xs">
+                        {event.isVirtual ? 'Virtual' : 'In-Person'}
+                      </Badge>
+                    </div>
+                  </div>
+                  <Button variant="outline" size="sm">
+                    Learn More
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* My Events */}
+        <Card>
+          <CardHeader>
+            <CardTitle>My Events</CardTitle>
+            <CardDescription>Events you've registered for</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 border rounded-lg bg-blue-50">
+                <div>
+                  <h4 className="font-semibold">Emergency Medicine Webinar: Trauma Care</h4>
+                  <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                    <span>March 20, 2024</span>
+                    <Badge variant="secondary" className="text-xs">Virtual</Badge>
+                    <span className="text-green-600 font-medium">Registered</span>
+                  </div>
+                </div>
+                <Button size="sm">Join Event</Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );

@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,11 +8,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2 } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
-import { userAPI } from '@/services/api';
-import { useAuth } from '@/contexts/AuthContext';
-import LoadingSkeleton from '@/components/ui/loading-skeleton';
 import {
   Edit,
   MapPin,
@@ -28,22 +24,22 @@ import {
   ExternalLink,
   Star
 } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 const Profile = () => {
-  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [profileData, setProfileData] = useState({
-    first_name: '',
-    last_name: '',
-    email: '',
-    phone: '',
-    role: '',
-    specialization: '',
-    location: '',
-    bio: '',
-    verified: false
+    name: 'Dr. John Doe',
+    email: 'john.doe@example.com',
+    phone: '+1 (555) 123-4567',
+    role: 'Cardiologist',
+    specialization: 'Interventional Cardiology',
+    location: 'New York, NY',
+    bio: 'Board-certified cardiologist with 10+ years of experience in interventional cardiology. Passionate about advancing cardiac care through innovative techniques and research.',
+    education: 'MD from Harvard Medical School',
+    experience: 'Senior Cardiologist at Mount Sinai Hospital',
+    joinDate: 'January 2022',
+    verified: true
   });
 
   const stats = [
@@ -90,67 +86,12 @@ const Profile = () => {
     { type: 'event', content: 'Attended International Cardiology Conference', time: '1 week ago' },
   ];
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
-    try {
-      setIsLoading(true);
-      console.log('Fetching user profile...');
-      
-      const response = await userAPI.getProfile();
-      console.log('Profile response:', response);
-      
-      if (response.user) {
-        const userData = response.user;
-        setProfileData({
-          first_name: userData.first_name || '',
-          last_name: userData.last_name || '',
-          email: userData.email || '',
-          phone: userData.phone || '',
-          role: userData.role || 'doctor',
-          specialization: userData.specialization || '',
-          location: userData.location || '',
-          bio: userData.bio || '',
-          verified: userData.verified || false
-        });
-      }
-    } catch (error: any) {
-      console.error('Profile fetch error:', error);
-      
-      toast({
-        title: "Error Loading Profile",
-        description: "Could not load profile data. Please try refreshing the page.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSave = async () => {
-    try {
-      setIsSaving(true);
-      
-      await userAPI.updateProfile(profileData);
-      
-      setIsEditing(false);
-      toast({
-        title: "Profile Updated",
-        description: "Your profile has been successfully updated.",
-      });
-    } catch (error: any) {
-      console.error('Profile update error:', error);
-      
-      toast({
-        title: "Update Failed",
-        description: "Could not update profile. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
-    }
+  const handleSave = () => {
+    setIsEditing(false);
+    toast({
+      title: "Profile Updated",
+      description: "Your profile has been successfully updated.",
+    });
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -159,22 +100,6 @@ const Profile = () => {
       [field]: value
     }));
   };
-
-  const displayName = profileData.first_name && profileData.last_name 
-    ? `${profileData.first_name} ${profileData.last_name}` 
-    : profileData.first_name || 'User';
-
-  if (isLoading) {
-    return (
-      <DashboardLayout>
-        <div className="max-w-4xl mx-auto space-y-6">
-          <LoadingSkeleton type="profile" count={1} />
-          <LoadingSkeleton type="stats" />
-          <LoadingSkeleton type="card" count={2} />
-        </div>
-      </DashboardLayout>
-    );
-  }
 
   return (
     <DashboardLayout>
@@ -185,9 +110,9 @@ const Profile = () => {
             <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-6">
               <div className="relative flex-shrink-0">
                 <Avatar className="h-24 w-24 ring-2 ring-border dark:ring-border">
-                  <AvatarImage src="" alt={displayName} />
+                  <AvatarImage src="" alt={profileData.name} />
                   <AvatarFallback className="text-2xl font-semibold bg-primary text-primary-foreground">
-                    {displayName.split(' ').map(n => n[0]).join('')}
+                    {profileData.name.split(' ').map(n => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
                 <Button 
@@ -203,7 +128,7 @@ const Profile = () => {
                   <div className="space-y-2">
                     <div className="flex items-center space-x-3">
                       <h1 className="text-2xl sm:text-3xl font-bold text-foreground dark:text-foreground">
-                        Dr. {displayName}
+                        {profileData.name}
                       </h1>
                       {profileData.verified && (
                         <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 flex items-center">
@@ -213,38 +138,31 @@ const Profile = () => {
                       )}
                     </div>
                     <p className="text-lg font-medium text-foreground dark:text-foreground">
-                      {profileData.role || 'Healthcare Professional'}
+                      {profileData.role}
                     </p>
                     <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-                      {profileData.specialization || 'Medical Specialist'}
+                      {profileData.specialization}
                     </p>
                   </div>
                   
                   <Button 
-                    onClick={() => isEditing ? handleSave() : setIsEditing(!isEditing)}
+                    onClick={() => setIsEditing(!isEditing)}
                     variant={isEditing ? "default" : "outline"}
                     className="self-start sm:self-auto"
-                    disabled={isSaving}
                   >
-                    {isSaving ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <Edit className="h-4 w-4 mr-2" />
-                    )}
+                    <Edit className="h-4 w-4 mr-2" />
                     {isEditing ? 'Save Changes' : 'Edit Profile'}
                   </Button>
                 </div>
                 
                 <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-6 mt-4 text-sm text-muted-foreground dark:text-muted-foreground">
-                  {profileData.location && (
-                    <div className="flex items-center space-x-2">
-                      <MapPin className="h-4 w-4" />
-                      <span>{profileData.location}</span>
-                    </div>
-                  )}
+                  <div className="flex items-center space-x-2">
+                    <MapPin className="h-4 w-4" />
+                    <span>{profileData.location}</span>
+                  </div>
                   <div className="flex items-center space-x-2">
                     <Calendar className="h-4 w-4" />
-                    <span>Joined Recently</span>
+                    <span>Joined {profileData.joinDate}</span>
                   </div>
                 </div>
               </div>
@@ -286,29 +204,6 @@ const Profile = () => {
               <CardContent className="space-y-6">
                 {isEditing ? (
                   <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
-                          First Name
-                        </label>
-                        <Input
-                          value={profileData.first_name}
-                          onChange={(e) => handleInputChange('first_name', e.target.value)}
-                          className="bg-background dark:bg-input text-foreground dark:text-foreground"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
-                          Last Name
-                        </label>
-                        <Input
-                          value={profileData.last_name}
-                          onChange={(e) => handleInputChange('last_name', e.target.value)}
-                          className="bg-background dark:bg-input text-foreground dark:text-foreground"
-                        />
-                      </div>
-                    </div>
-                    
                     <div>
                       <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
                         Bio
@@ -322,6 +217,16 @@ const Profile = () => {
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
+                          Email
+                        </label>
+                        <Input
+                          value={profileData.email}
+                          onChange={(e) => handleInputChange('email', e.target.value)}
+                          className="bg-background dark:bg-input text-foreground dark:text-foreground"
+                        />
+                      </div>
                       <div>
                         <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
                           Phone
@@ -353,6 +258,32 @@ const Profile = () => {
                         />
                       </div>
                     </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
+                        Education
+                      </label>
+                      <Input
+                        value={profileData.education}
+                        onChange={(e) => handleInputChange('education', e.target.value)}
+                        className="bg-background dark:bg-input text-foreground dark:text-foreground"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-foreground dark:text-foreground mb-2">
+                        Experience
+                      </label>
+                      <Input
+                        value={profileData.experience}
+                        onChange={(e) => handleInputChange('experience', e.target.value)}
+                        className="bg-background dark:bg-input text-foreground dark:text-foreground"
+                      />
+                    </div>
+                    
+                    <Button onClick={handleSave} className="bg-primary hover:bg-primary/90">
+                      Save Changes
+                    </Button>
                   </div>
                 ) : (
                   <div className="space-y-6">
@@ -361,7 +292,7 @@ const Profile = () => {
                         Bio
                       </h3>
                       <p className="text-muted-foreground dark:text-muted-foreground leading-relaxed">
-                        {profileData.bio || 'No bio available.'}
+                        {profileData.bio}
                       </p>
                     </div>
                     
@@ -380,7 +311,7 @@ const Profile = () => {
                           <div className="flex items-center space-x-3">
                             <Phone className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
                             <span className="text-muted-foreground dark:text-muted-foreground">
-                              {profileData.phone || 'Not provided'}
+                              {profileData.phone}
                             </span>
                           </div>
                         </div>
@@ -393,18 +324,18 @@ const Profile = () => {
                         <div className="space-y-3">
                           <div>
                             <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-                              Role:
+                              Education:
                             </span>
                             <p className="text-foreground dark:text-foreground">
-                              {profileData.role || 'Not specified'}
+                              {profileData.education}
                             </p>
                           </div>
                           <div>
                             <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
-                              Specialization:
+                              Current Position:
                             </span>
                             <p className="text-foreground dark:text-foreground">
-                              {profileData.specialization || 'Not specified'}
+                              {profileData.experience}
                             </p>
                           </div>
                         </div>
