@@ -80,6 +80,13 @@ const Navbar = () => {
           >
             Jobs
           </button>
+          <button
+            type="button"
+            onClick={() => navigateOrLogin('/doxy-ai')}
+            className={`hover:text-blue-600 transition-colors text-sm lg:text-base ${location.pathname === '/doxy-ai' ? 'font-semibold' : ''} bg-transparent border-0 cursor-pointer`}
+          >
+            DoxyAI
+          </button>
         </div>
 
         {/* Right side - Auth dependent with responsive design */}
@@ -180,6 +187,13 @@ const Navbar = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               Jobs
+            </Link>
+            <Link
+              to="/doxy-ai"
+              className="py-2 px-2 rounded text-gray-900 dark:text-gray-100 hover:bg-blue-50 font-medium text-sm sm:text-base"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              DoxyAI
             </Link>
             {authenticated && (
               <Link

@@ -1,59 +1,47 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Dashboard from "./pages/Dashboard";
-import Profile from "./pages/Profile";
-import Feed from "./pages/Feed";
-import Mates from "./pages/Mates";
-import Messages from "./pages/Messages";
-import Chat from "./pages/Chat";
-import Jobs from "./pages/Jobs";
-import Research from "./pages/Research";
-import CaseStudies from "./pages/CaseStudies";
-import Events from "./pages/Events";
-import Search from "./pages/Search";
-import Mentorship from "./pages/Mentorship";
-import Admin from "./pages/Admin";
-import Settings from "./pages/Settings";
-import NotFound from "./pages/NotFound";
+import Index from "@/pages/Index";
+import Login from "@/pages/Login";
+import Signup from "@/pages/Signup";
+import Dashboard from "@/pages/Dashboard";
+import Feed from "@/pages/Feed";
+import Mates from "@/pages/Mates";
+import Jobs from "@/pages/Jobs";
+import DoxyAI from "@/pages/DoxyAI";
+import Profile from "@/pages/Profile";
+import Settings from "@/pages/Settings";
+import Chat from "@/pages/Chat";
+import Messages from "@/pages/Messages";
+import Research from "@/pages/Research";
+import CaseStudies from "@/pages/CaseStudies";
+import Mentorship from "@/pages/Mentorship";
+import Events from "@/pages/Events";
+import Search from "@/pages/Search";
+import Admin from "@/pages/Admin";
+import NotFound from "@/pages/NotFound";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
-      <NotificationProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <NotificationProvider>
+          <Router>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
-              {/* Protected Routes */}
               <Route
                 path="/dashboard"
                 element={
                   <ProtectedRoute>
                     <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <Profile />
                   </ProtectedRoute>
                 }
               />
@@ -74,15 +62,39 @@ const App = () => (
                 }
               />
               <Route
-                path="/messages"
+                path="/jobs"
                 element={
                   <ProtectedRoute>
-                    <Messages />
+                    <Jobs />
                   </ProtectedRoute>
                 }
               />
               <Route
-                path="/chat/:id"
+                path="/doxy-ai"
+                element={
+                  <ProtectedRoute>
+                    <DoxyAI />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <Settings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/chat"
                 element={
                   <ProtectedRoute>
                     <Chat />
@@ -90,10 +102,10 @@ const App = () => (
                 }
               />
               <Route
-                path="/jobs"
+                path="/messages"
                 element={
                   <ProtectedRoute>
-                    <Jobs />
+                    <Messages />
                   </ProtectedRoute>
                 }
               />
@@ -114,6 +126,14 @@ const App = () => (
                 }
               />
               <Route
+                path="/mentorship"
+                element={
+                  <ProtectedRoute>
+                    <Mentorship />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/events"
                 element={
                   <ProtectedRoute>
@@ -130,14 +150,6 @@ const App = () => (
                 }
               />
               <Route
-                path="/mentorship"
-                element={
-                  <ProtectedRoute>
-                    <Mentorship />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
                 path="/admin"
                 element={
                   <ProtectedRoute>
@@ -145,22 +157,14 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
-              <Route
-                path="/settings"
-                element={
-                  <ProtectedRoute>
-                    <Settings />
-                  </ProtectedRoute>
-                }
-              />
-              {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </NotificationProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
-);
+            <Toaster />
+          </Router>
+        </NotificationProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;

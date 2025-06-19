@@ -1,36 +1,43 @@
 
-import { NavLink, useLocation } from 'react-router-dom';
-import { User, Menu, MessageSquare, Briefcase, Home } from 'lucide-react';
-
-const navs = [
-  { label: 'Home', path: '/', icon: Home },
-  { label: 'Mates', path: '/mates', icon: User },
-  { label: 'Feed', path: '/feed', icon: MessageSquare },
-  { label: 'Jobs', path: '/jobs', icon: Briefcase },
-  { label: 'Profile', path: '/profile', icon: User },
-];
+import { Link, useLocation } from 'react-router-dom';
+import { Home, Users, Briefcase, MessageSquare, Bot } from 'lucide-react';
 
 const MobileBottomNav = () => {
   const location = useLocation();
+
+  const navItems = [
+    { to: '/feed', icon: Home, label: 'Feed' },
+    { to: '/mates', icon: Users, label: 'Mates' },
+    { to: '/jobs', icon: Briefcase, label: 'Jobs' },
+    { to: '/doxy-ai', icon: Bot, label: 'DoxyAI' },
+    { to: '/messages', icon: MessageSquare, label: 'Messages' },
+  ];
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center px-2 py-1 shadow-md md:hidden transition-colors">
-      {navs.map((n) => (
-        <NavLink
-          key={n.path}
-          to={n.path}
-          className={({ isActive }) =>
-            `flex-1 flex flex-col items-center text-xs px-1 pt-2 pb-1 font-medium transition-colors ${
-              isActive || location.pathname === n.path
-                ? 'text-blue-600 dark:text-blue-400'
-                : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
-            }`
-          }
-        >
-          <n.icon className="h-6 w-6 mb-0.5" />
-          {n.label}
-        </NavLink>
-      ))}
+    <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 z-40">
+      <div className="flex justify-around items-center py-2">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = location.pathname === item.to;
+          
+          return (
+            <Link
+              key={item.to}
+              to={item.to}
+              className={`flex flex-col items-center justify-center min-w-0 flex-1 py-2 px-1 transition-colors ${
+                isActive
+                  ? 'text-blue-600 dark:text-blue-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
+              }`}
+            >
+              <Icon className="h-5 w-5 mb-1" />
+              <span className="text-xs font-medium truncate">{item.label}</span>
+            </Link>
+          );
+        })}
+      </div>
     </nav>
   );
 };
+
 export default MobileBottomNav;
