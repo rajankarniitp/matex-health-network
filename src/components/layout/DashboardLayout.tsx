@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -28,7 +27,8 @@ import {
   X,
   LogOut,
   User,
-  Shield
+  Shield,
+  Bot
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -41,6 +41,7 @@ const navigation = [
   { name: 'My Mates', href: '/mates', icon: Users },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
   { name: 'Jobs', href: '/jobs', icon: Briefcase },
+  { name: 'DoxyAI', href: '/doxy-ai', icon: Bot },
   { name: 'Research Hub', href: '/research', icon: BookOpen },
   { name: 'Case Studies', href: '/case-studies', icon: FileText },
   { name: 'Events', href: '/events', icon: Calendar },
