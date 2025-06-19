@@ -16,9 +16,24 @@ serve(async (req) => {
   }
 
   try {
-    const { message } = await req.json();
+    console.log('DoxyAI function called');
 
-    if (!message) {
+    if (!GEMINI_API_KEY) {
+      console.error('GEMINI_API_KEY not found');
+      return new Response(
+        JSON.stringify({ error: 'API key not configured' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    const { message } = await req.json();
+    console.log('Received message:', message);
+
+    if (!message || !message.trim()) {
+      console.error('No message provided');
       return new Response(
         JSON.stringify({ error: 'Message is required' }),
         { 
@@ -49,39 +64,57 @@ FORMAT YOUR RESPONSE WITH:
 
 Remember: You are assisting healthcare professionals, not providing direct patient care advice.`;
 
+    const requestBody = {
+      contents: [
+        {
+          parts: [
+            { text: `${systemPrompt}\n\nMedical Query: ${message.trim()}` }
+          ]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.3,
+        topK: 40,
+        topP: 0.8,
+        maxOutputTokens: 2048,
+      },
+      safetySettings: [
+        {
+          category: "HARM_CATEGORY_HARASSMENT",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        {
+          category: "HARM_CATEGORY_HATE_SPEECH",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        {
+          category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        },
+        {
+          category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        }
+      ]
+    };
+
+    console.log('Making request to Gemini API...');
+    
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              { text: systemPrompt },
-              { text: `Medical Query: ${message}` }
-            ]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.3,
-          topK: 40,
-          topP: 0.8,
-          maxOutputTokens: 2048,
-        },
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_MEDICAL",
-            threshold: "BLOCK_NONE"
-          }
-        ]
-      }),
+      body: JSON.stringify(requestBody),
     });
 
+    console.log('Gemini API response status:', response.status);
+
     if (!response.ok) {
-      console.error('Gemini API error:', response.status, response.statusText);
+      const errorText = await response.text();
+      console.error('Gemini API error response:', errorText);
       return new Response(
-        JSON.stringify({ error: 'Failed to generate response' }),
+        JSON.stringify({ error: 'Failed to generate response from AI service' }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -90,7 +123,11 @@ Remember: You are assisting healthcare professionals, not providing direct patie
     }
 
     const data = await response.json();
-    const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated';
+    console.log('Gemini API response received');
+
+    const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'I apologize, but I was unable to generate a response. Please try rephrasing your question.';
+
+    console.log('Response generated successfully');
 
     return new Response(
       JSON.stringify({ response: generatedText }),
@@ -102,7 +139,7 @@ Remember: You are assisting healthcare professionals, not providing direct patie
   } catch (error) {
     console.error('Error in doxy-ai function:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: 'Internal server error occurred' }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
