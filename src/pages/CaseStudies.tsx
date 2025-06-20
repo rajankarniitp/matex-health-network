@@ -1,10 +1,10 @@
-
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ThumbsUp, MessageCircle, Bookmark, Share, Upload, Eye } from 'lucide-react';
+import DoxyAIIntegration from '@/components/doxy/DoxyAIIntegration';
 
 const CaseStudies = () => {
   const cases = [
@@ -66,6 +66,13 @@ const CaseStudies = () => {
             Share Case Study
           </Button>
         </div>
+
+        {/* DoxyAI Integration */}
+        <DoxyAIIntegration 
+          context="Clinical Case Studies and Medical Scenarios"
+          placeholder="Ask DoxyAI about differential diagnosis, treatment protocols, case analysis, or get clinical insights..."
+          title="Clinical Assistant - DoxyAI"
+        />
 
         {/* Featured Cases */}
         <div className="space-y-6">

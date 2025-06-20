@@ -37,11 +37,11 @@ interface DashboardLayoutProps {
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
+  { name: 'DoxyAI', href: '/doxy-ai', icon: Bot },
   { name: 'Feed', href: '/feed', icon: MessageSquare },
   { name: 'My Mates', href: '/mates', icon: Users },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
   { name: 'Jobs', href: '/jobs', icon: Briefcase },
-  { name: 'DoxyAI', href: '/doxy-ai', icon: Bot },
   { name: 'Research Hub', href: '/research', icon: BookOpen },
   { name: 'Case Studies', href: '/case-studies', icon: FileText },
   { name: 'Events', href: '/events', icon: Calendar },

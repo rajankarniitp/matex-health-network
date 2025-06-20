@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Send, Bot, User, Loader2, Stethoscope, AlertCircle } from 'lucide-react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
@@ -18,17 +17,63 @@ interface Message {
 }
 
 const DoxyAI = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load conversation from localStorage on component mount
+  useEffect(() => {
+    const savedMessages = localStorage.getItem('doxyai_conversation');
+    if (savedMessages) {
+      try {
+        const parsed = JSON.parse(savedMessages);
+        setMessages(parsed.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        })));
+      } catch (error) {
+        console.error('Failed to load conversation:', error);
+        // Set default welcome message if loading fails
+        setMessages([{
+          id: '1',
+          content: 'Hello! I\'m DoxyAI, your medical AI assistant. I\'m here to help healthcare professionals with evidence-based medical information, research insights, and clinical guidance. How can I assist you today?',
+          isUser: false,
+          timestamp: new Date()
+        }]);
+      }
+    } else {
+      // Set default welcome message
+      setMessages([{
+        id: '1',
+        content: 'Hello! I\'m DoxyAI, your medical AI assistant. I\'m here to help healthcare professionals with evidence-based medical information, research insights, and clinical guidance. How can I assist you today?',
+        isUser: false,
+        timestamp: new Date()
+      }]);
+    }
+  }, []);
+
+  // Save conversation to localStorage whenever messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('doxyai_conversation', JSON.stringify(messages));
+    }
+  }, [messages]);
+
+  const clearConversation = () => {
+    const welcomeMessage = {
       id: '1',
       content: 'Hello! I\'m DoxyAI, your medical AI assistant. I\'m here to help healthcare professionals with evidence-based medical information, research insights, and clinical guidance. How can I assist you today?',
       isUser: false,
       timestamp: new Date()
-    }
-  ]);
-  const [inputMessage, setInputMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+    };
+    setMessages([welcomeMessage]);
+    localStorage.removeItem('doxyai_conversation');
+    toast({
+      title: "Conversation cleared",
+      description: "Your conversation history has been reset.",
+    });
+  };
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -48,8 +93,17 @@ const DoxyAI = () => {
     try {
       console.log('Sending message to DoxyAI:', inputMessage.trim());
       
+      // Include conversation context for better responses
+      const conversationContext = messages.slice(-6).map(msg => 
+        `${msg.isUser ? 'User' : 'DoxyAI'}: ${msg.content}`
+      ).join('\n');
+      
+      const contextualMessage = conversationContext 
+        ? `Previous conversation:\n${conversationContext}\n\nCurrent question: ${inputMessage.trim()}`
+        : inputMessage.trim();
+
       const { data, error } = await supabase.functions.invoke('doxy-ai', {
-        body: { message: inputMessage.trim() }
+        body: { message: contextualMessage }
       });
 
       console.log('Supabase function response:', { data, error });
@@ -120,16 +174,26 @@ const DoxyAI = () => {
         {/* Header */}
         <Card className="mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
           <CardHeader className="pb-4">
-            <CardTitle className="flex items-center space-x-3 text-blue-900 dark:text-blue-100">
-              <div className="p-2 bg-blue-600 rounded-lg">
-                <Stethoscope className="h-6 w-6 text-white" />
+            <CardTitle className="flex items-center justify-between text-blue-900 dark:text-blue-100">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-blue-600 rounded-lg">
+                  <Stethoscope className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl sm:text-2xl font-bold">DoxyAI</h1>
+                  <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-300 font-normal">
+                    Advanced Medical AI Assistant for Healthcare Professionals
+                  </p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold">DoxyAI</h1>
-                <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-300 font-normal">
-                  Advanced Medical AI Assistant for Healthcare Professionals
-                </p>
-              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={clearConversation}
+                className="text-blue-600 border-blue-300 hover:bg-blue-50"
+              >
+                Clear Chat
+              </Button>
             </CardTitle>
           </CardHeader>
         </Card>

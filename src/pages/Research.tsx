@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FileText, Download, Eye, Heart, MessageCircle, Share, Upload, Search } from 'lucide-react';
 import { useSEO } from '@/hooks/useSEO';
+import DoxyAIIntegration from '@/components/doxy/DoxyAIIntegration';
 
 const Research = () => {
   // SEO optimization for research page
@@ -91,6 +92,13 @@ const Research = () => {
             Upload Research
           </Button>
         </div>
+
+        {/* DoxyAI Integration */}
+        <DoxyAIIntegration 
+          context="Medical Research and Publications"
+          placeholder="Ask DoxyAI about research methodologies, statistical analysis, publication guidelines, or get insights about specific medical topics..."
+          title="Research Assistant - DoxyAI"
+        />
 
         {/* Search and Filters */}
         <Card>
