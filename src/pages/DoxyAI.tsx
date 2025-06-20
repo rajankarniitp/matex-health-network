@@ -37,7 +37,7 @@ const DoxyAI = () => {
         // Set default welcome message if loading fails
         setMessages([{
           id: '1',
-          content: 'Hello! I\'m DoxyAI, your medical AI assistant. I\'m here to help healthcare professionals with evidence-based medical information, research insights, and clinical guidance. How can I assist you today?',
+          content: 'Hello! I\'m DoxyAI, your medical AI assistant enhanced with real-time PubMed literature access. I can help healthcare professionals with evidence-based medical information, research insights, and clinical guidance. For research queries, I\'ll automatically search and analyze the latest biomedical literature from PubMed. How can I assist you today?',
           isUser: false,
           timestamp: new Date()
         }]);
@@ -46,7 +46,7 @@ const DoxyAI = () => {
       // Set default welcome message
       setMessages([{
         id: '1',
-        content: 'Hello! I\'m DoxyAI, your medical AI assistant. I\'m here to help healthcare professionals with evidence-based medical information, research insights, and clinical guidance. How can I assist you today?',
+        content: 'Hello! I\'m DoxyAI, your medical AI assistant enhanced with real-time PubMed literature access. I can help healthcare professionals with evidence-based medical information, research insights, and clinical guidance. For research queries, I\'ll automatically search and analyze the latest biomedical literature from PubMed. How can I assist you today?',
         isUser: false,
         timestamp: new Date()
       }]);
@@ -63,7 +63,7 @@ const DoxyAI = () => {
   const clearConversation = () => {
     const welcomeMessage = {
       id: '1',
-      content: 'Hello! I\'m DoxyAI, your medical AI assistant. I\'m here to help healthcare professionals with evidence-based medical information, research insights, and clinical guidance. How can I assist you today?',
+      content: 'Hello! I\'m DoxyAI, your medical AI assistant enhanced with real-time PubMed literature access. I can help healthcare professionals with evidence-based medical information, research insights, and clinical guidance. For research queries, I\'ll automatically search and analyze the latest biomedical literature from PubMed. How can I assist you today?',
       isUser: false,
       timestamp: new Date()
     };
@@ -131,6 +131,14 @@ const DoxyAI = () => {
         return;
       }
 
+      // Show toast if PubMed was used
+      if (data.pubmedIntegrated) {
+        toast({
+          title: "Enhanced with PubMed",
+          description: `Response includes insights from ${data.articleCount} recent research articles.`,
+        });
+      }
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: data.response,
@@ -182,7 +190,7 @@ const DoxyAI = () => {
                 <div>
                   <h1 className="text-xl sm:text-2xl font-bold">DoxyAI</h1>
                   <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-300 font-normal">
-                    Advanced Medical AI Assistant for Healthcare Professionals
+                    Advanced Medical AI Assistant with PubMed Integration
                   </p>
                 </div>
               </div>
@@ -281,7 +289,7 @@ const DoxyAI = () => {
                     <div className="flex items-center space-x-2">
                       <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
                       <span className="text-sm text-gray-600 dark:text-gray-400">
-                        DoxyAI is thinking...
+                        DoxyAI is analyzing (including PubMed search)...
                       </span>
                     </div>
                   </div>
@@ -293,7 +301,7 @@ const DoxyAI = () => {
             <div className="border-t dark:border-gray-700 pt-4">
               <div className="flex space-x-2">
                 <Textarea
-                  placeholder="Ask DoxyAI about medical conditions, treatments, research, or clinical guidance..."
+                  placeholder="Ask about clinical research, survival rates, treatment comparisons, or any medical topic. For research queries, I'll search PubMed automatically..."
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
@@ -314,7 +322,7 @@ const DoxyAI = () => {
               </div>
               
               <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
-                DoxyAI provides information for healthcare professionals. Always consult with licensed medical professionals for patient care decisions.
+                DoxyAI with P<strong>ubMed integration</strong> provides evidence-based information for healthcare professionals. Always consult with licensed medical professionals for patient care decisions.
               </div>
             </div>
           </CardContent>
