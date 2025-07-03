@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Send, Bot, User, Loader2, Stethoscope, AlertCircle, BookOpen, Calculator, Zap } from 'lucide-react';
+import { Send, Bot, User, Loader2, Stethoscope, AlertCircle, BookOpen, Calculator, Zap, Database } from 'lucide-react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -62,25 +62,29 @@ const DoxyAI = () => {
 
   const getWelcomeMessage = () => ({
     id: '1',
-    content: `# Welcome to DoxyAI Enhanced! 🩺
+    content: `# Welcome to DoxyAI Enhanced RAG! 🩺
 
 I'm your advanced clinical AI assistant powered by:
-- **RAG Pipeline** with real-time PubMed literature access
-- **Statistical Engine** for medical calculations  
-- **Evidence-Based Responses** with citations
+- **Live PubMed RAG Pipeline** with real-time literature retrieval
+- **Enhanced Statistical Engine** for medical calculations  
+- **Evidence-Based Responses** with direct PubMed citations
 
-## I can help with:
-- Clinical research queries and literature reviews
-- Drug comparisons and treatment guidelines
-- Medical calculations (BMI, BSA, creatinine clearance)
-- Statistical analysis and research interpretation
+## Enhanced RAG Capabilities:
+- **Clinical Research Queries** with live PubMed abstract retrieval
+- **Drug Comparisons** based on recent RCTs and meta-analyses
+- **Statistical Analysis** with medical calculations integrated
+- **Citation-Rich Responses** with PMIDs and direct links
 
-**Try asking:** *"Compare HbA1c reduction of Metformin vs Semaglutide based on recent RCTs"*
+## Try These Enhanced Queries:
+- *"Compare HbA1c reduction of Metformin vs Semaglutide based on recent RCTs"*
+- *"What's the 5-year survival rate for triple-negative breast cancer with immunotherapy?"*
+- *"Pembrolizumab vs Nivolumab efficacy in stage IV NSCLC with PD-L1 ≥50%"*
 
-Ready to assist with evidence-based medical insights!`,
+**Ready to provide evidence-based medical insights with live literature retrieval!**`,
     isUser: false,
     timestamp: new Date(),
-    ragEnabled: true
+    ragEnabled: true,
+    searchStrategy: 'Enhanced RAG Pipeline'
   });
 
   const clearConversation = () => {
@@ -129,10 +133,10 @@ Ready to assist with evidence-based medical insights!`,
 
       if (error) {
         console.error('Supabase function error:', error);
-        const errorMessage = "Failed to get response from DoxyAI. Please check your connection and try again.";
+        const errorMessage = "Failed to get response from DoxyAI RAG pipeline. Please check your connection and try again.";
         setError(errorMessage);
         toast({
-          title: "Error",
+          title: "RAG Pipeline Error",
           description: errorMessage,
           variant: "destructive",
         });
@@ -140,10 +144,10 @@ Ready to assist with evidence-based medical insights!`,
       }
 
       if (!data || !data.response) {
-        const errorMessage = "No response received from DoxyAI. Please try again.";
+        const errorMessage = "No response received from DoxyAI RAG. Please try again.";
         setError(errorMessage);
         toast({
-          title: "Error",
+          title: "RAG Error",
           description: errorMessage,
           variant: "destructive",
         });
@@ -151,10 +155,15 @@ Ready to assist with evidence-based medical insights!`,
       }
 
       // Enhanced toast notifications for RAG features
-      if (data.pubmedIntegrated) {
+      if (data.pubmedIntegrated && data.articleCount > 0) {
         toast({
           title: "🔬 RAG Enhanced Response",
-          description: `Analysis includes evidence from ${data.articleCount} recent research articles with full citations.`,
+          description: `Analysis includes evidence from ${data.articleCount} recent PubMed articles with full citations.`,
+        });
+      } else if (data.ragEnabled && !data.pubmedIntegrated) {
+        toast({
+          title: "📚 General Medical Knowledge",
+          description: "Response based on established medical guidelines (no recent articles found).",
         });
       }
 
@@ -162,13 +171,6 @@ Ready to assist with evidence-based medical insights!`,
         toast({
           title: "📊 Statistical Analysis",
           description: `${data.calculationType?.toUpperCase()} calculation performed and integrated into clinical assessment.`,
-        });
-      }
-
-      if (data.ragEnabled) {
-        toast({
-          title: "⚡ RAG Pipeline Active",
-          description: `Strategy: ${data.searchStrategy || 'Enhanced Medical Knowledge'}`,
         });
       }
 
@@ -226,7 +228,6 @@ Ready to assist with evidence-based medical insights!`,
   };
 
   const formatMessage = (content: string) => {
-    // Enhanced markdown formatting for clinical responses
     return content
       .replace(/### (.*?)\n/g, '<h3 class="text-lg font-bold text-blue-600 dark:text-blue-400 mt-4 mb-2">$1</h3>')
       .replace(/## (.*?)\n/g, '<h2 class="text-xl font-bold text-blue-700 dark:text-blue-300 mt-4 mb-3">$1</h2>')
@@ -251,10 +252,11 @@ Ready to assist with evidence-based medical insights!`,
                 <div>
                   <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
                     DoxyAI Enhanced RAG
+                    <Database className="h-5 w-5 text-green-500" />
                     <Zap className="h-5 w-5 text-yellow-500" />
                   </h1>
                   <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-300 font-normal">
-                    RAG Pipeline • PubMed Literature • Statistical Engine • Evidence-Based Medicine
+                    Live PubMed RAG Pipeline • Statistical Engine • Evidence-Based Medicine • Real-time Literature Retrieval
                   </p>
                 </div>
               </div>
@@ -327,11 +329,11 @@ Ready to assist with evidence-based medical insights!`,
                         <div className="flex flex-wrap gap-1 mt-3">
                           {message.ragEnabled && (
                             <Badge variant="secondary" className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300">
-                              <Zap className="h-3 w-3 mr-1" />
+                              <Database className="h-3 w-3 mr-1" />
                               RAG Enhanced
                             </Badge>
                           )}
-                          {message.pubmedIntegrated && (
+                          {message.pubmedIntegrated && message.articleCount && message.articleCount > 0 && (
                             <Badge variant="secondary" className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">
                               <BookOpen className="h-3 w-3 mr-1" />
                               {message.articleCount} PubMed Articles
@@ -382,7 +384,7 @@ Ready to assist with evidence-based medical insights!`,
                     <div className="flex items-center space-x-2">
                       <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
                       <span className="text-sm text-gray-600 dark:text-gray-400">
-                        DoxyAI RAG pipeline processing with PubMed literature search...
+                        DoxyAI RAG pipeline processing • Searching PubMed • Analyzing literature...
                       </span>
                     </div>
                   </div>
@@ -394,7 +396,7 @@ Ready to assist with evidence-based medical insights!`,
             <div className="border-t dark:border-gray-700 pt-4">
               <div className="flex space-x-2">
                 <Textarea
-                  placeholder="Ask about clinical research, drug comparisons, survival rates, statistical calculations, or any medical topic. Enhanced RAG with real-time PubMed literature and statistical engine..."
+                  placeholder="Ask clinical research questions with live PubMed RAG retrieval: 'Compare HbA1c reduction of Metformin vs Semaglutide', 'Pembrolizumab vs Nivolumab in NSCLC', statistical calculations, or any medical topic..."
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
@@ -415,7 +417,7 @@ Ready to assist with evidence-based medical insights!`,
               </div>
               
               <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
-                <strong>DoxyAI RAG Enhanced</strong> • Real-time PubMed literature • Statistical calculations • Evidence-based clinical guidance
+                <strong>DoxyAI Enhanced RAG</strong> • Live PubMed literature retrieval • Statistical calculations • Evidence-based clinical guidance
               </div>
             </div>
           </CardContent>

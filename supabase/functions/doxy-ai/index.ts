@@ -27,13 +27,12 @@ const statisticalCalculations = {
       return sum + Math.pow(obs - exp, 2) / exp;
     }, 0);
   },
-  // Add more medical calculations
   bodyFatPercentage: (bmi: number, age: number, isMale: boolean) => {
     const sexFactor = isMale ? 1 : 0;
     return (1.2 * bmi) + (0.23 * age) - (10.8 * sexFactor) - 5.4;
   },
   idealBodyWeight: (height: number, isMale: boolean) => {
-    const heightInches = height * 39.37; // convert meters to inches
+    const heightInches = height * 39.37;
     if (isMale) {
       return 50 + (2.3 * (heightInches - 60));
     } else {
@@ -42,105 +41,123 @@ const statisticalCalculations = {
   }
 };
 
-// Improved PubMed search with broader query strategies
-async function searchPubMed(query: string, maxResults: number = 8): Promise<string[]> {
+// Enhanced PubMed search with better query construction
+async function searchPubMed(query: string, maxResults: number = 10): Promise<string[]> {
   try {
-    // Try multiple search strategies for better results
-    const searchStrategies = [
-      constructPrimaryQuery(query),
-      constructBroaderQuery(query),
-      constructFallbackQuery(query)
-    ];
+    console.log(`Starting PubMed search for: ${query}`);
     
-    for (const searchQuery of searchStrategies) {
-      console.log(`Trying PubMed search with: ${searchQuery}`);
+    // Build comprehensive search query
+    const searchQuery = buildAdvancedPubMedQuery(query);
+    console.log(`Constructed PubMed query: ${searchQuery}`);
+    
+    const searchParams = new URLSearchParams({
+      db: 'pubmed',
+      term: searchQuery,
+      retmode: 'json',
+      retmax: maxResults.toString(),
+      sort: 'relevance',
+      datetype: 'pdat',
+      reldate: '1825', // Last 5 years
+      usehistory: 'y'
+    });
+
+    const searchResponse = await fetch(`${PUBMED_ESEARCH_URL}?${searchParams}`);
+    const searchData = await searchResponse.json();
+    
+    const pmids = searchData.esearchresult?.idlist || [];
+    console.log(`PubMed search returned ${pmids.length} PMIDs:`, pmids);
+    
+    if (pmids.length === 0) {
+      // Try a broader search if initial query returns nothing
+      const broaderQuery = buildBroaderQuery(query);
+      console.log(`Trying broader query: ${broaderQuery}`);
       
-      const searchParams = new URLSearchParams({
+      const broaderParams = new URLSearchParams({
         db: 'pubmed',
-        term: searchQuery,
+        term: broaderQuery,
         retmode: 'json',
         retmax: maxResults.toString(),
         sort: 'relevance',
-        reldate: '1825', // Last 5 years
-        usehistory: 'y'
+        datetype: 'pdat',
+        reldate: '2555', // Last 7 years for broader search
       });
 
-      const searchResponse = await fetch(`${PUBMED_ESEARCH_URL}?${searchParams}`);
-      const searchData = await searchResponse.json();
+      const broaderResponse = await fetch(`${PUBMED_ESEARCH_URL}?${broaderParams}`);
+      const broaderData = await broaderResponse.json();
+      const broaderPmids = broaderData.esearchresult?.idlist || [];
       
-      const pmids = searchData.esearchresult?.idlist || [];
-      console.log(`Found ${pmids.length} PMIDs with strategy: ${searchQuery}`);
-      
-      if (pmids.length > 0) {
-        return pmids.slice(0, maxResults); // Return first successful strategy
-      }
+      console.log(`Broader search returned ${broaderPmids.length} PMIDs`);
+      return broaderPmids.slice(0, maxResults);
     }
     
-    return [];
+    return pmids.slice(0, maxResults);
   } catch (error) {
-    console.error('Error searching PubMed:', error);
+    console.error('Error in PubMed search:', error);
     return [];
   }
 }
 
-// Primary query construction with medical term mapping
-function constructPrimaryQuery(query: string): string {
-  const medicalTerms = {
-    'pembrolizumab': 'pembrolizumab[tw] OR keytruda[tw]',
-    'nivolumab': 'nivolumab[tw] OR opdivo[tw]',
-    'NSCLC': '("non-small cell lung cancer"[tw] OR NSCLC[tw] OR "lung neoplasms"[mh])',
-    'EGFR': '(EGFR[tw] OR "epidermal growth factor receptor"[tw])',
-    'PD-L1': '("PD-L1"[tw] OR "programmed death ligand 1"[tw] OR "CD274"[tw])',
-    'survival rate': '(survival[tw] OR mortality[tw] OR "overall survival"[tw] OR "progression free survival"[tw])',
-    'immunotherapy': '(immunotherapy[tw] OR "immune checkpoint"[tw] OR "immune therapy"[tw])',
-    'metformin': '(metformin[tw] OR "glucophage"[tw])',
-    'semaglutide': '(semaglutide[tw] OR "ozempic"[tw] OR "wegovy"[tw])',
-    'HbA1c': '("HbA1c"[tw] OR "hemoglobin A1c"[tw] OR "glycated hemoglobin"[tw])',
-    'diabetes': '("diabetes mellitus"[mh] OR "type 2 diabetes"[tw] OR T2DM[tw])',
-    'breast cancer': '("breast neoplasms"[mh] OR "breast cancer"[tw])',
-    'triple negative': '("triple negative"[tw] OR TNBC[tw])'
+// Build advanced PubMed query with medical term enhancement
+function buildAdvancedPubMedQuery(query: string): string {
+  const queryLower = query.toLowerCase();
+  
+  // Enhanced medical term mapping
+  const medicalTermMap = {
+    'metformin': 'metformin[tw] OR glucophage[tw]',
+    'semaglutide': 'semaglutide[tw] OR ozempic[tw] OR wegovy[tw] OR rybelsus[tw]',
+    'hba1c': 'hba1c[tw] OR "hemoglobin a1c"[tw] OR "glycated hemoglobin"[tw] OR "hemoglobin a, glycosylated"[mesh]',
+    'diabetes': '"diabetes mellitus, type 2"[mesh] OR "type 2 diabetes"[tw] OR t2dm[tw]',
+    'pembrolizumab': 'pembrolizumab[tw] OR keytruda[tw] OR "mk-3475"[tw]',
+    'nivolumab': 'nivolumab[tw] OR opdivo[tw] OR "bms-936558"[tw]',
+    'nsclc': '"carcinoma, non-small-cell lung"[mesh] OR "non-small cell lung cancer"[tw] OR nsclc[tw]',
+    'survival': '"survival rate"[mesh] OR "overall survival"[tw] OR "progression-free survival"[tw] OR mortality[tw]',
+    'breast cancer': '"breast neoplasms"[mesh] OR "breast cancer"[tw]',
+    'triple negative': '"triple negative breast neoplasms"[mesh] OR "triple negative"[tw] OR tnbc[tw]'
   };
   
-  let enhancedQuery = query.toLowerCase();
+  let enhancedQuery = query;
   
   // Replace terms with enhanced versions
-  Object.entries(medicalTerms).forEach(([term, replacement]) => {
-    const regex = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-    if (enhancedQuery.includes(term.toLowerCase())) {
-      enhancedQuery = enhancedQuery.replace(regex, replacement);
+  Object.entries(medicalTermMap).forEach(([term, replacement]) => {
+    if (queryLower.includes(term)) {
+      const regex = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+      enhancedQuery = enhancedQuery.replace(regex, `(${replacement})`);
     }
   });
   
-  // Add study type filters
-  enhancedQuery += ' AND (randomized controlled trial[pt] OR clinical trial[pt] OR meta-analysis[pt] OR systematic review[pt])';
-  enhancedQuery += ' AND humans[mh]';
+  // Add study type filters for clinical research queries
+  if (queryLower.includes('compare') || queryLower.includes('vs') || queryLower.includes('versus')) {
+    enhancedQuery += ' AND (randomized controlled trial[pt] OR clinical trial[pt] OR comparative study[pt] OR meta-analysis[pt])';
+  } else if (queryLower.includes('survival') || queryLower.includes('rate') || queryLower.includes('outcome')) {
+    enhancedQuery += ' AND (clinical trial[pt] OR cohort studies[mesh] OR meta-analysis[pt])';
+  } else {
+    enhancedQuery += ' AND (randomized controlled trial[pt] OR meta-analysis[pt] OR systematic review[pt])';
+  }
+  
+  // Always add human studies filter
+  enhancedQuery += ' AND humans[mesh]';
   
   return enhancedQuery;
 }
 
-// Broader query for when primary fails
-function constructBroaderQuery(query: string): string {
-  const keywords = extractKeywords(query);
-  const broadQuery = keywords.map(kw => `${kw}[tw]`).join(' OR ');
-  return `(${broadQuery}) AND (clinical trial[pt] OR meta-analysis[pt]) AND humans[mh]`;
+// Build broader query for fallback
+function buildBroaderQuery(query: string): string {
+  const keywords = extractMedicalKeywords(query);
+  const broadQuery = keywords.slice(0, 3).map(kw => `${kw}[tw]`).join(' AND ');
+  return `${broadQuery} AND (clinical trial[pt] OR meta-analysis[pt]) AND humans[mesh]`;
 }
 
-// Fallback query with minimal filters
-function constructFallbackQuery(query: string): string {
-  const keywords = extractKeywords(query);
-  return keywords.slice(0, 3).map(kw => `${kw}[tw]`).join(' AND ') + ' AND humans[mh]';
-}
-
-// Extract key medical terms from query
-function extractKeywords(query: string): string[] {
-  const medicalKeywords = [
-    'pembrolizumab', 'nivolumab', 'NSCLC', 'EGFR', 'PD-L1', 'survival', 'immunotherapy',
-    'metformin', 'semaglutide', 'HbA1c', 'diabetes', 'breast cancer', 'triple negative',
-    'treatment', 'therapy', 'efficacy', 'safety', 'trial', 'study', 'cancer', 'oncology'
+// Extract medical keywords from query
+function extractMedicalKeywords(query: string): string[] {
+  const medicalTerms = [
+    'metformin', 'semaglutide', 'hba1c', 'diabetes', 'pembrolizumab', 'nivolumab', 
+    'nsclc', 'survival', 'breast cancer', 'triple negative', 'treatment', 'therapy',
+    'efficacy', 'safety', 'trial', 'study', 'cancer', 'oncology', 'immunotherapy',
+    'chemotherapy', 'radiation', 'surgery', 'prognosis', 'outcome', 'mortality'
   ];
   
-  return medicalKeywords.filter(keyword => 
-    query.toLowerCase().includes(keyword.toLowerCase())
+  return medicalTerms.filter(term => 
+    query.toLowerCase().includes(term.toLowerCase())
   );
 }
 
@@ -149,6 +166,8 @@ async function fetchAbstracts(pmids: string[]): Promise<{abstracts: string, cita
   if (pmids.length === 0) return {abstracts: '', citations: []};
   
   try {
+    console.log(`Fetching abstracts for PMIDs: ${pmids.join(', ')}`);
+    
     const fetchParams = new URLSearchParams({
       db: 'pubmed',
       id: pmids.join(','),
@@ -159,8 +178,10 @@ async function fetchAbstracts(pmids: string[]): Promise<{abstracts: string, cita
     const fetchResponse = await fetch(`${PUBMED_EFETCH_URL}?${fetchParams}`);
     const xmlData = await fetchResponse.text();
     
+    console.log(`Received XML data length: ${xmlData.length}`);
+    
     const {abstracts, citations} = parseEnhancedAbstractsFromXML(xmlData);
-    console.log(`Successfully fetched ${citations.length} abstracts with enhanced parsing`);
+    console.log(`Successfully parsed ${citations.length} abstracts`);
     
     return {abstracts, citations};
   } catch (error) {
@@ -169,89 +190,88 @@ async function fetchAbstracts(pmids: string[]): Promise<{abstracts: string, cita
   }
 }
 
-// Enhanced XML parsing with better error handling
+// Enhanced XML parsing with better error handling and data extraction
 function parseEnhancedAbstractsFromXML(xml: string): {abstracts: string, citations: any[]} {
   const articles: string[] = [];
   const citations: any[] = [];
   
   try {
     const articleRegex = /<PubmedArticle>(.*?)<\/PubmedArticle>/gs;
-    const titleRegex = /<ArticleTitle>(.*?)<\/ArticleTitle>/s;
-    const abstractRegex = /<AbstractText[^>]*>(.*?)<\/AbstractText>/gs;
-    const authorRegex = /<Author[^>]*>.*?<LastName>(.*?)<\/LastName>.*?<ForeName>(.*?)<\/ForeName>.*?<\/Author>/gs;
-    const pmidRegex = /<PMID[^>]*>(.*?)<\/PMID>/s;
-    const journalRegex = /<Title>(.*?)<\/Title>/s;
-    const pubDateRegex = /<PubDate>.*?<Year>(.*?)<\/Year>/s;
-    const doiRegex = /<ArticleId IdType="doi">(.*?)<\/ArticleId>/s;
-
     let match;
-    while ((match = articleRegex.exec(xml)) !== null && articles.length < 8) {
+    let articleCount = 0;
+    
+    while ((match = articleRegex.exec(xml)) !== null && articleCount < 10) {
       const articleXml = match[1];
+      const parsedArticle = parseIndividualArticle(articleXml);
       
-      const titleMatch = titleRegex.exec(articleXml);
-      const title = titleMatch ? titleMatch[1].replace(/<[^>]*>/g, '') : '';
-      
-      const pmidMatch = pmidRegex.exec(articleXml);
-      const pmid = pmidMatch ? pmidMatch[1] : '';
-      
-      const journalMatch = journalRegex.exec(articleXml);
-      const journal = journalMatch ? journalMatch[1] : '';
-      
-      const pubDateMatch = pubDateRegex.exec(articleXml);
-      const year = pubDateMatch ? pubDateMatch[1] : '';
-      
-      const doiMatch = doiRegex.exec(articleXml);
-      const doi = doiMatch ? doiMatch[1] : '';
-      
-      // Extract abstract text with better handling
-      let abstractText = '';
-      let abstractMatch;
-      const abstractRegexCopy = /<AbstractText[^>]*>(.*?)<\/AbstractText>/gs;
-      while ((abstractMatch = abstractRegexCopy.exec(articleXml)) !== null) {
-        abstractText += abstractMatch[1].replace(/<[^>]*>/g, '') + ' ';
-      }
-      
-      // Extract authors
-      const authors: string[] = [];
-      let authorMatch;
-      const authorRegexCopy = /<Author[^>]*>.*?<LastName>(.*?)<\/LastName>.*?<ForeName>(.*?)<\/ForeName>.*?<\/Author>/gs;
-      while ((authorMatch = authorRegexCopy.exec(articleXml)) !== null) {
-        authors.push(`${authorMatch[2]} ${authorMatch[1]}`);
-      }
-      
-      if (title && abstractText.trim()) {
-        // Store formatted article text
-        articles.push(`
-**PMID: ${pmid}** | **Year: ${year}**
-**Title:** ${title}
-**Journal:** ${journal}
-**Authors:** ${authors.slice(0, 3).join(', ')}${authors.length > 3 ? ' et al.' : ''}
-**Abstract:** ${abstractText.trim()}
-**DOI:** ${doi}
-**PubMed Link:** https://pubmed.ncbi.nlm.nih.gov/${pmid}/
----`);
-
-        // Store citation metadata
-        citations.push({
-          pmid,
-          title,
-          journal,
-          year,
-          authors: authors.slice(0, 3),
-          doi,
-          pubmedUrl: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`,
-          abstractText: abstractText.trim()
-        });
+      if (parsedArticle.title && parsedArticle.abstractText.trim()) {
+        articles.push(formatArticleForRAG(parsedArticle));
+        citations.push(parsedArticle);
+        articleCount++;
       }
     }
+    
+    console.log(`Parsed ${articleCount} valid articles from XML`);
   } catch (error) {
     console.error('Error parsing XML:', error);
   }
   
   return {
-    abstracts: articles.join('\n\n'),
+    abstracts: articles.join('\n\n---\n\n'),
     citations
   };
+}
+
+// Parse individual article from XML
+function parseIndividualArticle(articleXml: string): any {
+  const extractText = (regex: RegExp, xml: string) => {
+    const match = regex.exec(xml);
+    return match ? match[1].replace(/<[^>]*>/g, '').trim() : '';
+  };
+  
+  const title = extractText(/<ArticleTitle>(.*?)<\/ArticleTitle>/s, articleXml);
+  const pmid = extractText(/<PMID[^>]*>(.*?)<\/PMID>/s, articleXml);
+  const journal = extractText(/<Title>(.*?)<\/Title>/s, articleXml);
+  const year = extractText(/<PubDate>.*?<Year>(.*?)<\/Year>/s, articleXml);
+  const doi = extractText(/<ArticleId IdType="doi">(.*?)<\/ArticleId>/s, articleXml);
+  
+  // Extract abstract with better handling of structured abstracts
+  let abstractText = '';
+  const abstractRegex = /<AbstractText[^>]*>(.*?)<\/AbstractText>/gs;
+  let abstractMatch;
+  while ((abstractMatch = abstractRegex.exec(articleXml)) !== null) {
+    abstractText += abstractMatch[1].replace(/<[^>]*>/g, '') + ' ';
+  }
+  
+  // Extract authors
+  const authors: string[] = [];
+  const authorRegex = /<Author[^>]*>.*?<LastName>(.*?)<\/LastName>.*?<ForeName>(.*?)<\/ForeName>.*?<\/Author>/gs;
+  let authorMatch;
+  while ((authorMatch = authorRegex.exec(articleXml)) !== null && authors.length < 5) {
+    authors.push(`${authorMatch[2]} ${authorMatch[1]}`);
+  }
+  
+  return {
+    pmid,
+    title,
+    journal,
+    year,
+    authors,
+    doi,
+    abstractText: abstractText.trim(),
+    pubmedUrl: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`
+  };
+}
+
+// Format article for RAG context
+function formatArticleForRAG(article: any): string {
+  return `**PMID: ${article.pmid}** | **Year: ${article.year}**
+**Title:** ${article.title}
+**Journal:** ${article.journal}
+**Authors:** ${article.authors.slice(0, 3).join(', ')}${article.authors.length > 3 ? ' et al.' : ''}
+**Abstract:** ${article.abstractText}
+**DOI:** ${article.doi}
+**PubMed Link:** ${article.pubmedUrl}`;
 }
 
 // Enhanced statistical query detection
@@ -305,16 +325,15 @@ function extractStatisticalParameters(query: string, type: string): any {
 // Enhanced research query detection
 function shouldUsePubMed(query: string): boolean {
   const researchKeywords = [
-    'survival', 'efficacy', 'RCT', 'randomized', 'clinical trial', 'meta-analysis', 
-    'study', 'research', 'literature', 'evidence', 'comparison', 'versus', 'vs',
-    'pembrolizumab', 'nivolumab', 'immunotherapy', 'chemotherapy', 'treatment',
-    'NSCLC', 'cancer', 'oncology', 'prognosis', 'outcome', 'metformin', 'semaglutide',
-    'HbA1c', 'diabetes', 'breast cancer', 'triple negative', 'mortality', 'morbidity',
-    'guidelines', 'recommendations', 'protocol', 'therapy', 'intervention'
+    'compare', 'comparison', 'versus', 'vs', 'survival', 'efficacy', 'effectiveness',
+    'RCT', 'randomized', 'clinical trial', 'meta-analysis', 'study', 'research',
+    'literature', 'evidence', 'treatment', 'therapy', 'drug', 'medication',
+    'outcome', 'prognosis', 'mortality', 'morbidity', 'safety', 'adverse',
+    'guidelines', 'recommendations', 'protocol', 'intervention', 'statistics'
   ];
   
   const queryLower = query.toLowerCase();
-  return researchKeywords.some(keyword => queryLower.includes(keyword.toLowerCase()));
+  return researchKeywords.some(keyword => queryLower.includes(keyword));
 }
 
 serve(async (req) => {
@@ -363,9 +382,11 @@ serve(async (req) => {
     // Enhanced RAG: Check if query would benefit from PubMed
     let pubmedAbstracts = '';
     let citations: any[] = [];
+    let ragStrategy = 'General Medical Knowledge';
     
     if (shouldUsePubMed(message)) {
       console.log('Research query detected, initiating enhanced RAG with PubMed...');
+      ragStrategy = 'PubMed RAG Pipeline';
       
       const pmids = await searchPubMed(message, 8);
       if (pmids.length > 0) {
@@ -375,6 +396,7 @@ serve(async (req) => {
         console.log(`RAG: Retrieved ${citations.length} citations for enhanced processing`);
       } else {
         console.log('RAG: No PubMed articles found, proceeding with general medical knowledge');
+        ragStrategy = 'General Medical Knowledge (No PubMed Results)';
       }
     }
 
@@ -385,23 +407,25 @@ RESPONSE FORMAT REQUIREMENTS:
 Structure your response using this exact clinical template:
 
 ## 🔬 Clinical Assessment
-Brief clinical overview and context
+Brief clinical overview and context of the query
 
 ## 📊 Key Research Findings
-${pubmedAbstracts ? '- Evidence from recent literature (cite PMIDs)' : '- General medical knowledge and guidelines'}
+${pubmedAbstracts ? '- Evidence from recent literature (cite specific PMIDs)' : '- General medical knowledge and established guidelines'}
 - Comparative data when available
 - Statistical significance and effect sizes
+- Key trial names and endpoints
 
 ## 💊 Clinical Recommendations  
 - Evidence-based treatment approaches
 - Risk-benefit considerations
 - Patient selection criteria
+- Dosing recommendations when applicable
 
 ## 📈 Statistical Analysis
-${calculationResult ? calculationResult : '- Relevant clinical metrics and calculations'}
+${calculationResult ? calculationResult : '- Relevant clinical metrics and calculations when applicable'}
 
 ## 🔗 References & Citations
-${citations.length > 0 ? '- PubMed sources with PMIDs' : '- Clinical guidelines and standard references'}
+${citations.length > 0 ? '- PubMed sources with PMIDs and links' : '- Clinical guidelines and standard references'}
 
 ## ⚠️ Clinical Disclaimer
 This information is for healthcare professionals. Always consult current guidelines and consider individual patient factors.
@@ -412,12 +436,12 @@ ${pubmedAbstracts}
 
 **CRITICAL RAG INSTRUCTIONS:**
 - Use the above PubMed literature as your PRIMARY evidence source
-- Reference specific PMIDs when citing findings (e.g., "PMID: 12345678 showed...")
+- Reference specific PMIDs when citing findings (e.g., "According to PMID: 12345678...")
 - Focus on comparative data: survival rates, hazard ratios, response rates, adverse events
-- Highlight trial names, endpoints, and statistical significance
-- Provide specific numerical data from the studies
+- Highlight specific trial names, primary endpoints, and statistical significance
+- Provide exact numerical data from the studies (don't approximate)
 - Compare different treatments when multiple studies are available
-- Use the exact data from the abstracts, don't approximate
+- Always mention the journal and year when citing studies
 
 ` : ''}
 
@@ -427,7 +451,11 @@ ${calculationResult}
 Integrate this calculation result into your clinical assessment.
 ` : ''}
 
-IMPORTANT: Format your response with proper markdown (**, *, -, ##) for readability. Use clinical terminology appropriately while remaining accessible.`;
+IMPORTANT: 
+- Format your response with proper markdown (**, *, -, ##) for readability
+- Use clinical terminology appropriately while remaining accessible
+- When citing studies, always include PMID numbers
+- Provide specific numerical outcomes and confidence intervals when available`;
 
     const requestBody = {
       contents: [
@@ -496,7 +524,7 @@ IMPORTANT: Format your response with proper markdown (**, *, -, ##) for readabil
         hasCalculation: !!calculationResult,
         calculationType: statQuery.calculationType || null,
         ragEnabled: true,
-        searchStrategy: pubmedAbstracts ? 'PubMed RAG' : 'General Medical Knowledge'
+        searchStrategy: ragStrategy
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
