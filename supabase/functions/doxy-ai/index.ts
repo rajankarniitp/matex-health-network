@@ -40,14 +40,14 @@ const statisticalCalculations = {
   }
 };
 
-// Enhanced PubMed search with better query construction
+// Improved PubMed search with better query construction
 async function searchPubMed(query: string, maxResults: number = 8): Promise<string[]> {
   try {
-    console.log(`Starting enhanced PubMed search for: ${query}`);
+    console.log(`Starting PubMed RAG search for: ${query}`);
     
-    // Build comprehensive search query with better medical term mapping
-    const searchQuery = buildEnhancedPubMedQuery(query);
-    console.log(`Enhanced PubMed query: ${searchQuery}`);
+    // Build enhanced search query
+    const searchQuery = buildPubMedQuery(query);
+    console.log(`PubMed search query: ${searchQuery}`);
     
     const searchParams = new URLSearchParams({
       db: 'pubmed',
@@ -56,7 +56,7 @@ async function searchPubMed(query: string, maxResults: number = 8): Promise<stri
       retmax: maxResults.toString(),
       sort: 'relevance',
       datetype: 'pdat',
-      reldate: '1825', // Last 5 years
+      reldate: '3650', // Last 10 years for broader coverage
       usehistory: 'y'
     });
 
@@ -69,12 +69,12 @@ async function searchPubMed(query: string, maxResults: number = 8): Promise<stri
     
     const searchData = await searchResponse.json();
     const pmids = searchData.esearchresult?.idlist || [];
-    console.log(`Enhanced PubMed search returned ${pmids.length} PMIDs:`, pmids.slice(0, 5));
+    console.log(`PubMed search found ${pmids.length} articles:`, pmids.slice(0, 5));
     
     if (pmids.length === 0) {
-      // Try a simpler, broader search
-      const broaderQuery = buildSimplifiedQuery(query);
-      console.log(`Trying simplified query: ${broaderQuery}`);
+      // Try a broader search with basic medical terms
+      const broaderQuery = extractBasicMedicalTerms(query);
+      console.log(`Trying broader search: ${broaderQuery}`);
       
       const broaderParams = new URLSearchParams({
         db: 'pubmed',
@@ -83,7 +83,7 @@ async function searchPubMed(query: string, maxResults: number = 8): Promise<stri
         retmax: maxResults.toString(),
         sort: 'relevance',
         datetype: 'pdat',
-        reldate: '3650', // Last 10 years for broader search
+        reldate: '5475', // Last 15 years for very broad search
       });
 
       const broaderResponse = await fetch(`${PUBMED_ESEARCH_URL}?${broaderParams}`);
@@ -91,89 +91,85 @@ async function searchPubMed(query: string, maxResults: number = 8): Promise<stri
       if (broaderResponse.ok) {
         const broaderData = await broaderResponse.json();
         const broaderPmids = broaderData.esearchresult?.idlist || [];
-        console.log(`Simplified search returned ${broaderPmids.length} PMIDs`);
+        console.log(`Broader search found ${broaderPmids.length} articles`);
         return broaderPmids.slice(0, maxResults);
       }
     }
     
     return pmids.slice(0, maxResults);
   } catch (error) {
-    console.error('Error in enhanced PubMed search:', error);
+    console.error('Error in PubMed search:', error);
     return [];
   }
 }
 
-// Build enhanced PubMed query with comprehensive medical term mapping
-function buildEnhancedPubMedQuery(query: string): string {
+// Build better PubMed query with medical term mapping
+function buildPubMedQuery(query: string): string {
   const queryLower = query.toLowerCase();
   
-  // Comprehensive medical term mapping with MeSH terms
-  const medicalTermMap = {
-    'metformin': '(metformin[tw] OR metformin[mesh] OR glucophage[tw] OR dimethylbiguanide[tw])',
-    'semaglutide': '(semaglutide[tw] OR ozempic[tw] OR wegovy[tw] OR rybelsus[tw] OR "glp-1 receptor agonist"[mesh])',
-    'hba1c': '("hemoglobin a, glycosylated"[mesh] OR hba1c[tw] OR "hemoglobin a1c"[tw] OR "glycated hemoglobin"[tw] OR "glycosylated hemoglobin"[tw])',
-    'diabetes': '("diabetes mellitus, type 2"[mesh] OR "type 2 diabetes"[tw] OR t2dm[tw] OR "diabetes mellitus"[mesh])',
-    'pembrolizumab': '(pembrolizumab[tw] OR keytruda[tw] OR "mk-3475"[tw] OR "anti-pd-1"[mesh])',
-    'nivolumab': '(nivolumab[tw] OR opdivo[tw] OR "bms-936558"[tw] OR "anti-pd-1"[mesh])',
-    'nsclc': '("carcinoma, non-small-cell lung"[mesh] OR "non-small cell lung cancer"[tw] OR nsclc[tw] OR "lung neoplasms"[mesh])',
-    'survival': '("survival rate"[mesh] OR "overall survival"[tw] OR "progression-free survival"[tw] OR mortality[mesh] OR "disease-free survival"[tw])',
-    'breast cancer': '("breast neoplasms"[mesh] OR "breast cancer"[tw] OR "mammary carcinoma"[tw])',
-    'triple negative': '("triple negative breast neoplasms"[mesh] OR "triple negative"[tw] OR tnbc[tw] OR "triple-negative breast cancer"[tw])',
-    'immunotherapy': '("immunotherapy"[mesh] OR "cancer immunotherapy"[tw] OR "immune checkpoint inhibitor"[tw])',
-    'chemotherapy': '("antineoplastic agents"[mesh] OR chemotherapy[tw] OR "drug therapy"[mesh])',
-    'efficacy': '("treatment outcome"[mesh] OR efficacy[tw] OR effectiveness[tw] OR "therapeutic efficacy"[tw])',
-    'safety': '("drug safety"[mesh] OR "adverse effects"[mesh] OR safety[tw] OR "side effects"[tw])'
+  // Medical term mapping with broader coverage
+  const medicalTerms = {
+    'metformin': 'metformin[tw] OR glucophage[tw]',
+    'semaglutide': 'semaglutide[tw] OR ozempic[tw] OR wegovy[tw]',
+    'hba1c': 'hba1c[tw] OR "hemoglobin a1c"[tw] OR "glycated hemoglobin"[tw]',
+    'diabetes': '"type 2 diabetes"[tw] OR t2dm[tw] OR "diabetes mellitus"[tw]',
+    'pembrolizumab': 'pembrolizumab[tw] OR keytruda[tw]',
+    'nivolumab': 'nivolumab[tw] OR opdivo[tw]',
+    'nsclc': '"non small cell lung cancer"[tw] OR nsclc[tw]',
+    'survival': '"overall survival"[tw] OR "progression free survival"[tw]',
+    'breast cancer': '"breast cancer"[tw] OR "breast neoplasm"[tw]',
+    'triple negative': '"triple negative"[tw] OR tnbc[tw]',
+    'immunotherapy': 'immunotherapy[tw] OR "immune checkpoint"[tw]',
+    'chemotherapy': 'chemotherapy[tw] OR "drug therapy"[tw]',
+    'treatment': 'treatment[tw] OR therapy[tw]',
+    'efficacy': 'efficacy[tw] OR effectiveness[tw]'
   };
   
   let enhancedQuery = query;
   
-  // Replace terms with enhanced MeSH and keyword versions
-  Object.entries(medicalTermMap).forEach(([term, replacement]) => {
+  // Replace terms with medical equivalents
+  Object.entries(medicalTerms).forEach(([term, replacement]) => {
     if (queryLower.includes(term)) {
       const regex = new RegExp('\\b' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi');
-      enhancedQuery = enhancedQuery.replace(regex, replacement);
+      enhancedQuery = enhancedQuery.replace(regex, `(${replacement})`);
     }
   });
   
-  // Add study type filters based on query intent
+  // Add study type filters based on query content
   if (queryLower.includes('compare') || queryLower.includes('vs') || queryLower.includes('versus')) {
-    enhancedQuery += ' AND ("randomized controlled trial"[pt] OR "controlled clinical trial"[pt] OR "comparative study"[pt] OR "meta-analysis"[pt] OR "systematic review"[pt])';
-  } else if (queryLower.includes('survival') || queryLower.includes('rate') || queryLower.includes('outcome') || queryLower.includes('prognosis')) {
-    enhancedQuery += ' AND ("clinical trial"[pt] OR "cohort studies"[mesh] OR "follow-up studies"[mesh] OR "prognosis"[mesh] OR "meta-analysis"[pt])';
-  } else if (queryLower.includes('treatment') || queryLower.includes('therapy') || queryLower.includes('drug')) {
-    enhancedQuery += ' AND ("randomized controlled trial"[pt] OR "clinical trial"[pt] OR "meta-analysis"[pt] OR "drug therapy"[mesh])';
+    enhancedQuery += ' AND ("randomized controlled trial"[pt] OR "clinical trial"[pt] OR "comparative study"[pt])';
+  } else if (queryLower.includes('survival') || queryLower.includes('mortality') || queryLower.includes('outcome')) {
+    enhancedQuery += ' AND ("clinical trial"[pt] OR "cohort studies"[mesh] OR "follow-up studies"[mesh])';
   } else {
-    // Default to high-quality evidence
-    enhancedQuery += ' AND ("randomized controlled trial"[pt] OR "meta-analysis"[pt] OR "systematic review"[pt] OR "clinical trial"[pt])';
+    // Default to clinical studies
+    enhancedQuery += ' AND ("clinical trial"[pt] OR "randomized controlled trial"[pt])';
   }
   
-  // Always filter for human studies and English language
+  // Always filter for human studies
   enhancedQuery += ' AND humans[mesh] AND english[lang]';
   
   return enhancedQuery;
 }
 
-// Build simplified query for fallback searches
-function buildSimplifiedQuery(query: string): string {
-  const keywords = extractMedicalKeywords(query);
-  const keywordQuery = keywords.slice(0, 4).map(kw => `${kw}[tw]`).join(' AND ');
-  return `${keywordQuery} AND ("clinical trial"[pt] OR "meta-analysis"[pt]) AND humans[mesh] AND english[lang]`;
-}
-
-// Extract medical keywords from query
-function extractMedicalKeywords(query: string): string[] {
-  const commonMedicalTerms = [
-    'metformin', 'semaglutide', 'hba1c', 'diabetes', 'pembrolizumab', 'nivolumab', 
-    'nsclc', 'survival', 'breast cancer', 'triple negative', 'treatment', 'therapy',
-    'efficacy', 'safety', 'trial', 'study', 'cancer', 'oncology', 'immunotherapy',
-    'chemotherapy', 'radiation', 'surgery', 'prognosis', 'outcome', 'mortality',
-    'randomized', 'controlled', 'clinical', 'meta-analysis', 'systematic', 'review',
-    'comparison', 'versus', 'effectiveness', 'adverse', 'toxicity', 'response'
+// Extract basic medical terms for broader search
+function extractBasicMedicalTerms(query: string): string {
+  const basicTerms = [
+    'metformin', 'semaglutide', 'diabetes', 'hba1c', 'pembrolizumab', 'nivolumab', 
+    'lung cancer', 'breast cancer', 'treatment', 'therapy', 'survival', 'efficacy',
+    'clinical trial', 'randomized', 'study', 'cancer', 'immunotherapy', 'chemotherapy'
   ];
   
-  return commonMedicalTerms.filter(term => 
+  const foundTerms = basicTerms.filter(term => 
     query.toLowerCase().includes(term.toLowerCase())
   );
+  
+  if (foundTerms.length === 0) {
+    // If no specific terms found, use general medical search
+    return 'clinical trial[pt] AND humans[mesh] AND english[lang]';
+  }
+  
+  const termQuery = foundTerms.slice(0, 3).map(term => `${term}[tw]`).join(' OR ');
+  return `(${termQuery}) AND humans[mesh] AND english[lang]`;
 }
 
 // Enhanced abstract fetching with retry mechanism
@@ -381,98 +377,61 @@ function extractStatisticalParameters(query: string, type: string): any {
   }
 }
 
-// Enhanced research query detection
+// Improved research query detection - more liberal approach
 function shouldUsePubMed(query: string): boolean {
-  const researchKeywords = [
-    'compare', 'comparison', 'versus', 'vs', 'survival', 'efficacy', 'effectiveness',
-    'RCT', 'randomized', 'clinical trial', 'meta-analysis', 'study', 'research',
-    'literature', 'evidence', 'treatment', 'therapy', 'drug', 'medication',
-    'outcome', 'prognosis', 'mortality', 'morbidity', 'safety', 'adverse',
-    'guidelines', 'recommendations', 'protocol', 'intervention', 'statistics',
-    'rate', 'incidence', 'prevalence', 'risk', 'benefit', 'analysis'
+  const queryLower = query.toLowerCase();
+  
+  // Always use PubMed for medical queries unless it's clearly an identity question
+  const identityKeywords = [
+    'who made you', 'who created you', 'who are you', 'what are you',
+    'about you', 'your creator', 'rajan kumar karn', 'docmatex',
+    'tumhe kisne banaya', 'tum kaun ho', 'docmatex kya hai'
   ];
   
-  const queryLower = query.toLowerCase();
-  const keywordMatches = researchKeywords.filter(keyword => queryLower.includes(keyword));
-  console.log(`Research query check: Found ${keywordMatches.length} keywords:`, keywordMatches.slice(0, 3));
+  // Check if it's clearly an identity question
+  const isIdentityQuery = identityKeywords.some(keyword => queryLower.includes(keyword));
   
-  return keywordMatches.length > 0;
+  if (isIdentityQuery) {
+    console.log('Identity query detected, skipping PubMed');
+    return false;
+  }
+  
+  // For any medical content, use PubMed
+  const medicalKeywords = [
+    'compare', 'comparison', 'versus', 'vs', 'survival', 'efficacy', 'effectiveness',
+    'treatment', 'therapy', 'drug', 'medication', 'cancer', 'diabetes', 'patient',
+    'clinical', 'study', 'trial', 'research', 'outcome', 'prognosis', 'mortality',
+    'metformin', 'semaglutide', 'pembrolizumab', 'nivolumab', 'hba1c', 'nsclc',
+    'breast cancer', 'immunotherapy', 'chemotherapy', 'side effects', 'adverse',
+    'dosage', 'protocol', 'guidelines', 'diagnosis', 'symptoms', 'medicine'
+  ];
+  
+  const hasMedicalContent = medicalKeywords.some(keyword => queryLower.includes(keyword));
+  console.log(`Medical query check: ${hasMedicalContent} for query: ${query}`);
+  
+  return hasMedicalContent;
 }
 
-// Enhanced query type detection with better specificity
+// Enhanced query type detection
 function detectQueryType(query: string): 'identity' | 'clinical' | 'general' {
   const queryLower = query.toLowerCase();
   
-  // Identity questions - be more specific to avoid false positives
+  // Very specific identity questions only
   const identityKeywords = [
     'who made you', 'who created you', 'who is your creator', 'who built you',
     'who are you', 'what are you', 'about you', 'your creator', 'your maker',
     'rajan kumar karn', 'about docmatex', 'what is docmatex', 'docmatex features',
-    'what can you do', 'your capabilities', 'your purpose', 'tell me about yourself',
-    'docmatex kya hai', 'docmatex ke bare mein', 'tumhe kisne banaya', 'tum kaun ho'
+    'tumhe kisne banaya', 'tum kaun ho', 'docmatex kya hai'
   ];
   
-  // Check for exact identity matches first - must be standalone or very specific
-  const hasIdentityMatch = identityKeywords.some(keyword => {
-    // Check if the query contains the identity keyword as a main topic
-    return queryLower.includes(keyword) && 
-           // Ensure it's not mixed with medical terms
-           !queryLower.includes('treatment') && 
-           !queryLower.includes('drug') && 
-           !queryLower.includes('medicine') &&
-           !queryLower.includes('patient') &&
-           !queryLower.includes('therapy') &&
-           !queryLower.includes('disease') &&
-           !queryLower.includes('cancer') &&
-           !queryLower.includes('diabetes');
-  });
+  const hasExactIdentityMatch = identityKeywords.some(keyword => queryLower.includes(keyword));
   
-  if (hasIdentityMatch) {
+  if (hasExactIdentityMatch) {
     return 'identity';
   }
   
-  // Clinical/medical keywords - extensive list for better detection
-  const clinicalKeywords = [
-    // Drug names
-    'pembrolizumab', 'nivolumab', 'metformin', 'semaglutide', 'keytruda', 'opdivo',
-    'immunotherapy', 'chemotherapy', 'targeted therapy', 'biologics', 'insulin',
-    'aspirin', 'paracetamol', 'ibuprofen', 'antibiotics', 'steroids',
-    
-    // Medical conditions
-    'nsclc', 'lung cancer', 'breast cancer', 'diabetes', 'hypertension', 'cancer',
-    'carcinoma', 'tumor', 'malignancy', 'neoplasm', 'oncology', 'cardiology',
-    'triple negative', 'pd-l1', 'her2', 'egfr', 'alk', 'ros1', 'covid', 'fever',
-    'headache', 'pain', 'infection', 'pneumonia', 'asthma', 'copd',
-    
-    // Medical terms
-    'efficacy', 'survival', 'mortality', 'prognosis', 'treatment', 'therapy',
-    'clinical trial', 'randomized', 'rct', 'meta-analysis', 'systematic review',
-    'hba1c', 'biomarker', 'progression', 'response rate', 'adverse events',
-    'toxicity', 'dosing', 'protocol', 'guidelines', 'contraindication',
-    'diagnosis', 'symptoms', 'side effects', 'dosage', 'prescription',
-    
-    // Comparative terms
-    'compare', 'comparison', 'versus', 'vs', 'better', 'superior', 'inferior',
-    'first-line', 'second-line', 'combination', 'monotherapy', 'effectiveness',
-    
-    // Clinical metrics
-    'overall survival', 'progression-free survival', 'hazard ratio', 'confidence interval',
-    'p-value', 'statistical significance', 'median', 'endpoint', 'primary', 'secondary',
-    'blood pressure', 'heart rate', 'temperature', 'weight', 'bmi',
-    
-    // Medical specialties and professionals
-    'oncologist', 'cardiologist', 'endocrinologist', 'pulmonologist', 'radiologist',
-    'pathologist', 'surgeon', 'physician', 'doctor', 'clinician', 'nurse',
-    'patient', 'medical', 'clinical', 'healthcare', 'hospital'
-  ];
-  
-  const hasClinicalMatch = clinicalKeywords.some(keyword => queryLower.includes(keyword));
-  
-  if (hasClinicalMatch) {
-    return 'clinical';
-  }
-  
-  return 'general';
+  // Everything else is clinical for medical context
+  return 'clinical';
 }
 
 // Helper function for calculation units
@@ -505,7 +464,7 @@ serve(async (req) => {
     }
 
     const { message } = await req.json();
-    console.log('Received enhanced query:', message);
+    console.log('Received query:', message);
 
     if (!message || !message.trim()) {
       return new Response(
@@ -514,18 +473,18 @@ serve(async (req) => {
       );
     }
 
-    // Detect query type with improved logic
+    // Detect query type
     const queryType = detectQueryType(message);
-    console.log('Query type detected:', queryType, 'for message:', message);
+    console.log('Query type detected:', queryType);
 
-    // Handle identity questions with specific responses
+    // Handle identity questions
     if (queryType === 'identity') {
       let response = '';
       const queryLower = message.toLowerCase();
       
-      if (queryLower.includes('who made') || queryLower.includes('who created') || queryLower.includes('creator') || queryLower.includes('who is your creator') || queryLower.includes('tumhe kisne banaya')) {
+      if (queryLower.includes('who made') || queryLower.includes('who created') || queryLower.includes('creator') || queryLower.includes('tumhe kisne banaya')) {
         response = "I was created by **Rajan Kumar Karn**, the founder of DocMateX — India's first verified medical networking and research platform. He is a student at **IIT Patna**.";
-      } else if (queryLower.includes('what is docmatex') || queryLower.includes('about docmatex') || queryLower.includes('docmatex') || queryLower.includes('docmatex kya hai') || queryLower.includes('docmatex ke bare mein')) {
+      } else if (queryLower.includes('what is docmatex') || queryLower.includes('about docmatex') || queryLower.includes('docmatex') || queryLower.includes('docmatex kya hai')) {
         response = `**DocMateX** is India's first verified medical networking and research platform — built exclusively for healthcare professionals.
 
 🩺 **What Does It Do?**
@@ -557,50 +516,6 @@ To create a trusted digital ecosystem that supports India's healthcare heroes wi
 
 🔗 **Tagline:**
 "For those who care, heal, and lead." – Powered by DocMateX`;
-      } else if (queryLower.includes('features of docmatex') || queryLower.includes('docmatex features')) {
-        response = `**DocMateX Features:**
-
-🔍 **Core Features:**
-✅ Verified user profiles for all healthcare professionals
-✅ Medical research uploads & publications
-✅ Role-specific personalized feed
-✅ Mentorship & job discovery tools
-✅ **Doxy AI** – your 24x7 smart research assistant
-✅ Secure in-app messaging
-✅ Case study & CME content uploads
-✅ Event & webinar listings
-✅ Real-time support from the core team
-
-💡 **What Makes It Special:**
-• Built exclusively for Indian healthcare professionals
-• Founded by Rajan Kumar Karn, student of IIT Patna
-• Integrated AI assistant with PubMed + Gemini + RAG support
-• Verified networking for doctors, students, researchers, nurses, pharmacists, and more
-• Respectfully empowers the medical community
-
-🧠 **Vision:** To create a trusted digital ecosystem that supports India's healthcare heroes.`;
-      } else if (queryLower.includes('what can you do') || queryLower.includes('capabilities') || queryLower.includes('purpose') || queryLower.includes('your purpose')) {
-        response = `**I'm DoxyAI** — your 24x7 smart research assistant! 🩺
-
-**My Capabilities:**
-• **Medical Research Support** with live PubMed integration
-• **Clinical Insights & Analysis** for healthcare professionals
-• **Case Study Analysis** and evidence-based recommendations
-• **Medical Calculations** and statistical analysis
-• **Career Guidance** and mentorship suggestions
-• **Evidence-Based Medical Recommendations** with direct citations
-
-**What Makes Me Special:**
-• **Live PubMed RAG Pipeline** with real-time literature retrieval
-• **Enhanced Statistical Engine** for medical calculations
-• **Evidence-Based Responses** with direct PubMed citations
-• Available 24x7 to support healthcare professionals
-
-**My Goal:** To support the healthcare community — not replace doctors, but to assist them with knowledge, research, and tools in a verified and respectful space.
-
-**Built for DocMateX** — India's first verified medical networking platform.`;
-      } else if (queryLower.includes('who are you') || queryLower.includes('what are you') || queryLower.includes('about you') || queryLower.includes('tum kaun ho')) {
-        response = "I'm **DoxyAI**, created by **Rajan Kumar Karn** for the DocMateX platform. I'm here to assist healthcare professionals with research, clinical questions, and medical guidance using live PubMed integration and statistical analysis.";
       } else {
         response = "I'm **DoxyAI**, created by **Rajan Kumar Karn** for the DocMateX platform. I'm here to assist healthcare professionals with research, clinical questions, and medical guidance using live PubMed integration and statistical analysis.";
       }
@@ -622,7 +537,9 @@ To create a trusted digital ecosystem that supports India's healthcare heroes wi
       );
     }
 
-    // For clinical and general queries, proceed with RAG pipeline
+    // For clinical queries, proceed with enhanced RAG pipeline
+    console.log('Processing clinical query with RAG pipeline...');
+    
     // Check for statistical queries first
     const statQuery = detectStatisticalQuery(message);
     let calculationResult = '';
@@ -639,28 +556,27 @@ To create a trusted digital ecosystem that supports India's healthcare heroes wi
       }
     }
 
-    // Enhanced RAG: Check if query would benefit from PubMed
+    // Enhanced RAG: Always try PubMed for clinical queries
     let pubmedAbstracts = '';
     let citations: any[] = [];
-    let ragStrategy = 'General Medical Knowledge';
+    let ragStrategy = 'PubMed RAG Pipeline';
     
-    if (shouldUsePubMed(message)) {
-      console.log('Research query detected, initiating enhanced RAG with PubMed...');
-      ragStrategy = 'PubMed RAG Pipeline';
-      
-      const pmids = await searchPubMed(message, 8);
-      if (pmids.length > 0) {
-        const {abstracts, citations: fetchedCitations} = await fetchAbstracts(pmids);
-        pubmedAbstracts = abstracts;
-        citations = fetchedCitations;
-        console.log(`RAG: Retrieved ${citations.length} citations for enhanced processing`);
-      } else {
-        console.log('RAG: No PubMed articles found, proceeding with general medical knowledge');
-        ragStrategy = 'General Medical Knowledge (No PubMed Results)';
-      }
+    console.log('Initiating PubMed RAG search...');
+    
+    const pmids = await searchPubMed(message, 10);
+    if (pmids.length > 0) {
+      console.log(`Found ${pmids.length} PMIDs, fetching abstracts...`);
+      const {abstracts, citations: fetchedCitations} = await fetchAbstracts(pmids);
+      pubmedAbstracts = abstracts;
+      citations = fetchedCitations;
+      console.log(`RAG Success: Retrieved ${citations.length} citations for processing`);
+      ragStrategy = `PubMed RAG Pipeline - ${citations.length} Articles`;
+    } else {
+      console.log('RAG: No PubMed articles found, using general medical knowledge');
+      ragStrategy = 'General Medical Knowledge (No PubMed Results)';
     }
 
-    // Create a specialized system prompt for clinical queries
+    // Create enhanced system prompt for clinical queries
     const systemPrompt = `You are DoxyAI — a smart, respectful, and research-driven medical assistant integrated into DocMateX, created by Rajan Kumar Karn.
 
 Your role is to provide evidence-based medical responses to healthcare professionals' queries. You must directly address the specific medical query asked.
@@ -783,12 +699,12 @@ Integrate this calculation result into your clinical assessment.
     const data = await response.json();
     const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Unable to generate response. Please try rephrasing your question.';
 
-    console.log('Enhanced RAG response generated successfully');
+    console.log(`Enhanced RAG response generated successfully with ${citations.length} citations`);
 
     return new Response(
       JSON.stringify({ 
         response: generatedText,
-        pubmedIntegrated: !!pubmedAbstracts,
+        pubmedIntegrated: citations.length > 0,
         articleCount: citations.length,
         citations: citations,
         hasCalculation: !!calculationResult,
