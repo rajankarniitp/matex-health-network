@@ -377,61 +377,48 @@ function extractStatisticalParameters(query: string, type: string): any {
   }
 }
 
-// Improved research query detection - more liberal approach
-function shouldUsePubMed(query: string): boolean {
-  const queryLower = query.toLowerCase();
-  
-  // Always use PubMed for medical queries unless it's clearly an identity question
-  const identityKeywords = [
-    'who made you', 'who created you', 'who are you', 'what are you',
-    'about you', 'your creator', 'rajan kumar karn', 'docmatex',
-    'tumhe kisne banaya', 'tum kaun ho', 'docmatex kya hai'
-  ];
-  
-  // Check if it's clearly an identity question
-  const isIdentityQuery = identityKeywords.some(keyword => queryLower.includes(keyword));
-  
-  if (isIdentityQuery) {
-    console.log('Identity query detected, skipping PubMed');
-    return false;
-  }
-  
-  // For any medical content, use PubMed
-  const medicalKeywords = [
-    'compare', 'comparison', 'versus', 'vs', 'survival', 'efficacy', 'effectiveness',
-    'treatment', 'therapy', 'drug', 'medication', 'cancer', 'diabetes', 'patient',
-    'clinical', 'study', 'trial', 'research', 'outcome', 'prognosis', 'mortality',
-    'metformin', 'semaglutide', 'pembrolizumab', 'nivolumab', 'hba1c', 'nsclc',
-    'breast cancer', 'immunotherapy', 'chemotherapy', 'side effects', 'adverse',
-    'dosage', 'protocol', 'guidelines', 'diagnosis', 'symptoms', 'medicine'
-  ];
-  
-  const hasMedicalContent = medicalKeywords.some(keyword => queryLower.includes(keyword));
-  console.log(`Medical query check: ${hasMedicalContent} for query: ${query}`);
-  
-  return hasMedicalContent;
-}
-
-// Enhanced query type detection
+// FIXED: More precise identity query detection
 function detectQueryType(query: string): 'identity' | 'clinical' | 'general' {
   const queryLower = query.toLowerCase();
   
-  // Very specific identity questions only
-  const identityKeywords = [
-    'who made you', 'who created you', 'who is your creator', 'who built you',
-    'who are you', 'what are you', 'about you', 'your creator', 'your maker',
-    'rajan kumar karn', 'about docmatex', 'what is docmatex', 'docmatex features',
-    'tumhe kisne banaya', 'tum kaun ho', 'docmatex kya hai'
+  // Very strict identity patterns - must be exact matches
+  const exactIdentityPatterns = [
+    /^who (made|created|built) you\??$/i,
+    /^who is your (creator|maker)\??$/i,
+    /^who are you\??$/i,
+    /^what are you\??$/i,
+    /^(tell me )?about you(rself)?\??$/i,
+    /^what is docmatex\??$/i,
+    /^about docmatex$/i,
+    /^docmatex kya hai\??$/i,
+    /^tumhe kisne banaya\??$/i,
+    /^tum kaun ho\??$/i
   ];
   
-  const hasExactIdentityMatch = identityKeywords.some(keyword => queryLower.includes(keyword));
+  // Check for exact identity patterns first
+  const hasExactIdentityMatch = exactIdentityPatterns.some(pattern => pattern.test(queryLower.trim()));
   
   if (hasExactIdentityMatch) {
+    console.log('EXACT identity query detected:', query);
     return 'identity';
   }
   
-  // Everything else is clinical for medical context
-  return 'clinical';
+  // If it contains medical terms, it's definitely clinical
+  const medicalIndicators = [
+    'metformin', 'semaglutide', 'hba1c', 'diabetes', 'compare', 'vs', 'versus',
+    'treatment', 'therapy', 'drug', 'medication', 'clinical', 'trial', 'rct',
+    'survival', 'efficacy', 'pembrolizumab', 'nivolumab', 'cancer', 'patient'
+  ];
+  
+  const hasMedicalContent = medicalIndicators.some(term => queryLower.includes(term));
+  
+  if (hasMedicalContent) {
+    console.log('Medical query detected:', query);
+    return 'clinical';
+  }
+  
+  console.log('General query detected:', query);
+  return 'general';
 }
 
 // Helper function for calculation units
@@ -473,14 +460,14 @@ serve(async (req) => {
       );
     }
 
-    // Detect query type
+    // Detect query type with improved logic
     const queryType = detectQueryType(message);
     console.log('Query type detected:', queryType);
 
-    // Handle identity questions
+    // Handle identity questions with exact matching
     if (queryType === 'identity') {
       let response = '';
-      const queryLower = message.toLowerCase();
+      const queryLower = message.toLowerCase().trim();
       
       if (queryLower.includes('who made') || queryLower.includes('who created') || queryLower.includes('creator') || queryLower.includes('tumhe kisne banaya')) {
         response = "I was created by **Rajan Kumar Karn**, the founder of DocMateX — India's first verified medical networking and research platform. He is a student at **IIT Patna**.";
