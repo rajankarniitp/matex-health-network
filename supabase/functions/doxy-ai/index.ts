@@ -473,12 +473,80 @@ serve(async (req) => {
       
       if (queryLower.includes('who made') || queryLower.includes('who created') || queryLower.includes('creator') || queryLower.includes('who is your creator')) {
         response = "I was created by **Rajan Kumar Karn**, the founder of DocMateX — India's first verified medical networking and research platform. He is a student at **IIT Patna**.";
-      } else if (queryLower.includes('what is docmatex') || queryLower.includes('about docmatex')) {
-        response = "**DocMateX** is India's first and only verified professional network and research ecosystem built exclusively for healthcare professionals. It's a platform where doctors, students, researchers, pharmacists, radiologists, and other medical experts connect, publish research, collaborate, and grow their careers — all in a secure, verified environment.";
+      } else if (queryLower.includes('what is docmatex') || queryLower.includes('about docmatex') || queryLower.includes('docmatex')) {
+        response = `**DocMateX** is India's first verified medical networking and research platform — built exclusively for healthcare professionals.
+
+🩺 **What Does It Do?**
+DocMateX is a secure ecosystem where:
+
+👩‍⚕️ Verified doctors, medical students, researchers, nurses, pharmacists, radiologists, cardiologists, and even Ayurvedic & Homeopathy practitioners
+
+Can connect, collaborate, and grow professionally.
+
+🔍 **Key Features:**
+✅ Verified user profiles
+✅ Medical research uploads & publications
+✅ Role-specific personalized feed
+✅ Mentorship & job discovery tools
+✅ Doxy AI – your 24x7 smart research assistant
+✅ Secure in-app messaging
+✅ Case study & CME content uploads
+✅ Event & webinar listings
+✅ Real-time support from the core team
+
+💡 **What Makes It Unique?**
+• Built by and for Indian healthcare professionals
+• Founded by Rajan Kumar Karn, student of IIT Patna
+• Includes integrated AI assistant (Doxy AI) with PubMed + Gemini + RAG support
+• Respectfully empowers the medical community — not replaces it
+
+🧠 **Vision:**
+To create a trusted digital ecosystem that supports India's healthcare heroes with tools, mentorship, and verified knowledge.
+
+🔗 **Tagline:**
+"For those who care, heal, and lead." – Powered by DocMateX`;
       } else if (queryLower.includes('features of docmatex') || queryLower.includes('docmatex features')) {
-        response = "**DocMateX** offers role-specific profiles, AI assistance (Doxy AI), verified jobs and internships, in-app messaging, mentorship discovery, case study and research uploads, and a personalized content feed. It also includes an intelligent AI assistant — me, Doxy AI — to help with research, clinical questions, and career guidance.";
+        response = `**DocMateX Features:**
+
+🔍 **Core Features:**
+✅ Verified user profiles for all healthcare professionals
+✅ Medical research uploads & publications
+✅ Role-specific personalized feed
+✅ Mentorship & job discovery tools
+✅ **Doxy AI** – your 24x7 smart research assistant
+✅ Secure in-app messaging
+✅ Case study & CME content uploads
+✅ Event & webinar listings
+✅ Real-time support from the core team
+
+💡 **What Makes It Special:**
+• Built exclusively for Indian healthcare professionals
+• Founded by Rajan Kumar Karn, student of IIT Patna
+• Integrated AI assistant with PubMed + Gemini + RAG support
+• Verified networking for doctors, students, researchers, nurses, pharmacists, and more
+• Respectfully empowers the medical community
+
+🧠 **Vision:** To create a trusted digital ecosystem that supports India's healthcare heroes.`;
       } else if (queryLower.includes('what can you do') || queryLower.includes('capabilities') || queryLower.includes('purpose') || queryLower.includes('your purpose')) {
-        response = "My goal is to support the healthcare community — not replace doctors, but to assist them with knowledge, research, and tools — 24x7, in a verified and respectful space. I can help with:\n\n• Medical research and clinical insights\n• Case study analysis\n• Research support with live PubMed integration\n• Medical calculations and statistical analysis\n• Career guidance and mentorship suggestions\n• Evidence-based medical recommendations";
+        response = `**I'm DoxyAI** — your 24x7 smart research assistant! 🩺
+
+**My Capabilities:**
+• **Medical Research Support** with live PubMed integration
+• **Clinical Insights & Analysis** for healthcare professionals
+• **Case Study Analysis** and evidence-based recommendations
+• **Medical Calculations** and statistical analysis
+• **Career Guidance** and mentorship suggestions
+• **Evidence-Based Medical Recommendations** with citations
+
+**What Makes Me Special:**
+• **Live PubMed RAG Pipeline** with real-time literature retrieval
+• **Enhanced Statistical Engine** for medical calculations
+• **Evidence-Based Responses** with direct PubMed citations
+• Available 24x7 to support healthcare professionals
+
+**My Goal:** To support the healthcare community — not replace doctors, but to assist them with knowledge, research, and tools in a verified and respectful space.
+
+**Built for DocMateX** — India's first verified medical networking platform.`;
       } else if (queryLower.includes('who are you') || queryLower.includes('what are you') || queryLower.includes('about you')) {
         response = "I'm **DoxyAI**, created by **Rajan Kumar Karn** for the DocMateX platform. I'm here to assist healthcare professionals with research, clinical questions, and medical guidance using live PubMed integration and statistical analysis.";
       } else {
