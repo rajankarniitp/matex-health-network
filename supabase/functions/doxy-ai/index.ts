@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -400,6 +399,41 @@ function shouldUsePubMed(query: string): boolean {
   return keywordMatches.length > 0;
 }
 
+// Enhanced query type detection
+function detectQueryType(query: string): 'identity' | 'clinical' | 'general' {
+  const queryLower = query.toLowerCase();
+  
+  // Identity questions
+  const identityKeywords = [
+    'who made you', 'who created you', 'who is your creator', 'who built you',
+    'what is docmatex', 'what are the features of docmatex', 'tell me about docmatex',
+    'what can you do', 'what is your purpose', 'who are you', 'what are you',
+    'about you', 'your features', 'your capabilities'
+  ];
+  
+  if (identityKeywords.some(keyword => queryLower.includes(keyword))) {
+    return 'identity';
+  }
+  
+  // Clinical/research keywords
+  const clinicalKeywords = [
+    'compare', 'comparison', 'versus', 'vs', 'survival', 'efficacy', 'effectiveness',
+    'RCT', 'randomized', 'clinical trial', 'meta-analysis', 'study', 'research',
+    'treatment', 'therapy', 'drug', 'medication', 'outcome', 'prognosis',
+    'mortality', 'morbidity', 'safety', 'adverse', 'guidelines', 'protocol',
+    'intervention', 'statistics', 'rate', 'incidence', 'prevalence', 'risk',
+    'benefit', 'analysis', 'diagnosis', 'symptom', 'disease', 'condition',
+    'patient', 'clinical', 'medical', 'hba1c', 'metformin', 'semaglutide',
+    'diabetes', 'cancer', 'hypertension', 'dosage', 'contraindication'
+  ];
+  
+  if (clinicalKeywords.some(keyword => queryLower.includes(keyword))) {
+    return 'clinical';
+  }
+  
+  return 'general';
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -427,6 +461,45 @@ serve(async (req) => {
       );
     }
 
+    // Detect query type
+    const queryType = detectQueryType(message);
+    console.log('Query type detected:', queryType);
+
+    // Handle identity questions with simple responses
+    if (queryType === 'identity') {
+      let response = '';
+      const queryLower = message.toLowerCase();
+      
+      if (queryLower.includes('who made') || queryLower.includes('who created') || queryLower.includes('creator')) {
+        response = "I was created by **Rajan Kumar Karn**, the founder of DocMateX — India's first verified medical networking and research platform. He is a student at **IIT Patna**.";
+      } else if (queryLower.includes('what is docmatex')) {
+        response = "**DocMateX** is India's first and only verified professional network and research ecosystem built exclusively for healthcare professionals. It's a platform where doctors, students, researchers, pharmacists, radiologists, and other medical experts connect, publish research, collaborate, and grow their careers — all in a secure, verified environment.";
+      } else if (queryLower.includes('features of docmatex')) {
+        response = "**DocMateX** offers role-specific profiles, AI assistance (Doxy AI), verified jobs and internships, in-app messaging, mentorship discovery, case study and research uploads, and a personalized content feed. It also includes an intelligent AI assistant — me, Doxy AI — to help with research, clinical questions, and career guidance.";
+      } else if (queryLower.includes('what can you do') || queryLower.includes('capabilities') || queryLower.includes('purpose')) {
+        response = "My goal is to support the healthcare community — not replace doctors, but to assist them with knowledge, research, and tools — 24x7, in a verified and respectful space. I can help with medical research, clinical questions, statistical calculations, case studies, and career guidance.";
+      } else {
+        response = "I'm **DoxyAI**, created by **Rajan Kumar Karn** for the DocMateX platform. I'm here to assist healthcare professionals with research, clinical questions, and medical guidance using live PubMed integration and statistical analysis.";
+      }
+      
+      response += "\n\n**Powered by DocMateX — for those who care, heal, and lead.**";
+      
+      return new Response(
+        JSON.stringify({ 
+          response: response,
+          pubmedIntegrated: false,
+          articleCount: 0,
+          citations: [],
+          hasCalculation: false,
+          calculationType: null,
+          ragEnabled: false,
+          searchStrategy: 'Identity Response'
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // For clinical queries, proceed with existing RAG pipeline
     // Check for statistical queries first
     const statQuery = detectStatisticalQuery(message);
     let calculationResult = '';
@@ -464,7 +537,7 @@ serve(async (req) => {
       }
     }
 
-    // Comprehensive DoxyAI identity-aware system prompt
+    // Use clinical template system prompt for clinical queries
     const systemPrompt = `You are Doxy AI — a smart, respectful, and research-driven medical assistant integrated into DocMateX.
 
 Your role is to assist verified doctors, medical students, and researchers with:
@@ -475,20 +548,6 @@ Your role is to assist verified doctors, medical students, and researchers with:
 - Career & mentorship suggestions
 
 You are integrated with PubMed, a statistical engine, and RAG (Retrieval-Augmented Generation) model to provide highly accurate, evidence-based, and personalized responses.
-
-**IDENTITY FACTS (respond when asked):**
-
-1. If the user asks **"Who made you?"**, **"Who is your creator?"**, or anything similar:
-Respond: **"I was created by Rajan Kumar Karn, the founder of DocMateX — India's first verified medical networking and research platform. He is a student of IIT Patna."**
-
-2. If the user asks **"What is DocMateX?"**, reply:
-**"DocMateX is India's first and only verified professional network and research ecosystem built exclusively for healthcare professionals. It's a platform where doctors, students, researchers, pharmacists, radiologists, and other medical experts connect, publish research, collaborate, and grow their careers — all in a secure, verified environment."**
-
-3. If the user asks **"What are the features of DocMateX?"**, say:
-**"DocMateX offers role-specific profiles, AI assistance (Doxy AI), verified jobs and internships, in-app messaging, mentorship discovery, case study and research uploads, and a personalized content feed. It also includes an intelligent AI assistant — me, Doxy AI — to help with research, clinical questions, and career guidance."**
-
-4. If user asks about **your purpose**, say:
-**"My goal is to support the healthcare community — not replace doctors, but to assist them with knowledge, research, and tools — 24x7, in a verified and respectful space."**
 
 **RESPONSE FORMAT REQUIREMENTS:**
 Structure your response using this exact clinical template:

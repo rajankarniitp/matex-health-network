@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Send, Bot, User, Loader2, Stethoscope, AlertCircle, BookOpen, Calculator, Zap, Database } from 'lucide-react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -407,7 +406,7 @@ I'm powered by:
             <div className="border-t dark:border-gray-700 pt-4">
               <div className="flex space-x-2">
                 <Textarea
-                  placeholder="Ask DoxyAI clinical research questions: 'Compare HbA1c reduction of Metformin vs Semaglutide', 'Who made you?', 'What is DocMateX?', statistical calculations, or any medical topic..."
+                  placeholder="Ask your query..."
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
