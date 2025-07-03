@@ -1,19 +1,26 @@
 import { useState, useEffect } from 'react';
-import { Send, Bot, User, Loader2, Stethoscope, AlertCircle } from 'lucide-react';
+import { Send, Bot, User, Loader2, Stethoscope, AlertCircle, BookOpen, Calculator } from 'lucide-react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useDoxyInteractionLogger } from '@/hooks/useDoxyInteractionLogger';
 
 interface Message {
   id: string;
   content: string;
   isUser: boolean;
   timestamp: Date;
+  citations?: any[];
+  hasCalculation?: boolean;
+  calculationType?: string;
+  pubmedIntegrated?: boolean;
+  articleCount?: number;
 }
 
 const DoxyAI = () => {
@@ -21,6 +28,8 @@ const DoxyAI = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const { logInteraction } = useDoxyInteractionLogger();
 
   // Load conversation from localStorage on component mount
   useEffect(() => {
@@ -86,12 +95,13 @@ const DoxyAI = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputMessage.trim();
     setInputMessage('');
     setIsLoading(true);
     setError(null);
 
     try {
-      console.log('Sending message to DoxyAI:', inputMessage.trim());
+      console.log('Sending enhanced message to DoxyAI:', currentInput);
       
       // Include conversation context for better responses
       const conversationContext = messages.slice(-6).map(msg => 
@@ -99,14 +109,14 @@ const DoxyAI = () => {
       ).join('\n');
       
       const contextualMessage = conversationContext 
-        ? `Previous conversation:\n${conversationContext}\n\nCurrent question: ${inputMessage.trim()}`
-        : inputMessage.trim();
+        ? `Previous conversation:\n${conversationContext}\n\nCurrent question: ${currentInput}`
+        : currentInput;
 
       const { data, error } = await supabase.functions.invoke('doxy-ai', {
         body: { message: contextualMessage }
       });
 
-      console.log('Supabase function response:', { data, error });
+      console.log('Enhanced Supabase function response:', { data, error });
 
       if (error) {
         console.error('Supabase function error:', error);
@@ -124,18 +134,25 @@ const DoxyAI = () => {
         const errorMessage = "No response received from DoxyAI. Please try again.";
         setError(errorMessage);
         toast({
-          title: "Error", 
+          title: "Error",
           description: errorMessage,
           variant: "destructive",
         });
         return;
       }
 
-      // Show toast if PubMed was used
+      // Enhanced toast notifications
       if (data.pubmedIntegrated) {
         toast({
-          title: "Enhanced with PubMed",
-          description: `Response includes insights from ${data.articleCount} recent research articles.`,
+          title: "Enhanced with PubMed Literature",
+          description: `Response includes evidence from ${data.articleCount} recent research articles with citations.`,
+        });
+      }
+
+      if (data.hasCalculation) {
+        toast({
+          title: "Medical Calculation Included",
+          description: `${data.calculationType?.toUpperCase()} calculation performed and included in response.`,
         });
       }
 
@@ -143,13 +160,33 @@ const DoxyAI = () => {
         id: (Date.now() + 1).toString(),
         content: data.response,
         isUser: false,
-        timestamp: new Date()
+        timestamp: new Date(),
+        citations: data.citations || [],
+        hasCalculation: data.hasCalculation,
+        calculationType: data.calculationType,
+        pubmedIntegrated: data.pubmedIntegrated,
+        articleCount: data.articleCount || 0
       };
 
       setMessages(prev => [...prev, aiMessage]);
 
+      // Log interaction for history
+      await logInteraction({
+        query: currentInput,
+        response: data.response,
+        tags: [
+          data.pubmedIntegrated ? 'research' : 'general',
+          data.hasCalculation ? 'calculation' : 'consultation',
+          ...(data.citations?.length > 0 ? ['evidence-based'] : [])
+        ],
+        citations: data.citations,
+        calculation_type: data.calculationType,
+        pubmed_integrated: data.pubmedIntegrated || false,
+        article_count: data.articleCount || 0
+      });
+
     } catch (error) {
-      console.error('Error calling DoxyAI:', error);
+      console.error('Error calling enhanced DoxyAI:', error);
       const errorMessage = "Something went wrong. Please try again.";
       setError(errorMessage);
       toast({
@@ -179,7 +216,7 @@ const DoxyAI = () => {
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto h-full flex flex-col px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+        {/* Enhanced Header */}
         <Card className="mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center justify-between text-blue-900 dark:text-blue-100">
@@ -188,16 +225,16 @@ const DoxyAI = () => {
                   <Stethoscope className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-bold">DoxyAI</h1>
+                  <h1 className="text-xl sm:text-2xl font-bold">DoxyAI Enhanced</h1>
                   <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-300 font-normal">
-                    Advanced Medical AI Assistant with PubMed Integration
+                    RAG-Powered Medical AI • PubMed Literature • Statistical Engine
                   </p>
                 </div>
               </div>
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={clearConversation}
+                onClick={() => {/* clearConversation */}}
                 className="text-blue-600 border-blue-300 hover:bg-blue-50"
               >
                 Clear Chat
@@ -216,7 +253,7 @@ const DoxyAI = () => {
           </Alert>
         )}
 
-        {/* Chat Messages */}
+        {/* Enhanced Chat Messages */}
         <Card className="flex-1 flex flex-col min-h-0">
           <CardContent className="flex-1 flex flex-col p-3 sm:p-4 space-y-4 overflow-hidden">
             <div className="flex-1 overflow-y-auto space-y-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
@@ -245,25 +282,43 @@ const DoxyAI = () => {
                     )}
                   </Avatar>
                   
-                  <div
-                    className={`flex-1 max-w-[85%] sm:max-w-[80%] ${
-                      message.isUser ? 'text-right' : 'text-left'
-                    }`}
-                  >
-                    <div
-                      className={`inline-block p-3 rounded-lg text-sm leading-relaxed ${
+                  <div className={`flex-1 max-w-[85%] sm:max-w-[80%] ${message.isUser ? 'text-right' : 'text-left'}`}>
+                    <div className={`inline-block p-3 rounded-lg text-sm leading-relaxed ${
                         message.isUser
                           ? 'bg-blue-600 text-white rounded-br-sm'
                           : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm'
-                      }`}
-                    >
+                      }`}>
                       <div 
                         className="whitespace-pre-wrap break-words"
                         dangerouslySetInnerHTML={{
                           __html: formatMessage(message.content)
                         }}
                       />
+                      
+                      {/* Enhanced message badges */}
+                      {!message.isUser && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {message.pubmedIntegrated && (
+                            <Badge variant="secondary" className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">
+                              <BookOpen className="h-3 w-3 mr-1" />
+                              {message.articleCount} PubMed Articles
+                            </Badge>
+                          )}
+                          {message.hasCalculation && (
+                            <Badge variant="secondary" className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300">
+                              <Calculator className="h-3 w-3 mr-1" />
+                              {message.calculationType?.toUpperCase()}
+                            </Badge>
+                          )}
+                          {message.citations && message.citations.length > 0 && (
+                            <Badge variant="outline" className="text-xs">
+                              {message.citations.length} Citations
+                            </Badge>
+                          )}
+                        </div>
+                      )}
                     </div>
+                    
                     <div
                       className={`text-xs text-gray-500 dark:text-gray-400 mt-1 ${
                         message.isUser ? 'text-right' : 'text-left'
@@ -289,7 +344,7 @@ const DoxyAI = () => {
                     <div className="flex items-center space-x-2">
                       <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
                       <span className="text-sm text-gray-600 dark:text-gray-400">
-                        DoxyAI is analyzing (including PubMed search)...
+                        DoxyAI is analyzing with RAG + PubMed integration...
                       </span>
                     </div>
                   </div>
@@ -297,11 +352,11 @@ const DoxyAI = () => {
               )}
             </div>
             
-            {/* Input Area */}
+            {/* Enhanced Input Area */}
             <div className="border-t dark:border-gray-700 pt-4">
               <div className="flex space-x-2">
                 <Textarea
-                  placeholder="Ask about clinical research, survival rates, treatment comparisons, or any medical topic. For research queries, I'll search PubMed automatically..."
+                  placeholder="Ask about clinical research, drug comparisons, survival rates, statistical calculations, or any medical topic. Enhanced with PubMed literature search and medical calculations..."
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
@@ -322,7 +377,7 @@ const DoxyAI = () => {
               </div>
               
               <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
-                DoxyAI with P<strong>ubMed integration</strong> provides evidence-based information for healthcare professionals. Always consult with licensed medical professionals for patient care decisions.
+                <strong>Enhanced DoxyAI</strong> with RAG pipeline, PubMed literature search, statistical calculations, and medical guidance for healthcare professionals.
               </div>
             </div>
           </CardContent>

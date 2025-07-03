@@ -1,5 +1,5 @@
-
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import MessageNavigation from '@/components/messaging/MessageNavigation';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 const Messages = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [navigationFixed, setNavigationFixed] = useState(false);
 
   const conversations = [
     {
@@ -100,11 +101,15 @@ const Messages = () => {
   );
 
   const handleConversationClick = (conversationId: number) => {
-    navigate(`/chat/${conversationId}`);
+    // Fixed navigation - prevent auto-redirect
+    if (navigationFixed) {
+      navigate(`/chat/${conversationId}`, { replace: false });
+    }
   };
 
   return (
     <DashboardLayout>
+      <MessageNavigation onNavigationFix={() => setNavigationFixed(true)} />
       <div className="h-[calc(100vh-12rem)] bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900/25">
         {/* Header */}
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-t-lg">

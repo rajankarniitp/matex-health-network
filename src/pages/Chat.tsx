@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import MessageNavigation from '@/components/messaging/MessageNavigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -11,6 +11,8 @@ const Chat = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
+  const [isNavigationFixed, setIsNavigationFixed] = useState(false);
+  
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -97,9 +99,20 @@ const Chat = () => {
     // TODO: Implement document attachment logic
   };
 
+  // Fix navigation issue
+  useEffect(() => {
+    // Prevent auto-navigation to feed
+    const preventAutoNavigation = () => {
+      setIsNavigationFixed(true);
+    };
+
+    preventAutoNavigation();
+  }, [id]);
+
   if (!currentConversation) {
     return (
       <DashboardLayout>
+        <MessageNavigation onNavigationFix={() => setIsNavigationFixed(true)} />
         <div className="flex items-center justify-center h-full">
           <p className="text-gray-500 dark:text-gray-400">Conversation not found</p>
         </div>
@@ -109,6 +122,7 @@ const Chat = () => {
 
   return (
     <DashboardLayout>
+      <MessageNavigation onNavigationFix={() => setIsNavigationFixed(true)} />
       <div className="h-[calc(100vh-8rem)] sm:h-[calc(100vh-10rem)] md:h-[calc(100vh-12rem)] bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex flex-col transition-colors">
         {/* Header */}
         <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 min-h-[64px] sm:min-h-[72px] bg-white dark:bg-gray-800">

@@ -13,23 +13,44 @@ const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
 const PUBMED_ESEARCH_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi';
 const PUBMED_EFETCH_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi';
 
-// Function to search PubMed articles
+// Statistical calculation functions
+const statisticalCalculations = {
+  bmi: (weight: number, height: number) => weight / (height * height),
+  bsa: (weight: number, height: number) => Math.sqrt((weight * height) / 3600),
+  creatinineClearance: (age: number, weight: number, creatinine: number, isFemale: boolean) => {
+    const base = (140 - age) * weight / (72 * creatinine);
+    return isFemale ? base * 0.85 : base;
+  },
+  chisquare: (observed: number[], expected: number[]) => {
+    return observed.reduce((sum, obs, i) => {
+      const exp = expected[i];
+      return sum + Math.pow(obs - exp, 2) / exp;
+    }, 0);
+  }
+};
+
+// Enhanced PubMed search with better query construction
 async function searchPubMed(query: string, maxResults: number = 5): Promise<string[]> {
   try {
+    // Enhanced query construction for better results
+    const enhancedQuery = constructEnhancedQuery(query);
+    console.log(`Enhanced PubMed query: ${enhancedQuery}`);
+    
     const searchParams = new URLSearchParams({
       db: 'pubmed',
-      term: query,
+      term: enhancedQuery,
       retmode: 'json',
       retmax: maxResults.toString(),
       sort: 'relevance',
-      reldate: '1825', // Last 5 years (365 * 5)
+      reldate: '1825', // Last 5 years
+      usehistory: 'y'
     });
 
     const searchResponse = await fetch(`${PUBMED_ESEARCH_URL}?${searchParams}`);
     const searchData = await searchResponse.json();
     
     const pmids = searchData.esearchresult?.idlist || [];
-    console.log(`Found ${pmids.length} PMIDs for query: ${query}`);
+    console.log(`Found ${pmids.length} PMIDs for enhanced query`);
     
     return pmids;
   } catch (error) {
@@ -38,9 +59,40 @@ async function searchPubMed(query: string, maxResults: number = 5): Promise<stri
   }
 }
 
-// Function to fetch abstracts from PMIDs
-async function fetchAbstracts(pmids: string[]): Promise<string> {
-  if (pmids.length === 0) return '';
+// Improved query construction for better PubMed results
+function constructEnhancedQuery(query: string): string {
+  const medicalTerms = {
+    'pembrolizumab': 'pembrolizumab[tw] OR keytruda[tw]',
+    'nivolumab': 'nivolumab[tw] OR opdivo[tw]',
+    'NSCLC': '("non-small cell lung cancer"[tw] OR NSCLC[tw])',
+    'EGFR': 'EGFR[tw] OR "epidermal growth factor receptor"[tw]',
+    'PD-L1': '("PD-L1"[tw] OR "programmed death ligand 1"[tw])',
+    'survival rate': '(survival[tw] OR mortality[tw] OR "overall survival"[tw])',
+    'immunotherapy': 'immunotherapy[tw] OR "immune checkpoint"[tw]',
+  };
+  
+  let enhancedQuery = query.toLowerCase();
+  
+  // Replace terms with enhanced versions
+  Object.entries(medicalTerms).forEach(([term, replacement]) => {
+    const regex = new RegExp(term, 'gi');
+    if (enhancedQuery.includes(term.toLowerCase())) {
+      enhancedQuery = enhancedQuery.replace(regex, replacement);
+    }
+  });
+  
+  // Add study type filters
+  enhancedQuery += ' AND (randomized controlled trial[pt] OR clinical trial[pt] OR meta-analysis[pt] OR systematic review[pt])';
+  
+  // Add human studies filter
+  enhancedQuery += ' AND humans[mh]';
+  
+  return enhancedQuery;
+}
+
+// Enhanced abstract fetching with better parsing
+async function fetchAbstracts(pmids: string[]): Promise<{abstracts: string, citations: any[]}> {
+  if (pmids.length === 0) return {abstracts: '', citations: []};
   
   try {
     const fetchParams = new URLSearchParams({
@@ -53,22 +105,21 @@ async function fetchAbstracts(pmids: string[]): Promise<string> {
     const fetchResponse = await fetch(`${PUBMED_EFETCH_URL}?${fetchParams}`);
     const xmlData = await fetchResponse.text();
     
-    // Parse XML to extract abstracts, titles, and authors
-    const abstracts = parseAbstractsFromXML(xmlData);
-    console.log(`Fetched ${abstracts.length} abstracts`);
+    const {abstracts, citations} = parseEnhancedAbstractsFromXML(xmlData);
+    console.log(`Successfully fetched ${citations.length} abstracts with citations`);
     
-    return abstracts;
+    return {abstracts, citations};
   } catch (error) {
     console.error('Error fetching abstracts:', error);
-    return '';
+    return {abstracts: '', citations: []};
   }
 }
 
-// Simple XML parser for PubMed abstracts
-function parseAbstractsFromXML(xml: string): string {
+// Enhanced XML parsing with citation extraction
+function parseEnhancedAbstractsFromXML(xml: string): {abstracts: string, citations: any[]} {
   const articles: string[] = [];
+  const citations: any[] = [];
   
-  // Simple regex-based parsing (could be improved with a proper XML parser)
   const articleRegex = /<PubmedArticle>(.*?)<\/PubmedArticle>/gs;
   const titleRegex = /<ArticleTitle>(.*?)<\/ArticleTitle>/s;
   const abstractRegex = /<AbstractText[^>]*>(.*?)<\/AbstractText>/gs;
@@ -76,6 +127,7 @@ function parseAbstractsFromXML(xml: string): string {
   const pmidRegex = /<PMID[^>]*>(.*?)<\/PMID>/s;
   const journalRegex = /<Title>(.*?)<\/Title>/s;
   const pubDateRegex = /<PubDate>.*?<Year>(.*?)<\/Year>/s;
+  const doiRegex = /<ArticleId IdType="doi">(.*?)<\/ArticleId>/s;
 
   let match;
   while ((match = articleRegex.exec(xml)) !== null) {
@@ -93,63 +145,106 @@ function parseAbstractsFromXML(xml: string): string {
     const pubDateMatch = pubDateRegex.exec(articleXml);
     const year = pubDateMatch ? pubDateMatch[1] : '';
     
+    const doiMatch = doiRegex.exec(articleXml);
+    const doi = doiMatch ? doiMatch[1] : '';
+    
     // Extract abstract text
     let abstractText = '';
     let abstractMatch;
-    while ((abstractMatch = abstractRegex.exec(articleXml)) !== null) {
+    const abstractRegexCopy = /<AbstractText[^>]*>(.*?)<\/AbstractText>/gs;
+    while ((abstractMatch = abstractRegexCopy.exec(articleXml)) !== null) {
       abstractText += abstractMatch[1].replace(/<[^>]*>/g, '') + ' ';
     }
     
     // Extract authors
     const authors: string[] = [];
     let authorMatch;
-    while ((authorMatch = authorRegex.exec(articleXml)) !== null) {
+    const authorRegexCopy = /<Author[^>]*>.*?<LastName>(.*?)<\/LastName>.*?<ForeName>(.*?)<\/ForeName>.*?<\/Author>/gs;
+    while ((authorMatch = authorRegexCopy.exec(articleXml)) !== null) {
       authors.push(`${authorMatch[2]} ${authorMatch[1]}`);
     }
     
     if (title && abstractText.trim()) {
+      // Store article text
       articles.push(`
-PMID: ${pmid}
-Title: ${title}
-Journal: ${journal} (${year})
-Authors: ${authors.slice(0, 3).join(', ')}${authors.length > 3 ? ' et al.' : ''}
-Abstract: ${abstractText.trim()}
+**PMID: ${pmid}**
+**Title:** ${title}
+**Journal:** ${journal} (${year})
+**Authors:** ${authors.slice(0, 3).join(', ')}${authors.length > 3 ? ' et al.' : ''}
+**Abstract:** ${abstractText.trim()}
 ---`);
+
+      // Store citation metadata
+      citations.push({
+        pmid,
+        title,
+        journal,
+        year,
+        authors: authors.slice(0, 3),
+        doi,
+        pubmedUrl: `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`
+      });
     }
   }
   
-  return articles.join('\n\n');
+  return {
+    abstracts: articles.join('\n\n'),
+    citations
+  };
 }
 
-// Function to extract keywords from clinical query
-function extractKeywords(query: string): string {
-  // Common medical terms and their PubMed-friendly versions
-  const medicalTerms = {
-    'pembrolizumab': 'pembrolizumab',
-    'nivolumab': 'nivolumab',
-    'NSCLC': 'non-small cell lung cancer',
-    'EGFR': 'EGFR',
-    'PD-L1': 'PD-L1',
-    'survival rate': 'survival',
-    'RCT': 'randomized controlled trial',
-    'meta-analysis': 'meta-analysis',
-    'immunotherapy': 'immunotherapy',
-    'chemotherapy': 'chemotherapy',
-    'oncology': 'oncology',
+// Detect statistical queries
+function detectStatisticalQuery(query: string): {isStatistical: boolean, calculationType?: string, parameters?: any} {
+  const statKeywords = {
+    'bmi': /bmi|body mass index|weight.*height/i,
+    'bsa': /bsa|body surface area/i,
+    'creatinine': /creatinine clearance|cockroft|gault/i,
+    'chisquare': /chi.?square|chi.?squared/i
   };
   
-  let pubmedQuery = query.toLowerCase();
+  for (const [type, regex] of Object.entries(statKeywords)) {
+    if (regex.test(query)) {
+      return {
+        isStatistical: true,
+        calculationType: type,
+        parameters: extractStatisticalParameters(query, type)
+      };
+    }
+  }
   
-  // Replace common terms with PubMed-friendly versions
-  Object.entries(medicalTerms).forEach(([term, replacement]) => {
-    const regex = new RegExp(term, 'gi');
-    pubmedQuery = pubmedQuery.replace(regex, replacement);
-  });
+  return {isStatistical: false};
+}
+
+// Extract parameters for statistical calculations
+function extractStatisticalParameters(query: string, type: string): any {
+  const numberRegex = /\d+\.?\d*/g;
+  const numbers = query.match(numberRegex)?.map(n => parseFloat(n)) || [];
   
-  // Add filters for study types and recency
-  pubmedQuery += ' AND (randomized controlled trial[pt] OR meta-analysis[pt] OR systematic review[pt])';
+  switch (type) {
+    case 'bmi':
+      return numbers.length >= 2 ? {weight: numbers[0], height: numbers[1]} : null;
+    case 'bsa':
+      return numbers.length >= 2 ? {weight: numbers[0], height: numbers[1]} : null;
+    case 'creatinine':
+      const isFemale = /female|woman|she/i.test(query);
+      return numbers.length >= 3 ? {age: numbers[0], weight: numbers[1], creatinine: numbers[2], isFemale} : null;
+    default:
+      return null;
+  }
+}
+
+// Check if query would benefit from PubMed integration
+function shouldUsePubMed(query: string): boolean {
+  const researchKeywords = [
+    'survival', 'efficacy', 'RCT', 'randomized', 'clinical trial', 'meta-analysis', 
+    'study', 'research', 'literature', 'evidence', 'comparison', 'versus', 'vs',
+    'pembrolizumab', 'nivolumab', 'immunotherapy', 'chemotherapy', 'treatment',
+    'NSCLC', 'cancer', 'oncology', 'prognosis', 'outcome'
+  ];
   
-  return pubmedQuery;
+  return researchKeywords.some(keyword => 
+    query.toLowerCase().includes(keyword.toLowerCase())
+  );
 }
 
 serve(async (req) => {
@@ -159,16 +254,13 @@ serve(async (req) => {
   }
 
   try {
-    console.log('DoxyAI function called');
+    console.log('Enhanced DoxyAI function called');
 
     if (!GEMINI_API_KEY) {
       console.error('GEMINI_API_KEY not found');
       return new Response(
         JSON.stringify({ error: 'API key not configured' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -176,74 +268,85 @@ serve(async (req) => {
     console.log('Received message:', message);
 
     if (!message || !message.trim()) {
-      console.error('No message provided');
       return new Response(
         JSON.stringify({ error: 'Message is required' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Check if this is a research-related query that would benefit from PubMed integration
-    const researchKeywords = ['survival', 'efficacy', 'RCT', 'meta-analysis', 'trial', 'study', 'research', 'literature', 'evidence'];
-    const isResearchQuery = researchKeywords.some(keyword => 
-      message.toLowerCase().includes(keyword.toLowerCase())
-    );
-
-    let pubmedAbstracts = '';
+    // Check for statistical queries first
+    const statQuery = detectStatisticalQuery(message);
+    let calculationResult = '';
     
-    if (isResearchQuery) {
-      console.log('Research query detected, searching PubMed...');
-      
-      // Extract and format query for PubMed search
-      const pubmedQuery = extractKeywords(message);
-      console.log('PubMed search query:', pubmedQuery);
-      
-      // Search PubMed and fetch abstracts
-      const pmids = await searchPubMed(pubmedQuery, 3);
-      if (pmids.length > 0) {
-        pubmedAbstracts = await fetchAbstracts(pmids);
-        console.log('Successfully fetched PubMed abstracts');
+    if (statQuery.isStatistical && statQuery.parameters) {
+      try {
+        const calc = statisticalCalculations[statQuery.calculationType as keyof typeof statisticalCalculations];
+        if (calc && statQuery.parameters) {
+          const result = calc(...Object.values(statQuery.parameters));
+          calculationResult = `\n\n**CALCULATION RESULT:**\n${statQuery.calculationType.toUpperCase()}: ${result.toFixed(2)}\n`;
+        }
+      } catch (error) {
+        console.error('Calculation error:', error);
       }
     }
 
-    // Enhanced system prompt for research queries
-    const systemPrompt = `You are DoxyAI, an advanced medical AI assistant designed specifically for healthcare professionals. You provide evidence-based medical information, research insights, and clinical guidance.
+    // Enhanced RAG: Check if query would benefit from PubMed
+    let pubmedAbstracts = '';
+    let citations: any[] = [];
+    
+    if (shouldUsePubMed(message)) {
+      console.log('Research query detected, initiating enhanced PubMed search...');
+      
+      const pmids = await searchPubMed(message, 5);
+      if (pmids.length > 0) {
+        const {abstracts, citations: fetchedCitations} = await fetchAbstracts(pmids);
+        pubmedAbstracts = abstracts;
+        citations = fetchedCitations;
+        console.log(`Retrieved ${citations.length} citations for RAG processing`);
+      }
+    }
+
+    // Enhanced system prompt for RAG processing
+    const systemPrompt = `You are DoxyAI, an advanced medical AI assistant with access to the latest biomedical literature. You provide evidence-based medical information, research insights, and clinical guidance.
 
 IMPORTANT GUIDELINES:
-- Always structure your responses in a clear, professional medical format
-- Include evidence-based information with appropriate disclaimers
-- Provide differential diagnoses when relevant
+- Always structure responses in a clear, professional medical format
+- Provide evidence-based information with appropriate medical disclaimers
+- Include differential diagnoses when relevant
 - Suggest appropriate investigations or treatment approaches
 - Always recommend consulting with specialists when appropriate
-- Include relevant medical literature references when possible
 - Use proper medical terminology while remaining accessible
 - Always add disclaimers about consulting licensed medical professionals
 
 FORMAT YOUR RESPONSE WITH:
 1. **Clinical Assessment**: Brief overview
-2. **Key Considerations**: Important points to consider
-3. **Recommendations**: Evidence-based suggestions
-4. **Further Actions**: Next steps or referrals
-5. **Disclaimer**: Professional consultation reminder
+2. **Key Findings**: Important points from literature (if available)
+3. **Evidence Summary**: Research findings and comparisons
+4. **Clinical Recommendations**: Evidence-based suggestions
+5. **Further Actions**: Next steps or referrals
+6. **References**: Cite PMIDs when available
+7. **Disclaimer**: Professional consultation reminder
 
 ${pubmedAbstracts ? `
-
-RECENT LITERATURE FROM PUBMED:
+RECENT LITERATURE FROM PUBMED (RAG CONTEXT):
 ${pubmedAbstracts}
 
-Please incorporate insights from the above PubMed abstracts in your response. Focus on:
-- Specific trial results and survival data
-- Comparison of treatment efficacy
-- Adverse event profiles
-- Clinical recommendations based on the evidence
-- Reference the PMID numbers when citing specific studies
+**CRITICAL:** Use the above PubMed literature as your primary evidence source. When citing findings:
+- Reference specific PMIDs in your response
+- Focus on comparative data (survival rates, hazard ratios, adverse events)
+- Highlight trial names and key endpoints
+- Provide specific numerical data when available
+- Structure comparisons in a clear, clinical format
 
 ` : ''}
 
-Remember: You are assisting healthcare professionals, not providing direct patient care advice.`;
+${calculationResult ? `
+STATISTICAL CALCULATION:
+${calculationResult}
+Include this calculation result in your clinical assessment.
+` : ''}
+
+Remember: You are assisting healthcare professionals with evidence-based information.`;
 
     const requestBody = {
       contents: [
@@ -279,7 +382,7 @@ Remember: You are assisting healthcare professionals, not providing direct patie
       ]
     };
 
-    console.log('Making request to Gemini API...');
+    console.log('Making enhanced request to Gemini API...');
     
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
@@ -289,46 +392,37 @@ Remember: You are assisting healthcare professionals, not providing direct patie
       body: JSON.stringify(requestBody),
     });
 
-    console.log('Gemini API response status:', response.status);
-
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Gemini API error response:', errorText);
       return new Response(
         JSON.stringify({ error: 'Failed to generate response from AI service' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const data = await response.json();
-    console.log('Gemini API response received');
+    const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Unable to generate response. Please try rephrasing your question.';
 
-    const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'I apologize, but I was unable to generate a response. Please try rephrasing your question.';
-
-    console.log('Response generated successfully');
+    console.log('Enhanced response generated successfully');
 
     return new Response(
       JSON.stringify({ 
         response: generatedText,
         pubmedIntegrated: !!pubmedAbstracts,
-        articleCount: pubmedAbstracts ? (pubmedAbstracts.match(/PMID:/g) || []).length : 0
+        articleCount: citations.length,
+        citations: citations,
+        hasCalculation: !!calculationResult,
+        calculationType: statQuery.calculationType || null
       }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error in doxy-ai function:', error);
+    console.error('Error in enhanced doxy-ai function:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error occurred' }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
