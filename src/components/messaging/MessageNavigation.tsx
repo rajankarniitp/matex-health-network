@@ -11,30 +11,37 @@ const MessageNavigation = ({ onNavigationFix }: MessageNavigationProps) => {
   const location = useLocation();
 
   useEffect(() => {
-    // Fix for auto-navigation bug
+    // Fix for auto-navigation bug - prevent unwanted redirects
     const handleNavigationFix = () => {
-      // Prevent automatic navigation back to feed
+      // Only apply fix for messaging routes
       if (location.pathname.includes('/chat/') || location.pathname === '/messages') {
-        // Stay on current page, don't auto-navigate
-        console.log('Navigation fix applied:', location.pathname);
+        // Prevent automatic navigation back to feed
+        console.log('Navigation fix applied for messaging:', location.pathname);
         if (onNavigationFix) {
           onNavigationFix();
         }
+        return true;
+      }
+      return false;
+    };
+
+    // Apply fix immediately on mount
+    const wasFixed = handleNavigationFix();
+
+    // Prevent history manipulation that causes redirect to feed
+    const handlePopState = (event: PopStateEvent) => {
+      if (location.pathname.includes('/chat/') || location.pathname === '/messages') {
+        event.preventDefault();
+        console.log('Prevented unwanted navigation from messaging');
       }
     };
 
-    // Apply fix on mount
-    handleNavigationFix();
-
-    // Listen for history changes
-    const unlisten = () => {
-      handleNavigationFix();
-    };
-
-    window.addEventListener('popstate', unlisten);
+    if (wasFixed) {
+      window.addEventListener('popstate', handlePopState);
+    }
     
     return () => {
-      window.removeEventListener('popstate', unlisten);
+      window.removeEventListener('popstate', handlePopState);
     };
   }, [location.pathname, navigate, onNavigationFix]);
 

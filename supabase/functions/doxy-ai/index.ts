@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -465,19 +466,21 @@ serve(async (req) => {
     const queryType = detectQueryType(message);
     console.log('Query type detected:', queryType);
 
-    // Handle identity questions with simple responses
+    // Handle identity questions with specific responses
     if (queryType === 'identity') {
       let response = '';
       const queryLower = message.toLowerCase();
       
-      if (queryLower.includes('who made') || queryLower.includes('who created') || queryLower.includes('creator')) {
+      if (queryLower.includes('who made') || queryLower.includes('who created') || queryLower.includes('creator') || queryLower.includes('who is your creator')) {
         response = "I was created by **Rajan Kumar Karn**, the founder of DocMateX — India's first verified medical networking and research platform. He is a student at **IIT Patna**.";
-      } else if (queryLower.includes('what is docmatex')) {
+      } else if (queryLower.includes('what is docmatex') || queryLower.includes('about docmatex')) {
         response = "**DocMateX** is India's first and only verified professional network and research ecosystem built exclusively for healthcare professionals. It's a platform where doctors, students, researchers, pharmacists, radiologists, and other medical experts connect, publish research, collaborate, and grow their careers — all in a secure, verified environment.";
-      } else if (queryLower.includes('features of docmatex')) {
+      } else if (queryLower.includes('features of docmatex') || queryLower.includes('docmatex features')) {
         response = "**DocMateX** offers role-specific profiles, AI assistance (Doxy AI), verified jobs and internships, in-app messaging, mentorship discovery, case study and research uploads, and a personalized content feed. It also includes an intelligent AI assistant — me, Doxy AI — to help with research, clinical questions, and career guidance.";
-      } else if (queryLower.includes('what can you do') || queryLower.includes('capabilities') || queryLower.includes('purpose')) {
-        response = "My goal is to support the healthcare community — not replace doctors, but to assist them with knowledge, research, and tools — 24x7, in a verified and respectful space. I can help with medical research, clinical questions, statistical calculations, case studies, and career guidance.";
+      } else if (queryLower.includes('what can you do') || queryLower.includes('capabilities') || queryLower.includes('purpose') || queryLower.includes('your purpose')) {
+        response = "My goal is to support the healthcare community — not replace doctors, but to assist them with knowledge, research, and tools — 24x7, in a verified and respectful space. I can help with:\n\n• Medical research and clinical insights\n• Case study analysis\n• Research support with live PubMed integration\n• Medical calculations and statistical analysis\n• Career guidance and mentorship suggestions\n• Evidence-based medical recommendations";
+      } else if (queryLower.includes('who are you') || queryLower.includes('what are you') || queryLower.includes('about you')) {
+        response = "I'm **DoxyAI**, created by **Rajan Kumar Karn** for the DocMateX platform. I'm here to assist healthcare professionals with research, clinical questions, and medical guidance using live PubMed integration and statistical analysis.";
       } else {
         response = "I'm **DoxyAI**, created by **Rajan Kumar Karn** for the DocMateX platform. I'm here to assist healthcare professionals with research, clinical questions, and medical guidance using live PubMed integration and statistical analysis.";
       }

@@ -4,13 +4,18 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Search } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Messages = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [navigationFixed, setNavigationFixed] = useState(false);
+
+  // Prevent automatic redirect on component mount
+  useEffect(() => {
+    setNavigationFixed(true);
+  }, []);
 
   const conversations = [
     {
@@ -101,9 +106,10 @@ const Messages = () => {
   );
 
   const handleConversationClick = (conversationId: number) => {
-    // Fixed navigation - prevent auto-redirect
+    // Fixed navigation - use replace to prevent back button issues
     if (navigationFixed) {
-      navigate(`/chat/${conversationId}`, { replace: false });
+      console.log('Opening chat for conversation:', conversationId);
+      navigate(`/chat/${conversationId}`, { replace: true });
     }
   };
 
