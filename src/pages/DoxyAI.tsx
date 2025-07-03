@@ -62,25 +62,36 @@ const DoxyAI = () => {
 
   const getWelcomeMessage = () => ({
     id: '1',
-    content: `# Welcome to DoxyAI Enhanced RAG! 🩺
+    content: `# Welcome to DoxyAI — Your Research-Driven Medical Assistant! 🩺
 
-I'm your advanced clinical AI assistant powered by:
+I'm **DoxyAI**, created by **Rajan Kumar Karn**, founder of **DocMateX** — India's first verified medical networking and research platform. Rajan is a student at **IIT Patna**.
+
+## 🎯 **My Purpose**
+My goal is to support the healthcare community — not replace doctors, but to assist them with knowledge, research, and tools — 24x7, in a verified and respectful space.
+
+## 🔬 **Advanced Capabilities**
+I'm powered by:
 - **Live PubMed RAG Pipeline** with real-time literature retrieval
 - **Enhanced Statistical Engine** for medical calculations  
 - **Evidence-Based Responses** with direct PubMed citations
 
-## Enhanced RAG Capabilities:
-- **Clinical Research Queries** with live PubMed abstract retrieval
-- **Drug Comparisons** based on recent RCTs and meta-analyses
-- **Statistical Analysis** with medical calculations integrated
-- **Citation-Rich Responses** with PMIDs and direct links
+## 📚 **DocMateX Platform Features**
+- Role-specific profiles for verified healthcare professionals
+- AI assistance (that's me, DoxyAI!)
+- Verified jobs and internships
+- In-app messaging and mentorship discovery
+- Case study and research uploads
+- Personalized content feed
 
-## Try These Enhanced Queries:
+## 🚀 **Try These Enhanced Queries:**
 - *"Compare HbA1c reduction of Metformin vs Semaglutide based on recent RCTs"*
 - *"What's the 5-year survival rate for triple-negative breast cancer with immunotherapy?"*
 - *"Pembrolizumab vs Nivolumab efficacy in stage IV NSCLC with PD-L1 ≥50%"*
+- *"Who made you?"* or *"What is DocMateX?"*
 
-**Ready to provide evidence-based medical insights with live literature retrieval!**`,
+**Ready to provide evidence-based medical insights with live literature retrieval!**
+
+**Powered by DocMateX — for those who care, heal, and lead.**`,
     isUser: false,
     timestamp: new Date(),
     ragEnabled: true,
@@ -241,7 +252,7 @@ I'm your advanced clinical AI assistant powered by:
   return (
     <DashboardLayout>
       <div className="max-w-5xl mx-auto h-full flex flex-col px-4 sm:px-6 lg:px-8">
-        {/* Enhanced Header with RAG indicators */}
+        {/* Enhanced Header with DocMateX branding */}
         <Card className="mb-4 bg-gradient-to-r from-green-50 via-blue-50 to-purple-50 dark:from-green-900/20 dark:via-blue-900/20 dark:to-purple-900/20 border-blue-200 dark:border-blue-800">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center justify-between text-blue-900 dark:text-blue-100">
@@ -251,12 +262,12 @@ I'm your advanced clinical AI assistant powered by:
                 </div>
                 <div>
                   <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
-                    DoxyAI Enhanced RAG
+                    DoxyAI — Medical Research Assistant
                     <Database className="h-5 w-5 text-green-500" />
                     <Zap className="h-5 w-5 text-yellow-500" />
                   </h1>
                   <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-300 font-normal">
-                    Live PubMed RAG Pipeline • Statistical Engine • Evidence-Based Medicine • Real-time Literature Retrieval
+                    Created by Rajan Kumar Karn • DocMateX Platform • Live PubMed RAG • Statistical Engine • Evidence-Based Medicine
                   </p>
                 </div>
               </div>
@@ -384,7 +395,7 @@ I'm your advanced clinical AI assistant powered by:
                     <div className="flex items-center space-x-2">
                       <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
                       <span className="text-sm text-gray-600 dark:text-gray-400">
-                        DoxyAI RAG pipeline processing • Searching PubMed • Analyzing literature...
+                        DoxyAI processing your query • Searching PubMed • Analyzing literature...
                       </span>
                     </div>
                   </div>
@@ -392,11 +403,11 @@ I'm your advanced clinical AI assistant powered by:
               )}
             </div>
             
-            {/* Enhanced Input Area */}
+            {/* Enhanced Input Area with DocMateX branding */}
             <div className="border-t dark:border-gray-700 pt-4">
               <div className="flex space-x-2">
                 <Textarea
-                  placeholder="Ask clinical research questions with live PubMed RAG retrieval: 'Compare HbA1c reduction of Metformin vs Semaglutide', 'Pembrolizumab vs Nivolumab in NSCLC', statistical calculations, or any medical topic..."
+                  placeholder="Ask DoxyAI clinical research questions: 'Compare HbA1c reduction of Metformin vs Semaglutide', 'Who made you?', 'What is DocMateX?', statistical calculations, or any medical topic..."
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
@@ -417,7 +428,7 @@ I'm your advanced clinical AI assistant powered by:
               </div>
               
               <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
-                <strong>DoxyAI Enhanced RAG</strong> • Live PubMed literature retrieval • Statistical calculations • Evidence-based clinical guidance
+                <strong>DoxyAI by Rajan Kumar Karn</strong> • DocMateX Platform • Live PubMed RAG • Statistical Analysis • Evidence-Based Medical Guidance
               </div>
             </div>
           </CardContent>
