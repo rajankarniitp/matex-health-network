@@ -408,11 +408,26 @@ function detectQueryType(query: string): 'identity' | 'clinical' | 'general' {
     'who made you', 'who created you', 'who is your creator', 'who built you',
     'who are you', 'what are you', 'about you', 'your creator', 'your maker',
     'rajan kumar karn', 'about docmatex', 'what is docmatex', 'docmatex features',
-    'what can you do', 'your capabilities', 'your purpose', 'tell me about yourself'
+    'what can you do', 'your capabilities', 'your purpose', 'tell me about yourself',
+    'docmatex kya hai', 'docmatex ke bare mein', 'tumhe kisne banaya', 'tum kaun ho'
   ];
   
-  // Check for exact identity matches first
-  if (identityKeywords.some(keyword => queryLower.includes(keyword))) {
+  // Check for exact identity matches first - must be standalone or very specific
+  const hasIdentityMatch = identityKeywords.some(keyword => {
+    // Check if the query contains the identity keyword as a main topic
+    return queryLower.includes(keyword) && 
+           // Ensure it's not mixed with medical terms
+           !queryLower.includes('treatment') && 
+           !queryLower.includes('drug') && 
+           !queryLower.includes('medicine') &&
+           !queryLower.includes('patient') &&
+           !queryLower.includes('therapy') &&
+           !queryLower.includes('disease') &&
+           !queryLower.includes('cancer') &&
+           !queryLower.includes('diabetes');
+  });
+  
+  if (hasIdentityMatch) {
     return 'identity';
   }
   
@@ -420,33 +435,40 @@ function detectQueryType(query: string): 'identity' | 'clinical' | 'general' {
   const clinicalKeywords = [
     // Drug names
     'pembrolizumab', 'nivolumab', 'metformin', 'semaglutide', 'keytruda', 'opdivo',
-    'immunotherapy', 'chemotherapy', 'targeted therapy', 'biologics',
+    'immunotherapy', 'chemotherapy', 'targeted therapy', 'biologics', 'insulin',
+    'aspirin', 'paracetamol', 'ibuprofen', 'antibiotics', 'steroids',
     
     // Medical conditions
     'nsclc', 'lung cancer', 'breast cancer', 'diabetes', 'hypertension', 'cancer',
     'carcinoma', 'tumor', 'malignancy', 'neoplasm', 'oncology', 'cardiology',
-    'triple negative', 'pd-l1', 'her2', 'egfr', 'alk', 'ros1',
+    'triple negative', 'pd-l1', 'her2', 'egfr', 'alk', 'ros1', 'covid', 'fever',
+    'headache', 'pain', 'infection', 'pneumonia', 'asthma', 'copd',
     
     // Medical terms
     'efficacy', 'survival', 'mortality', 'prognosis', 'treatment', 'therapy',
     'clinical trial', 'randomized', 'rct', 'meta-analysis', 'systematic review',
     'hba1c', 'biomarker', 'progression', 'response rate', 'adverse events',
     'toxicity', 'dosing', 'protocol', 'guidelines', 'contraindication',
+    'diagnosis', 'symptoms', 'side effects', 'dosage', 'prescription',
     
     // Comparative terms
     'compare', 'comparison', 'versus', 'vs', 'better', 'superior', 'inferior',
-    'first-line', 'second-line', 'combination', 'monotherapy',
+    'first-line', 'second-line', 'combination', 'monotherapy', 'effectiveness',
     
     // Clinical metrics
     'overall survival', 'progression-free survival', 'hazard ratio', 'confidence interval',
     'p-value', 'statistical significance', 'median', 'endpoint', 'primary', 'secondary',
+    'blood pressure', 'heart rate', 'temperature', 'weight', 'bmi',
     
-    // Medical specialties
+    // Medical specialties and professionals
     'oncologist', 'cardiologist', 'endocrinologist', 'pulmonologist', 'radiologist',
-    'pathologist', 'surgeon', 'physician', 'doctor', 'clinician'
+    'pathologist', 'surgeon', 'physician', 'doctor', 'clinician', 'nurse',
+    'patient', 'medical', 'clinical', 'healthcare', 'hospital'
   ];
   
-  if (clinicalKeywords.some(keyword => queryLower.includes(keyword))) {
+  const hasClinicalMatch = clinicalKeywords.some(keyword => queryLower.includes(keyword));
+  
+  if (hasClinicalMatch) {
     return 'clinical';
   }
   
@@ -492,18 +514,18 @@ serve(async (req) => {
       );
     }
 
-    // Detect query type
+    // Detect query type with improved logic
     const queryType = detectQueryType(message);
-    console.log('Query type detected:', queryType);
+    console.log('Query type detected:', queryType, 'for message:', message);
 
     // Handle identity questions with specific responses
     if (queryType === 'identity') {
       let response = '';
       const queryLower = message.toLowerCase();
       
-      if (queryLower.includes('who made') || queryLower.includes('who created') || queryLower.includes('creator') || queryLower.includes('who is your creator')) {
+      if (queryLower.includes('who made') || queryLower.includes('who created') || queryLower.includes('creator') || queryLower.includes('who is your creator') || queryLower.includes('tumhe kisne banaya')) {
         response = "I was created by **Rajan Kumar Karn**, the founder of DocMateX — India's first verified medical networking and research platform. He is a student at **IIT Patna**.";
-      } else if (queryLower.includes('what is docmatex') || queryLower.includes('about docmatex') || queryLower.includes('docmatex')) {
+      } else if (queryLower.includes('what is docmatex') || queryLower.includes('about docmatex') || queryLower.includes('docmatex') || queryLower.includes('docmatex kya hai') || queryLower.includes('docmatex ke bare mein')) {
         response = `**DocMateX** is India's first verified medical networking and research platform — built exclusively for healthcare professionals.
 
 🩺 **What Does It Do?**
@@ -577,7 +599,7 @@ To create a trusted digital ecosystem that supports India's healthcare heroes wi
 **My Goal:** To support the healthcare community — not replace doctors, but to assist them with knowledge, research, and tools in a verified and respectful space.
 
 **Built for DocMateX** — India's first verified medical networking platform.`;
-      } else if (queryLower.includes('who are you') || queryLower.includes('what are you') || queryLower.includes('about you')) {
+      } else if (queryLower.includes('who are you') || queryLower.includes('what are you') || queryLower.includes('about you') || queryLower.includes('tum kaun ho')) {
         response = "I'm **DoxyAI**, created by **Rajan Kumar Karn** for the DocMateX platform. I'm here to assist healthcare professionals with research, clinical questions, and medical guidance using live PubMed integration and statistical analysis.";
       } else {
         response = "I'm **DoxyAI**, created by **Rajan Kumar Karn** for the DocMateX platform. I'm here to assist healthcare professionals with research, clinical questions, and medical guidance using live PubMed integration and statistical analysis.";
