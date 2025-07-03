@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -400,32 +399,51 @@ function shouldUsePubMed(query: string): boolean {
   return keywordMatches.length > 0;
 }
 
-// Enhanced query type detection
+// Enhanced query type detection with better specificity
 function detectQueryType(query: string): 'identity' | 'clinical' | 'general' {
   const queryLower = query.toLowerCase();
   
-  // Identity questions
+  // Identity questions - be more specific to avoid false positives
   const identityKeywords = [
     'who made you', 'who created you', 'who is your creator', 'who built you',
-    'what is docmatex', 'what are the features of docmatex', 'tell me about docmatex',
-    'what can you do', 'what is your purpose', 'who are you', 'what are you',
-    'about you', 'your features', 'your capabilities'
+    'who are you', 'what are you', 'about you', 'your creator', 'your maker',
+    'rajan kumar karn', 'about docmatex', 'what is docmatex', 'docmatex features',
+    'what can you do', 'your capabilities', 'your purpose', 'tell me about yourself'
   ];
   
+  // Check for exact identity matches first
   if (identityKeywords.some(keyword => queryLower.includes(keyword))) {
     return 'identity';
   }
   
-  // Clinical/research keywords
+  // Clinical/medical keywords - extensive list for better detection
   const clinicalKeywords = [
-    'compare', 'comparison', 'versus', 'vs', 'survival', 'efficacy', 'effectiveness',
-    'RCT', 'randomized', 'clinical trial', 'meta-analysis', 'study', 'research',
-    'treatment', 'therapy', 'drug', 'medication', 'outcome', 'prognosis',
-    'mortality', 'morbidity', 'safety', 'adverse', 'guidelines', 'protocol',
-    'intervention', 'statistics', 'rate', 'incidence', 'prevalence', 'risk',
-    'benefit', 'analysis', 'diagnosis', 'symptom', 'disease', 'condition',
-    'patient', 'clinical', 'medical', 'hba1c', 'metformin', 'semaglutide',
-    'diabetes', 'cancer', 'hypertension', 'dosage', 'contraindication'
+    // Drug names
+    'pembrolizumab', 'nivolumab', 'metformin', 'semaglutide', 'keytruda', 'opdivo',
+    'immunotherapy', 'chemotherapy', 'targeted therapy', 'biologics',
+    
+    // Medical conditions
+    'nsclc', 'lung cancer', 'breast cancer', 'diabetes', 'hypertension', 'cancer',
+    'carcinoma', 'tumor', 'malignancy', 'neoplasm', 'oncology', 'cardiology',
+    'triple negative', 'pd-l1', 'her2', 'egfr', 'alk', 'ros1',
+    
+    // Medical terms
+    'efficacy', 'survival', 'mortality', 'prognosis', 'treatment', 'therapy',
+    'clinical trial', 'randomized', 'rct', 'meta-analysis', 'systematic review',
+    'hba1c', 'biomarker', 'progression', 'response rate', 'adverse events',
+    'toxicity', 'dosing', 'protocol', 'guidelines', 'contraindication',
+    
+    // Comparative terms
+    'compare', 'comparison', 'versus', 'vs', 'better', 'superior', 'inferior',
+    'first-line', 'second-line', 'combination', 'monotherapy',
+    
+    // Clinical metrics
+    'overall survival', 'progression-free survival', 'hazard ratio', 'confidence interval',
+    'p-value', 'statistical significance', 'median', 'endpoint', 'primary', 'secondary',
+    
+    // Medical specialties
+    'oncologist', 'cardiologist', 'endocrinologist', 'pulmonologist', 'radiologist',
+    'pathologist', 'surgeon', 'physician', 'doctor', 'clinician'
   ];
   
   if (clinicalKeywords.some(keyword => queryLower.includes(keyword))) {
@@ -433,6 +451,18 @@ function detectQueryType(query: string): 'identity' | 'clinical' | 'general' {
   }
   
   return 'general';
+}
+
+// Helper function for calculation units
+function getCalculationUnit(calculationType: string): string {
+  switch (calculationType) {
+    case 'bmi': return ' kg/m²';
+    case 'bsa': return ' m²';
+    case 'creatinineClearance': return ' mL/min';
+    case 'bodyFat': return '%';
+    case 'idealWeight': return ' kg';
+    default: return '';
+  }
 }
 
 serve(async (req) => {
@@ -536,7 +566,7 @@ To create a trusted digital ecosystem that supports India's healthcare heroes wi
 • **Case Study Analysis** and evidence-based recommendations
 • **Medical Calculations** and statistical analysis
 • **Career Guidance** and mentorship suggestions
-• **Evidence-Based Medical Recommendations** with citations
+• **Evidence-Based Medical Recommendations** with direct citations
 
 **What Makes Me Special:**
 • **Live PubMed RAG Pipeline** with real-time literature retrieval
@@ -570,7 +600,7 @@ To create a trusted digital ecosystem that supports India's healthcare heroes wi
       );
     }
 
-    // For clinical queries, proceed with existing RAG pipeline
+    // For clinical and general queries, proceed with RAG pipeline
     // Check for statistical queries first
     const statQuery = detectStatisticalQuery(message);
     let calculationResult = '';
@@ -608,23 +638,18 @@ To create a trusted digital ecosystem that supports India's healthcare heroes wi
       }
     }
 
-    // Use clinical template system prompt for clinical queries
-    const systemPrompt = `You are Doxy AI — a smart, respectful, and research-driven medical assistant integrated into DocMateX.
+    // Create a specialized system prompt for clinical queries
+    const systemPrompt = `You are DoxyAI — a smart, respectful, and research-driven medical assistant integrated into DocMateX, created by Rajan Kumar Karn.
 
-Your role is to assist verified doctors, medical students, and researchers with:
-- Medical knowledge and clinical insights
-- Case study analysis
-- Research support
-- Medical calculations
-- Career & mentorship suggestions
+Your role is to provide evidence-based medical responses to healthcare professionals' queries. You must directly address the specific medical query asked.
 
-You are integrated with PubMed, a statistical engine, and RAG (Retrieval-Augmented Generation) model to provide highly accurate, evidence-based, and personalized responses.
+**CRITICAL INSTRUCTION:** Always provide a direct, specific answer to the exact medical question asked. Do not provide generic responses.
 
 **RESPONSE FORMAT REQUIREMENTS:**
-Structure your response using this exact clinical template:
+Structure your response using this clinical template:
 
 ## 🔬 Clinical Assessment
-Brief clinical overview and context of the query
+Brief clinical overview directly addressing the specific query
 
 ## 📊 Key Research Findings
 ${pubmedAbstracts ? '- Evidence from recent literature (cite specific PMIDs)' : '- General medical knowledge and established guidelines'}
@@ -633,7 +658,7 @@ ${pubmedAbstracts ? '- Evidence from recent literature (cite specific PMIDs)' : 
 - Key trial names and endpoints
 
 ## 💊 Clinical Recommendations  
-- Evidence-based treatment approaches
+- Evidence-based treatment approaches specific to the query
 - Risk-benefit considerations
 - Patient selection criteria
 - Dosing recommendations when applicable
@@ -671,18 +696,20 @@ Integrate this calculation result into your clinical assessment.
 ` : ''}
 
 **IMPORTANT GUIDELINES:**
-- Stay empathetic, clear, evidence-based, and respectful in every response
+- Directly answer the specific medical question asked
+- Stay empathetic, clear, evidence-based, and respectful
 - Avoid political, legal, or sensitive non-medical commentary
-- Format your response with proper markdown (**, *, -, ##) for readability
+- Format response with proper markdown for readability
 - Use clinical terminology appropriately while remaining accessible
 - When citing studies, always include PMID numbers
-- Provide specific numerical outcomes and confidence intervals when available`;
+- Provide specific numerical outcomes and confidence intervals when available
+- Focus on the exact clinical scenario or comparison requested`;
 
     const requestBody = {
       contents: [
         {
           parts: [
-            { text: `${systemPrompt}\n\n**Patient/Clinical Query:** ${message.trim()}` }
+            { text: `${systemPrompt}\n\n**Specific Medical Query:** ${message.trim()}` }
           ]
         }
       ],
@@ -758,15 +785,3 @@ Integrate this calculation result into your clinical assessment.
     );
   }
 });
-
-// Helper function for calculation units
-function getCalculationUnit(calculationType: string): string {
-  switch (calculationType) {
-    case 'bmi': return ' kg/m²';
-    case 'bsa': return ' m²';
-    case 'creatinineClearance': return ' mL/min';
-    case 'bodyFat': return '%';
-    case 'idealWeight': return ' kg';
-    default: return '';
-  }
-}
