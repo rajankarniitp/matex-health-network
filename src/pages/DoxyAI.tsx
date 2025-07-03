@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { Send, Bot, User, Loader2, Stethoscope, AlertCircle, BookOpen, Calculator } from 'lucide-react';
+import { Send, Bot, User, Loader2, Stethoscope, AlertCircle, BookOpen, Calculator, Zap } from 'lucide-react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,6 +22,8 @@ interface Message {
   calculationType?: string;
   pubmedIntegrated?: boolean;
   articleCount?: number;
+  ragEnabled?: boolean;
+  searchStrategy?: string;
 }
 
 const DoxyAI = () => {
@@ -43,22 +46,10 @@ const DoxyAI = () => {
         })));
       } catch (error) {
         console.error('Failed to load conversation:', error);
-        // Set default welcome message if loading fails
-        setMessages([{
-          id: '1',
-          content: 'Hello! I\'m DoxyAI, your medical AI assistant enhanced with real-time PubMed literature access. I can help healthcare professionals with evidence-based medical information, research insights, and clinical guidance. For research queries, I\'ll automatically search and analyze the latest biomedical literature from PubMed. How can I assist you today?',
-          isUser: false,
-          timestamp: new Date()
-        }]);
+        setMessages([getWelcomeMessage()]);
       }
     } else {
-      // Set default welcome message
-      setMessages([{
-        id: '1',
-        content: 'Hello! I\'m DoxyAI, your medical AI assistant enhanced with real-time PubMed literature access. I can help healthcare professionals with evidence-based medical information, research insights, and clinical guidance. For research queries, I\'ll automatically search and analyze the latest biomedical literature from PubMed. How can I assist you today?',
-        isUser: false,
-        timestamp: new Date()
-      }]);
+      setMessages([getWelcomeMessage()]);
     }
   }, []);
 
@@ -69,13 +60,31 @@ const DoxyAI = () => {
     }
   }, [messages]);
 
+  const getWelcomeMessage = () => ({
+    id: '1',
+    content: `# Welcome to DoxyAI Enhanced! 🩺
+
+I'm your advanced clinical AI assistant powered by:
+- **RAG Pipeline** with real-time PubMed literature access
+- **Statistical Engine** for medical calculations  
+- **Evidence-Based Responses** with citations
+
+## I can help with:
+- Clinical research queries and literature reviews
+- Drug comparisons and treatment guidelines
+- Medical calculations (BMI, BSA, creatinine clearance)
+- Statistical analysis and research interpretation
+
+**Try asking:** *"Compare HbA1c reduction of Metformin vs Semaglutide based on recent RCTs"*
+
+Ready to assist with evidence-based medical insights!`,
+    isUser: false,
+    timestamp: new Date(),
+    ragEnabled: true
+  });
+
   const clearConversation = () => {
-    const welcomeMessage = {
-      id: '1',
-      content: 'Hello! I\'m DoxyAI, your medical AI assistant enhanced with real-time PubMed literature access. I can help healthcare professionals with evidence-based medical information, research insights, and clinical guidance. For research queries, I\'ll automatically search and analyze the latest biomedical literature from PubMed. How can I assist you today?',
-      isUser: false,
-      timestamp: new Date()
-    };
+    const welcomeMessage = getWelcomeMessage();
     setMessages([welcomeMessage]);
     localStorage.removeItem('doxyai_conversation');
     toast({
@@ -101,22 +110,22 @@ const DoxyAI = () => {
     setError(null);
 
     try {
-      console.log('Sending enhanced message to DoxyAI:', currentInput);
+      console.log('Sending enhanced RAG message to DoxyAI:', currentInput);
       
       // Include conversation context for better responses
-      const conversationContext = messages.slice(-6).map(msg => 
+      const conversationContext = messages.slice(-4).map(msg => 
         `${msg.isUser ? 'User' : 'DoxyAI'}: ${msg.content}`
       ).join('\n');
       
       const contextualMessage = conversationContext 
-        ? `Previous conversation:\n${conversationContext}\n\nCurrent question: ${currentInput}`
+        ? `Previous context:\n${conversationContext}\n\nCurrent query: ${currentInput}`
         : currentInput;
 
       const { data, error } = await supabase.functions.invoke('doxy-ai', {
         body: { message: contextualMessage }
       });
 
-      console.log('Enhanced Supabase function response:', { data, error });
+      console.log('Enhanced RAG Supabase function response:', { data, error });
 
       if (error) {
         console.error('Supabase function error:', error);
@@ -141,18 +150,25 @@ const DoxyAI = () => {
         return;
       }
 
-      // Enhanced toast notifications
+      // Enhanced toast notifications for RAG features
       if (data.pubmedIntegrated) {
         toast({
-          title: "Enhanced with PubMed Literature",
-          description: `Response includes evidence from ${data.articleCount} recent research articles with citations.`,
+          title: "🔬 RAG Enhanced Response",
+          description: `Analysis includes evidence from ${data.articleCount} recent research articles with full citations.`,
         });
       }
 
       if (data.hasCalculation) {
         toast({
-          title: "Medical Calculation Included",
-          description: `${data.calculationType?.toUpperCase()} calculation performed and included in response.`,
+          title: "📊 Statistical Analysis",
+          description: `${data.calculationType?.toUpperCase()} calculation performed and integrated into clinical assessment.`,
+        });
+      }
+
+      if (data.ragEnabled) {
+        toast({
+          title: "⚡ RAG Pipeline Active",
+          description: `Strategy: ${data.searchStrategy || 'Enhanced Medical Knowledge'}`,
         });
       }
 
@@ -165,18 +181,21 @@ const DoxyAI = () => {
         hasCalculation: data.hasCalculation,
         calculationType: data.calculationType,
         pubmedIntegrated: data.pubmedIntegrated,
-        articleCount: data.articleCount || 0
+        articleCount: data.articleCount || 0,
+        ragEnabled: data.ragEnabled,
+        searchStrategy: data.searchStrategy
       };
 
       setMessages(prev => [...prev, aiMessage]);
 
-      // Log interaction for history
+      // Enhanced interaction logging
       await logInteraction({
         query: currentInput,
         response: data.response,
         tags: [
-          data.pubmedIntegrated ? 'research' : 'general',
-          data.hasCalculation ? 'calculation' : 'consultation',
+          data.pubmedIntegrated ? 'pubmed-rag' : 'general-medical',
+          data.hasCalculation ? 'statistical-analysis' : 'clinical-consultation',
+          data.ragEnabled ? 'rag-enhanced' : 'standard',
           ...(data.citations?.length > 0 ? ['evidence-based'] : [])
         ],
         citations: data.citations,
@@ -186,11 +205,11 @@ const DoxyAI = () => {
       });
 
     } catch (error) {
-      console.error('Error calling enhanced DoxyAI:', error);
-      const errorMessage = "Something went wrong. Please try again.";
+      console.error('Error calling enhanced DoxyAI RAG:', error);
+      const errorMessage = "Something went wrong with the RAG pipeline. Please try again.";
       setError(errorMessage);
       toast({
-        title: "Error",
+        title: "RAG Pipeline Error",
         description: errorMessage,
         variant: "destructive",
       });
@@ -207,34 +226,42 @@ const DoxyAI = () => {
   };
 
   const formatMessage = (content: string) => {
-    // Simple formatting for better readability
+    // Enhanced markdown formatting for clinical responses
     return content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/### (.*?)\n/g, '<h3 class="text-lg font-bold text-blue-600 dark:text-blue-400 mt-4 mb-2">$1</h3>')
+      .replace(/## (.*?)\n/g, '<h2 class="text-xl font-bold text-blue-700 dark:text-blue-300 mt-4 mb-3">$1</h2>')
+      .replace(/# (.*?)\n/g, '<h1 class="text-2xl font-bold text-blue-800 dark:text-blue-200 mt-4 mb-3">$1</h1>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900 dark:text-gray-100">$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
+      .replace(/^- (.*$)/gim, '<li class="ml-4">• $1</li>')
       .replace(/\n/g, '<br/>');
   };
 
   return (
     <DashboardLayout>
-      <div className="max-w-4xl mx-auto h-full flex flex-col px-4 sm:px-6 lg:px-8">
-        {/* Enhanced Header */}
-        <Card className="mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
+      <div className="max-w-5xl mx-auto h-full flex flex-col px-4 sm:px-6 lg:px-8">
+        {/* Enhanced Header with RAG indicators */}
+        <Card className="mb-4 bg-gradient-to-r from-green-50 via-blue-50 to-purple-50 dark:from-green-900/20 dark:via-blue-900/20 dark:to-purple-900/20 border-blue-200 dark:border-blue-800">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center justify-between text-blue-900 dark:text-blue-100">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-600 rounded-lg">
+                <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
                   <Stethoscope className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-bold">DoxyAI Enhanced</h1>
+                  <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+                    DoxyAI Enhanced RAG
+                    <Zap className="h-5 w-5 text-yellow-500" />
+                  </h1>
                   <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-300 font-normal">
-                    RAG-Powered Medical AI • PubMed Literature • Statistical Engine
+                    RAG Pipeline • PubMed Literature • Statistical Engine • Evidence-Based Medicine
                   </p>
                 </div>
               </div>
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={() => {/* clearConversation */}}
+                onClick={clearConversation}
                 className="text-blue-600 border-blue-300 hover:bg-blue-50"
               >
                 Clear Chat
@@ -275,7 +302,7 @@ const DoxyAI = () => {
                     ) : (
                       <>
                         <AvatarImage src="" alt="DoxyAI" />
-                        <AvatarFallback className="bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300">
+                        <AvatarFallback className="bg-gradient-to-br from-green-100 to-blue-100 dark:from-green-900 dark:to-blue-900 text-green-600 dark:text-green-300">
                           <Bot className="h-4 w-4" />
                         </AvatarFallback>
                       </>
@@ -286,7 +313,7 @@ const DoxyAI = () => {
                     <div className={`inline-block p-3 rounded-lg text-sm leading-relaxed ${
                         message.isUser
                           ? 'bg-blue-600 text-white rounded-br-sm'
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm'
+                          : 'bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm border border-gray-200 dark:border-gray-700'
                       }`}>
                       <div 
                         className="whitespace-pre-wrap break-words"
@@ -295,9 +322,15 @@ const DoxyAI = () => {
                         }}
                       />
                       
-                      {/* Enhanced message badges */}
+                      {/* Enhanced message badges for RAG features */}
                       {!message.isUser && (
-                        <div className="flex flex-wrap gap-1 mt-2">
+                        <div className="flex flex-wrap gap-1 mt-3">
+                          {message.ragEnabled && (
+                            <Badge variant="secondary" className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300">
+                              <Zap className="h-3 w-3 mr-1" />
+                              RAG Enhanced
+                            </Badge>
+                          )}
                           {message.pubmedIntegrated && (
                             <Badge variant="secondary" className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">
                               <BookOpen className="h-3 w-3 mr-1" />
@@ -305,7 +338,7 @@ const DoxyAI = () => {
                             </Badge>
                           )}
                           {message.hasCalculation && (
-                            <Badge variant="secondary" className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300">
+                            <Badge variant="secondary" className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
                               <Calculator className="h-3 w-3 mr-1" />
                               {message.calculationType?.toUpperCase()}
                             </Badge>
@@ -313,6 +346,11 @@ const DoxyAI = () => {
                           {message.citations && message.citations.length > 0 && (
                             <Badge variant="outline" className="text-xs">
                               {message.citations.length} Citations
+                            </Badge>
+                          )}
+                          {message.searchStrategy && (
+                            <Badge variant="outline" className="text-xs">
+                              {message.searchStrategy}
                             </Badge>
                           )}
                         </div>
@@ -336,15 +374,15 @@ const DoxyAI = () => {
               {isLoading && (
                 <div className="flex items-start space-x-3">
                   <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300">
+                    <AvatarFallback className="bg-gradient-to-br from-green-100 to-blue-100 dark:from-green-900 dark:to-blue-900 text-green-600 dark:text-green-300">
                       <Bot className="h-4 w-4" />
                     </AvatarFallback>
                   </Avatar>
-                  <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-lg rounded-bl-sm">
+                  <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg rounded-bl-sm border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center space-x-2">
                       <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
                       <span className="text-sm text-gray-600 dark:text-gray-400">
-                        DoxyAI is analyzing with RAG + PubMed integration...
+                        DoxyAI RAG pipeline processing with PubMed literature search...
                       </span>
                     </div>
                   </div>
@@ -356,7 +394,7 @@ const DoxyAI = () => {
             <div className="border-t dark:border-gray-700 pt-4">
               <div className="flex space-x-2">
                 <Textarea
-                  placeholder="Ask about clinical research, drug comparisons, survival rates, statistical calculations, or any medical topic. Enhanced with PubMed literature search and medical calculations..."
+                  placeholder="Ask about clinical research, drug comparisons, survival rates, statistical calculations, or any medical topic. Enhanced RAG with real-time PubMed literature and statistical engine..."
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
@@ -366,7 +404,7 @@ const DoxyAI = () => {
                 <Button
                   onClick={handleSendMessage}
                   disabled={!inputMessage.trim() || isLoading}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 h-[60px] flex-shrink-0"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-3 sm:px-4 h-[60px] flex-shrink-0 shadow-lg"
                 >
                   {isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -377,7 +415,7 @@ const DoxyAI = () => {
               </div>
               
               <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
-                <strong>Enhanced DoxyAI</strong> with RAG pipeline, PubMed literature search, statistical calculations, and medical guidance for healthcare professionals.
+                <strong>DoxyAI RAG Enhanced</strong> • Real-time PubMed literature • Statistical calculations • Evidence-based clinical guidance
               </div>
             </div>
           </CardContent>
