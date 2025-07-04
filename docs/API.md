@@ -1,10 +1,185 @@
 
-# API Integration Guide
+# DoxyAI API Documentation
 
-## Current State
-This is currently a frontend-only application. This document outlines the planned API integration patterns and current mock implementations.
+## Overview
+DoxyAI is a medical AI assistant with real-time PubMed integration, statistical analysis, and clinical reasoning capabilities.
 
-## Planned Architecture
+## Endpoints
+
+### POST /doxy-ai
+Main DoxyAI inference endpoint with RAG capabilities.
+
+#### Request Format
+```json
+{
+  "message": "Compare HbA1c reduction of Metformin vs Semaglutide"
+}
+```
+
+#### Response Format
+```json
+{
+  "response": "Clinical response with markdown formatting",
+  "pubmedIntegrated": true,
+  "articleCount": 5,
+  "citations": [
+    {
+      "pmid": "27293260",
+      "title": "Study title",
+      "journal": "Journal name",
+      "year": "2024",
+      "authors": ["Author 1", "Author 2"],
+      "doi": "10.1000/example",
+      "pubmedUrl": "https://pubmed.ncbi.nlm.nih.gov/27293260/"
+    }
+  ],
+  "hasCalculation": false,
+  "calculationType": null,
+  "ragEnabled": true,
+  "searchStrategy": "PubMed RAG Pipeline - 5 Articles"
+}
+```
+
+## Query Types
+
+### Medical Queries
+Trigger PubMed RAG pipeline with evidence-based responses.
+
+**Examples:**
+- `"Compare HbA1c reduction of Metformin vs Semaglutide"`
+- `"Pembrolizumab vs Nivolumab efficacy in NSCLC"`
+- `"What's the 5-year survival rate for triple-negative breast cancer?"`
+
+### Statistical Queries
+Automatically detect and perform medical calculations.
+
+**Supported Calculations:**
+- BMI: `"Calculate BMI for 70kg, 1.75m patient"`
+- BSA: `"Body surface area for 80kg, 180cm patient"`
+- Creatinine Clearance: `"Creatinine clearance for 65-year-old female, 60kg, creatinine 1.2"`
+
+### Identity Queries
+Handle questions about DoxyAI and DocMateX platform.
+
+**Examples:**
+- `"Who made you?"`
+- `"What is DocMateX?"`
+
+## PubMed Integration
+
+### Search Strategy
+1. Enhanced query construction with medical term mapping
+2. Study type filtering (RCTs, meta-analyses)
+3. Human studies and English language filters
+4. Fallback to broader search if no results
+
+### Abstract Processing
+- Real-time PMID fetching via E-utilities API
+- Structured XML parsing
+- Citation metadata extraction
+- DOI and PubMed URL generation
+
+### Medical Term Mapping
+```javascript
+const medicalTerms = {
+  'metformin': 'metformin[tw] OR glucophage[tw]',
+  'semaglutide': 'semaglutide[tw] OR ozempic[tw] OR wegovy[tw]',
+  'hba1c': 'hba1c[tw] OR "hemoglobin a1c"[tw] OR "glycated hemoglobin"[tw]'
+  // ... more mappings
+};
+```
+
+## Statistical Engine
+
+### Available Functions
+```javascript
+{
+  bmi: (weight, height) => weight / (height * height),
+  bsa: (weight, height) => Math.sqrt((weight * height) / 3600),
+  creatinineClearance: (age, weight, creatinine, isFemale),
+  chisquare: (observed[], expected[]),
+  bodyFatPercentage: (bmi, age, isMale),
+  idealBodyWeight: (height, isMale)
+}
+```
+
+### Detection Patterns
+- BMI: `/bmi|body mass index|weight.*height/i`
+- BSA: `/bsa|body surface area/i`
+- Creatinine: `/creatinine clearance|cockroft|gault/i`
+
+## Response Structure
+
+### Clinical Format
+```markdown
+## 🔬 Clinical Assessment
+Brief clinical overview
+
+## 📊 Key Research Findings
+- Evidence from recent literature (PMIDs cited)
+- Comparative data and statistics
+- Trial names and endpoints
+
+## 💊 Clinical Recommendations  
+- Evidence-based approaches
+- Risk-benefit considerations
+
+## 📈 Statistical Analysis
+[Calculations when applicable]
+
+## 🔗 References & Citations
+- PubMed sources with PMIDs
+
+## ⚠️ Clinical Disclaimer
+Professional guidance notice
+```
+
+## Error Handling
+
+### Common Errors
+- Missing GEMINI_API_KEY: Returns 500 with configuration error
+- Empty message: Returns 400 with validation error
+- PubMed API failure: Graceful fallback to general knowledge
+- Gemini API error: Returns 500 with generation error
+
+### CORS Support
+All endpoints include CORS headers for web application integration.
+
+## Authentication
+Uses Supabase authentication. Calls are made through the Supabase client with automatic token handling.
+
+## Rate Limits
+Inherits Supabase Edge Function rate limits. PubMed E-utilities respects NCBI guidelines (max 3 requests/second).
+
+## Usage Examples
+
+### Frontend Integration
+```typescript
+import { supabase } from '@/integrations/supabase/client';
+
+const { data, error } = await supabase.functions.invoke('doxy-ai', {
+  body: { message: 'Compare HbA1c reduction of Metformin vs Semaglutide' }
+});
+
+if (!error && data) {
+  console.log('Response:', data.response);
+  console.log('Citations:', data.citations);
+  console.log('PubMed integrated:', data.pubmedIntegrated);
+}
+```
+
+### React Component Usage
+```typescript
+import DoxyAIIntegration from '@/components/doxy/DoxyAIIntegration';
+
+<DoxyAIIntegration 
+  context="Patient case context"
+  placeholder="Ask DoxyAI for medical insights..."
+  title="Clinical Consultation"
+/>
+```
+
+## Legacy API Integration Guide
 
 ### API Service Pattern
 ```typescript
