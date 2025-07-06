@@ -6,7 +6,63 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Advanced Perplexity integration for real-time clinical research
+async function enhancedClinicalResearch(query: string): Promise<string> {
+  if (!PERPLEXITY_API_KEY) {
+    console.log('Perplexity API key not available, using standard PubMed search');
+    return '';
+  }
+
+  try {
+    console.log('Performing enhanced clinical research with Perplexity...');
+    
+    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'llama-3.1-sonar-large-128k-online',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a clinical research expert. Provide recent meta-analysis data, trial results, and clinical guidelines with specific numerical outcomes, hazard ratios, confidence intervals, and statistical significance. Focus on Indian population data when available.'
+          },
+          {
+            role: 'user',
+            content: `Find recent clinical research and meta-analysis data for: ${query}. Include specific statistical outcomes, trial names, effect sizes, confidence intervals, and heterogeneity measures when available.`
+          }
+        ],
+        temperature: 0.2,
+        top_p: 0.9,
+        max_tokens: 2000,
+        return_images: false,
+        return_related_questions: false,
+        search_recency_filter: 'year',
+        frequency_penalty: 1,
+        presence_penalty: 0
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('Perplexity API error:', response.status);
+      return '';
+    }
+
+    const data = await response.json();
+    const researchData = data.choices?.[0]?.message?.content || '';
+    console.log('Enhanced clinical research data retrieved:', researchData.length, 'characters');
+    
+    return researchData;
+  } catch (error) {
+    console.error('Error in enhanced clinical research:', error);
+    return '';
+  }
+}
+
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+const PERPLEXITY_API_KEY = Deno.env.get('PERPLEXITY_API_KEY');
 
 // PubMed E-utilities base URLs
 const PUBMED_ESEARCH_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi';
@@ -37,6 +93,163 @@ const statisticalCalculations = {
     } else {
       return 45.5 + (2.3 * (heightInches - 60));
     }
+  }
+};
+
+// Advanced meta-analysis functions
+const metaAnalysisFunctions = {
+  // Calculate pooled effect size using fixed effects model
+  fixedEffectMeta: (studies: Array<{effectSize: number, variance: number, n: number}>) => {
+    const weights = studies.map(s => 1 / s.variance);
+    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+    const pooledEffect = studies.reduce((sum, s, i) => sum + (s.effectSize * weights[i]), 0) / totalWeight;
+    const pooledVariance = 1 / totalWeight;
+    const pooledSE = Math.sqrt(pooledVariance);
+    const ci95Lower = pooledEffect - (1.96 * pooledSE);
+    const ci95Upper = pooledEffect + (1.96 * pooledSE);
+    
+    return {
+      pooledEffect,
+      pooledSE,
+      ci95: [ci95Lower, ci95Upper],
+      totalN: studies.reduce((sum, s) => sum + s.n, 0)
+    };
+  },
+
+  // Calculate I² heterogeneity statistic
+  calculateI2: (studies: Array<{effectSize: number, variance: number}>) => {
+    if (studies.length < 2) return 0;
+    
+    const weights = studies.map(s => 1 / s.variance);
+    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+    const pooledEffect = studies.reduce((sum, s, i) => sum + (s.effectSize * weights[i]), 0) / totalWeight;
+    
+    const Q = studies.reduce((sum, s, i) => {
+      return sum + weights[i] * Math.pow(s.effectSize - pooledEffect, 2);
+    }, 0);
+    
+    const df = studies.length - 1;
+    const I2 = Math.max(0, ((Q - df) / Q) * 100);
+    
+    return { I2, Q, df, pValue: 1 - cumChiSq(Q, df) };
+  },
+
+  // Calculate Number Needed to Treat (NNT)
+  calculateNNT: (controlRate: number, treatmentRate: number) => {
+    const ARR = Math.abs(controlRate - treatmentRate);
+    return ARR > 0 ? Math.round(1 / ARR) : Infinity;
+  },
+
+  // Calculate Relative Risk Reduction (RRR)
+  calculateRRR: (controlRate: number, treatmentRate: number) => {
+    return controlRate > 0 ? ((controlRate - treatmentRate) / controlRate) * 100 : 0;
+  }
+};
+
+// Chi-square cumulative distribution approximation
+function cumChiSq(x: number, df: number): number {
+  if (x <= 0) return 0;
+  if (df === 1) return 2 * (1 - Math.exp(-x/2) * Math.sqrt(x/(2*Math.PI)));
+  
+  // Simple approximation for p-value
+  const criticalValues = [3.84, 5.99, 7.81, 9.49, 11.07, 12.59, 14.07, 15.51];
+  if (df <= 8) return x > criticalValues[df-1] ? 0.95 : 0.05;
+  return x > (df + Math.sqrt(2*df)) ? 0.95 : 0.05;
+}
+
+// GRADE evidence assessment function
+function assessGRADE(studies: Array<{type: string, riskOfBias: string, consistency: boolean, directness: boolean}>) {
+  let grade = 'High'; // Start with high for RCTs
+  let reasons = [];
+  
+  // Check study types
+  const hasRCTs = studies.some(s => s.type.toLowerCase().includes('randomized'));
+  if (!hasRCTs) {
+    grade = 'Low';
+    reasons.push('Observational studies');
+  }
+  
+  // Risk of bias assessment
+  const highRisk = studies.filter(s => s.riskOfBias === 'high').length;
+  if (highRisk > studies.length / 2) {
+    grade = grade === 'High' ? 'Moderate' : 'Low';
+    reasons.push('High risk of bias');
+  }
+  
+  // Inconsistency
+  const inconsistent = studies.filter(s => !s.consistency).length;
+  if (inconsistent > studies.length / 2) {
+    grade = grade === 'High' ? 'Moderate' : (grade === 'Moderate' ? 'Low' : 'Very Low');
+    reasons.push('Inconsistent results');
+  }
+  
+  // Indirectness
+  const indirect = studies.filter(s => !s.directness).length;
+  if (indirect > studies.length / 2) {
+    grade = grade === 'High' ? 'Moderate' : (grade === 'Moderate' ? 'Low' : 'Very Low');
+    reasons.push('Indirectness of evidence');
+  }
+  
+  return { grade, reasons };
+}
+
+// Indian market cost-effectiveness analysis
+const healthEconomics = {
+  // Indian generic drug prices (INR per month)
+  drugPrices: {
+    'metformin': { generic: 50, branded: 150, brand: 'Glycomet' },
+    'semaglutide': { generic: 2800, branded: 4500, brand: 'Ozempic' },
+    'empagliflozin': { generic: 800, branded: 2200, brand: 'Jardiance' },
+    'teneligliptin': { generic: 180, branded: 350, brand: 'Teniva' },
+    'saroglitazar': { generic: 220, branded: 450, brand: 'Lipaglyn' },
+    'remogliflozin': { generic: 350, branded: 650, brand: 'Remo' },
+    'glimepiride': { generic: 40, branded: 120, brand: 'Amaryl' },
+    'pioglitazone': { generic: 80, branded: 200, brand: 'Pioz' }
+  },
+
+  // Calculate ICER (Incremental Cost-Effectiveness Ratio)
+  calculateICER: (drug1: string, drug2: string, effectDiff: number, qualityYears: number = 1) => {
+    const prices = healthEconomics.drugPrices;
+    const cost1 = prices[drug1]?.generic || 0;
+    const cost2 = prices[drug2]?.generic || 0;
+    const costDiff = Math.abs(cost1 - cost2) * 12; // Annual cost difference
+    
+    if (effectDiff === 0) return { icer: 'Dominated', recommendation: 'Choose lower cost option' };
+    
+    const icer = costDiff / (effectDiff * qualityYears);
+    const threshold = 150000; // WHO threshold for India (3x GDP per capita)
+    
+    return {
+      icer: icer.toFixed(0),
+      costEffective: icer < threshold,
+      recommendation: icer < threshold ? 'Cost-effective' : 'Not cost-effective',
+      annualCostDiff: costDiff
+    };
+  },
+
+  // Suggest affordable alternatives
+  getAffordableAlternatives: (condition: string, budget: number = 3000) => {
+    const alternatives = {
+      't2dm': [
+        { drug: 'metformin', cost: 50, efficacy: 'Moderate HbA1c reduction (-0.9%)' },
+        { drug: 'teneligliptin', cost: 180, efficacy: 'Good HbA1c reduction (-0.8%)' },
+        { drug: 'glimepiride', cost: 40, efficacy: 'Good HbA1c reduction (-1.2%)' },
+        { drug: 'pioglitazone', cost: 80, efficacy: 'Good HbA1c reduction (-0.9%)' }
+      ],
+      'dyslipidemia': [
+        { drug: 'atorvastatin', cost: 60, efficacy: 'LDL reduction (-45%)' },
+        { drug: 'saroglitazar', cost: 220, efficacy: 'TG reduction (-35%)' },
+        { drug: 'fenofibrate', cost: 80, efficacy: 'TG reduction (-30%)' }
+      ],
+      'hypertension': [
+        { drug: 'amlodipine', cost: 50, efficacy: 'BP reduction (-12/8 mmHg)' },
+        { drug: 'telmisartan', cost: 120, efficacy: 'BP reduction (-10/6 mmHg)' },
+        { drug: 'hydrochlorothiazide', cost: 30, efficacy: 'BP reduction (-8/5 mmHg)' }
+      ]
+    };
+
+    const conditionDrugs = alternatives[condition] || [];
+    return conditionDrugs.filter(alt => alt.cost <= budget);
   }
 };
 
@@ -543,6 +756,15 @@ To create a trusted digital ecosystem that supports India's healthcare heroes wi
       }
     }
 
+    // Enhanced clinical research with Perplexity integration
+    let enhancedResearch = '';
+    if (PERPLEXITY_API_KEY && queryType === 'clinical') {
+      enhancedResearch = await enhancedClinicalResearch(message);
+      if (enhancedResearch) {
+        console.log('Enhanced clinical research data retrieved');
+      }
+    }
+
     // Enhanced RAG: Always try PubMed for clinical queries
     let pubmedAbstracts = '';
     let citations: any[] = [];
@@ -611,6 +833,11 @@ When applicable, provide cost-effectiveness considerations:
 - Model assumptions and limitations
 - Budget impact analysis
 - Quality-Adjusted Life Years (QALYs) when available
+
+${enhancedResearch ? `
+## 🌐 Real-Time Clinical Research (Perplexity Enhanced)
+${enhancedResearch}
+` : ''}
 
 ## 🇮🇳 Indian Market Alternatives
 Provide affordable generic alternatives for Indian healthcare:
