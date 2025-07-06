@@ -582,6 +582,20 @@ ${pubmedAbstracts ? '- Evidence from recent literature (cite specific PMIDs)' : 
 - Statistical significance and effect sizes
 - Key trial names and endpoints
 
+## 📈 Meta-Analysis Summary
+Create an assumed variance meta-analysis table when multiple studies are available:
+| Study | n | Effect Size | 95% CI | Weight | P-value |
+|-------|---|-------------|--------|--------|---------|
+| [Study 1] | [n] | [ES] | [CI] | [%] | [p] |
+| Pooled | [total] | [pooled ES] | [pooled CI] | 100% | [p] |
+
+## 🏆 GRADE Quality Assessment
+Evaluate evidence quality using GRADE criteria:
+- **High Quality**: Multiple RCTs, low risk of bias
+- **Moderate Quality**: RCTs with some limitations
+- **Low Quality**: Few RCTs or observational studies
+- **Very Low Quality**: Limited evidence or high bias
+
 ## 💊 Clinical Recommendations  
 - Evidence-based treatment approaches specific to the query
 - Risk-benefit considerations
@@ -590,6 +604,21 @@ ${pubmedAbstracts ? '- Evidence from recent literature (cite specific PMIDs)' : 
 
 ## 📈 Statistical Analysis
 ${calculationResult ? calculationResult : '- Relevant clinical metrics and calculations when applicable'}
+
+## 💰 Health Economics (ICER Analysis)
+When applicable, provide cost-effectiveness considerations:
+- Incremental Cost-Effectiveness Ratio (ICER)
+- Model assumptions and limitations
+- Budget impact analysis
+- Quality-Adjusted Life Years (QALYs) when available
+
+## 🇮🇳 Indian Market Alternatives
+Provide affordable generic alternatives for Indian healthcare:
+- Generic drug options with similar efficacy
+- Cost comparison with branded drugs
+- Availability in Indian market
+- Combination therapies when suitable
+- Examples: Teneligliptin, Saroglitazar, Remogliflozin
 
 ## 🔗 References & Citations
 ${citations.length > 0 ? '- PubMed sources with PMIDs and links' : '- Clinical guidelines and standard references'}
