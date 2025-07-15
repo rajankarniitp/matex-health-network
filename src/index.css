@@ -473,3 +473,147 @@
 .dark .bg-gray-300 {
   @apply bg-gray-600;
 }
+
+/* Enhanced mobile navigation styles - LinkedIn inspired */
+@supports (padding: max(0px)) {
+  .safe-area-pb {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+  
+  .h-safe-area-inset-bottom {
+    height: env(safe-area-inset-bottom);
+  }
+}
+
+/* Modern glass morphism for mobile nav */
+.mobile-nav-glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .mobile-nav-glass {
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* LinkedIn-style navigation shadows */
+.mobile-nav-shadow {
+  box-shadow: 
+    0 -8px 32px rgba(0, 0, 0, 0.1),
+    0 -2px 16px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.dark .mobile-nav-shadow {
+  box-shadow: 
+    0 -8px 32px rgba(0, 0, 0, 0.4),
+    0 -2px 16px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Professional navigation gradients */
+.nav-gradient-light {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.98) 50%,
+    rgba(255, 255, 255, 1) 100%
+  );
+}
+
+.dark .nav-gradient-dark {
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.95) 0%,
+    rgba(15, 23, 42, 0.98) 50%,
+    rgba(15, 23, 42, 1) 100%
+  );
+}
+
+/* Enhanced mobile interaction states */
+.mobile-nav-item {
+  @apply relative overflow-hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-nav-item::before {
+  content: '';
+  @apply absolute inset-0 bg-current opacity-0 rounded-xl transition-all duration-300;
+  transform: scale(0.8);
+}
+
+.mobile-nav-item:hover::before {
+  @apply opacity-5;
+  transform: scale(1);
+}
+
+.mobile-nav-item.active::before {
+  @apply opacity-10;
+  transform: scale(1);
+}
+
+.mobile-nav-item:active {
+  transform: scale(0.95);
+}
+
+/* Smooth icon animations */
+.nav-icon {
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.nav-icon-active {
+  animation: nav-bounce 0.6s ease-out;
+}
+
+@keyframes nav-bounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1.1); }
+}
+
+/* Professional active indicators */
+.nav-active-indicator {
+  background: linear-gradient(90deg, transparent, currentColor, transparent);
+  animation: nav-glow 2s ease-in-out infinite;
+}
+
+@keyframes nav-glow {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* Status badges for navigation items */
+.nav-status-badge {
+  @apply absolute -top-1 -right-1 w-2 h-2 rounded-full;
+  background: linear-gradient(45deg, currentColor, currentColor);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
+  animation: nav-pulse 2s ease-in-out infinite;
+}
+
+.dark .nav-status-badge {
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9);
+}
+
+@keyframes nav-pulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav-item,
+  .nav-icon,
+  .nav-active-indicator,
+  .nav-status-badge {
+    animation: none;
+    transition: opacity 0.2s ease;
+  }
+}
