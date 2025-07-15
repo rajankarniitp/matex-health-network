@@ -5,75 +5,82 @@ import { ArrowRight, Users, BookOpen, Award, Heart, Shield, Globe, Star, Trophy,
 
 const Hero = () => {
   return (
-    <div className="relative overflow-hidden pt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24">
+    <div className="relative overflow-hidden pt-8 sm:pt-12 lg:pt-16">
+      {/* Enhanced background with gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-purple-50/50 to-blue-50/30 dark:from-primary/10 dark:via-purple-900/20 dark:to-blue-900/10"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_20%,hsl(var(--background))_70%)]"></div>
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-20 relative z-10">
         {/* Main Hero Section */}
-        <div className="text-center mb-16 sm:mb-20 lg:mb-24">
+        <div className="text-center mb-12 sm:mb-16 lg:mb-20">
           {/* Logo and Main Brand */}
-          <div className="flex justify-center mb-6 sm:mb-8">
-            <div className="bg-white dark:bg-white rounded-xl p-4 sm:p-6 shadow-lg flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28">
+          <div className="flex justify-center mb-6 sm:mb-8 animate-float">
+            <div className="card-elegant rounded-2xl p-4 sm:p-6 hover-lift w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28">
               <img 
                 src="/lovable-uploads/aaa35625-b685-4931-8494-60f87b95865a.png" 
                 alt="DocMateX Logo" 
-                className="h-12 sm:h-16 lg:h-20 w-auto"
+                className="h-12 sm:h-16 lg:h-20 w-auto animate-pulse-slow"
               />
             </div>
           </div>
           
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-4 sm:mb-6">
-            <span className="text-blue-600 dark:text-blue-400">DocMateX</span>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-8xl font-bold tracking-tight mb-4 sm:mb-6 animate-fade-in">
+            <span className="bg-gradient-to-r from-primary via-primary-glow to-purple-600 bg-clip-text text-transparent">
+              DocMateX
+            </span>
           </h1>
           
-          <p className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-6 sm:mb-8 max-w-5xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-semibold text-foreground/80 mb-6 sm:mb-8 max-w-5xl mx-auto leading-relaxed animate-slide-up">
             India's Most Trusted Medical Networking & Research Ecosystem
           </p>
           
-          <p className="text-base sm:text-lg lg:text-xl text-blue-600 dark:text-blue-400 font-medium mb-8 sm:mb-10">
+          <p className="text-base sm:text-lg lg:text-xl bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent font-semibold mb-8 sm:mb-10 animate-scale-in">
             India's First Healthcare Professional Networking Platform
           </p>
 
           {/* Call to Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-12 sm:mb-16">
-            <Link to="/signup" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-8 sm:px-12 py-4 sm:py-5 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                Join DocMateX <ArrowRight className="ml-2 h-5 w-5 sm:h-6 sm:w-6" />
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-12 sm:mb-16 animate-scale-in">
+            <Link to="/signup" className="w-full sm:w-auto max-w-sm">
+              <Button size="xl" variant="gradient" className="w-full group">
+                Join DocMateX 
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link to="/login" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto border-2 border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-8 sm:px-12 py-4 sm:py-5 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                Log In
+            <Link to="/login" className="w-full sm:w-auto max-w-sm">
+              <Button size="xl" variant="glass" className="w-full">
+                Already a Member? Log In
               </Button>
             </Link>
           </div>
 
           {/* Key Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 text-center max-w-4xl mx-auto">
-            <div className="flex flex-col items-center">
-              <div className="bg-blue-100 dark:bg-blue-900/30 rounded-full p-4 mb-3">
-                <Users className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 text-center max-w-5xl mx-auto">
+            <div className="flex flex-col items-center group hover-lift card-elegant p-6 rounded-2xl">
+              <div className="bg-gradient-to-br from-primary/20 to-primary/10 rounded-full p-4 mb-4 group-hover:scale-110 transition-transform">
+                <Users className="h-8 w-8 text-primary" />
               </div>
-              <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">50K+</span>
-              <span className="text-sm sm:text-base font-medium text-gray-600 dark:text-gray-400">Healthcare Professionals</span>
+              <span className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">50K+</span>
+              <span className="text-sm sm:text-base font-medium text-muted-foreground">Healthcare Professionals</span>
             </div>
-            <div className="flex flex-col items-center">
-              <div className="bg-green-100 dark:bg-green-900/30 rounded-full p-4 mb-3">
-                <Shield className="h-8 w-8 text-green-600 dark:text-green-400" />
+            <div className="flex flex-col items-center group hover-lift card-elegant p-6 rounded-2xl">
+              <div className="bg-gradient-to-br from-green-500/20 to-green-500/10 rounded-full p-4 mb-4 group-hover:scale-110 transition-transform">
+                <Shield className="h-8 w-8 text-green-500" />
               </div>
-              <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">100%</span>
-              <span className="text-sm sm:text-base font-medium text-gray-600 dark:text-gray-400">Verified Profiles</span>
+              <span className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-green-500 to-green-400 bg-clip-text text-transparent">100%</span>
+              <span className="text-sm sm:text-base font-medium text-muted-foreground">Verified Profiles</span>
             </div>
-            <div className="flex flex-col items-center">
-              <div className="bg-purple-100 dark:bg-purple-900/30 rounded-full p-4 mb-3">
-                <Globe className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+            <div className="flex flex-col items-center group hover-lift card-elegant p-6 rounded-2xl">
+              <div className="bg-gradient-to-br from-purple-500/20 to-purple-500/10 rounded-full p-4 mb-4 group-hover:scale-110 transition-transform">
+                <Globe className="h-8 w-8 text-purple-500" />
               </div>
-              <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">100+</span>
-              <span className="text-sm sm:text-base font-medium text-gray-600 dark:text-gray-400">Countries</span>
+              <span className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-500 to-purple-400 bg-clip-text text-transparent">100+</span>
+              <span className="text-sm sm:text-base font-medium text-muted-foreground">Countries</span>
             </div>
           </div>
         </div>
 
         {/* Founder Section */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 sm:p-12 mb-16 sm:mb-20 border border-gray-200 dark:border-gray-700">
+        <div className="card-elegant rounded-3xl p-8 sm:p-12 mb-12 sm:mb-16 hover-lift">
           <div className="text-center mb-8 sm:mb-12">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4">
               Meet Our Founder
@@ -225,7 +232,7 @@ const Hero = () => {
         </div>
 
         {/* Final Call to Action */}
-        <div className="text-center bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 rounded-2xl p-8 sm:p-12 text-white">
+        <div className="text-center gradient-bg rounded-3xl p-8 sm:p-12 text-primary-foreground button-glow hover-lift">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6">
             Ready to Transform Your Medical Career?
           </h2>
@@ -234,13 +241,14 @@ const Hero = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center">
-            <Link to="/signup" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto bg-white text-blue-600 hover:bg-gray-100 px-8 sm:px-12 py-4 sm:py-5 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                Join DocMateX Today <ArrowRight className="ml-2 h-5 w-5 sm:h-6 sm:w-6" />
+            <Link to="/signup" className="w-full sm:w-auto max-w-sm">
+              <Button size="xl" className="w-full bg-white text-primary hover:bg-white/90 group">
+                Join DocMateX Today 
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link to="/login" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 sm:px-12 py-4 sm:py-5 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+            <Link to="/login" className="w-full sm:w-auto max-w-sm">
+              <Button size="xl" variant="glass" className="w-full border-white/30 text-white hover:bg-white/20">
                 Already a Member? Log In
               </Button>
             </Link>

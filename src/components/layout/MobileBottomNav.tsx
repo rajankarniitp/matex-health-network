@@ -14,8 +14,8 @@ const MobileBottomNav = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 z-40">
-      <div className="flex justify-around items-center py-2">
+    <nav className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-lg border-t border-border z-50 safe-area-pb">
+      <div className="flex justify-around items-center py-2 px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.to;
@@ -24,14 +24,23 @@ const MobileBottomNav = () => {
             <Link
               key={item.to}
               to={item.to}
-              className={`flex flex-col items-center justify-center min-w-0 flex-1 py-2 px-1 transition-colors ${
+              className={`flex flex-col items-center justify-center min-w-0 flex-1 py-3 px-2 rounded-xl transition-all duration-300 ${
                 isActive
-                  ? 'text-blue-600 dark:text-blue-400'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
+                  ? 'text-primary bg-primary/10 scale-110'
+                  : 'text-muted-foreground hover:text-primary hover:bg-primary/5 hover:scale-105'
               }`}
             >
-              <Icon className="h-5 w-5 mb-1" />
-              <span className="text-xs font-medium truncate">{item.label}</span>
+              <div className={`relative ${isActive ? 'animate-bounce' : ''}`}>
+                <Icon className="h-5 w-5 mb-1" />
+                {isActive && (
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                )}
+              </div>
+              <span className={`text-xs font-medium truncate transition-all ${
+                isActive ? 'font-semibold' : ''
+              }`}>
+                {item.label}
+              </span>
             </Link>
           );
         })}
