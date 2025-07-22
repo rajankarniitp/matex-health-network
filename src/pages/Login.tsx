@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, Heart, Stethoscope, Activity } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const Login = () => {
@@ -69,34 +69,67 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-6 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-6 sm:space-y-8">
-        {/* Logo */}
+    <div className="min-h-screen medical-gradient flex items-center justify-center py-6 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Medical background elements */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-20 left-10 w-12 h-12 border-2 border-current rounded-full animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-8 h-8 border border-current rotate-45 animate-spin" style={{animationDuration: '8s'}}></div>
+        <div className="absolute bottom-32 left-20 w-16 h-16 border-2 border-current rounded-full animate-bounce"></div>
+        <Heart className="absolute top-32 right-32 w-6 h-6 text-red-400 animate-pulse" />
+        <Activity className="absolute bottom-40 right-10 w-8 h-8 text-green-400 animate-pulse" />
+      </div>
+
+      <div className="max-w-md w-full space-y-6 sm:space-y-8 relative z-10">
+        {/* Enhanced Logo with doctor animation */}
         <div className="text-center">
           <div className="flex justify-center mb-4 sm:mb-6">
-            <Link to="/" className="inline-block hover:opacity-80 transition-opacity duration-300">
-              <div className="bg-white dark:bg-white rounded-lg p-3 shadow-sm flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20">
+            <Link to="/" className="inline-block hover:opacity-80 transition-all duration-500 hover:scale-105">
+              <div className="medical-card rounded-2xl p-4 flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 relative doctor-pulse">
+                {/* Medical cross background */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/10 to-secondary/10"></div>
                 <img 
                   src="/lovable-uploads/aaa35625-b685-4931-8494-60f87b95865a.png" 
                   alt="DocMateX Logo" 
-                  className="h-12 sm:h-16 w-auto"
+                  className="h-12 sm:h-16 w-auto relative z-10"
                 />
+                {/* Cute floating stethoscope */}
+                <Stethoscope className="absolute -top-2 -right-2 w-6 h-6 text-primary stethoscope-bounce" />
               </div>
             </Link>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Welcome back to DocMateX
+          
+          {/* Medical cross divider */}
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-8 h-1 bg-primary rounded"></div>
+            <div className="mx-2 w-1 h-8 bg-secondary rounded"></div>
+            <div className="w-8 h-1 bg-primary rounded"></div>
+          </div>
+
+          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            Welcome back, Doctor
           </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 px-2">
-            Sign in to your professional healthcare account
+          <p className="mt-2 text-sm text-muted-foreground px-2">
+            Your trusted healthcare companion awaits
           </p>
+          
+          {/* Heartbeat line */}
+          <div className="mt-4 flex justify-center">
+            <div className="w-32 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent heartbeat"></div>
+          </div>
         </div>
 
-        <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-          <CardHeader className="space-y-1 px-4 sm:px-6">
-            <CardTitle className="text-xl sm:text-2xl text-center text-gray-900 dark:text-gray-100">Sign In</CardTitle>
-            <CardDescription className="text-center text-sm text-gray-600 dark:text-gray-400">
-              Enter your credentials to access your account
+        <Card className="medical-card border-border/50 backdrop-blur-sm relative overflow-hidden">
+          {/* Medical accent border */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary"></div>
+          
+          <CardHeader className="space-y-1 px-4 sm:px-6 pt-6">
+            <CardTitle className="text-xl sm:text-2xl text-center text-foreground flex items-center justify-center gap-2">
+              <Heart className="w-5 h-5 text-red-500 heartbeat" />
+              Secure Access
+              <Activity className="w-5 h-5 text-green-500 animate-pulse" />
+            </CardTitle>
+            <CardDescription className="text-center text-sm text-muted-foreground">
+              Protected healthcare portal
             </CardDescription>
           </CardHeader>
           <CardContent className="px-4 sm:px-6">
@@ -105,7 +138,7 @@ const Login = () => {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-11 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600"
+                className="w-full h-11 medical-card border-border hover:bg-accent transition-all duration-300 hover:scale-[1.02]"
                 onClick={() => handleSocialLogin('Google')}
               >
                 <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
@@ -120,7 +153,7 @@ const Login = () => {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-11 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600"
+                className="w-full h-11 medical-card border-border hover:bg-accent transition-all duration-300 hover:scale-[1.02]"
                 onClick={() => handleSocialLogin('LinkedIn')}
               >
                 <svg className="w-5 h-5 mr-3" fill="#0A66C2" viewBox="0 0 24 24">
@@ -132,7 +165,7 @@ const Login = () => {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-11 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600"
+                className="w-full h-11 medical-card border-border hover:bg-accent transition-all duration-300 hover:scale-[1.02]"
                 onClick={() => handleSocialLogin('Apple')}
               >
                 <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 24 24">
@@ -145,19 +178,26 @@ const Login = () => {
 
             <div className="relative mb-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                <div className="w-full border-t border-border"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">Or continue with email</span>
+                <span className="px-4 bg-card text-muted-foreground flex items-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  Medical Portal Access
+                  <Heart className="w-4 h-4 text-red-500" />
+                </span>
               </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               <div>
-                <Label htmlFor="email" className="text-sm font-medium text-gray-900 dark:text-gray-100">Email Address</Label>
+                <Label htmlFor="email" className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-primary" />
+                  Medical Email
+                </Label>
                 <div className="mt-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
+                    <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-primary/70" />
                   </div>
                   <Input
                     id="email"
@@ -165,8 +205,8 @@ const Login = () => {
                     type="email"
                     autoComplete="email"
                     required
-                    className="pl-9 sm:pl-10 h-10 sm:h-11 text-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
-                    placeholder="doctor@example.com"
+                    className="pl-9 sm:pl-10 h-10 sm:h-11 text-sm bg-input border-border text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
+                    placeholder="doctor@hospital.com"
                     value={formData.email}
                     onChange={handleChange}
                   />
@@ -174,10 +214,13 @@ const Login = () => {
               </div>
 
               <div>
-                <Label htmlFor="password" className="text-sm font-medium text-gray-900 dark:text-gray-100">Password</Label>
+                <Label htmlFor="password" className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-primary" />
+                  Secure Access
+                </Label>
                 <div className="mt-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
+                    <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-primary/70" />
                   </div>
                   <Input
                     id="password"
@@ -185,8 +228,8 @@ const Login = () => {
                     type={showPassword ? 'text' : 'password'}
                     autoComplete="current-password"
                     required
-                    className="pl-9 sm:pl-10 pr-9 sm:pr-10 h-10 sm:h-11 text-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
-                    placeholder="Enter your password"
+                    className="pl-9 sm:pl-10 pr-9 sm:pr-10 h-10 sm:h-11 text-sm bg-input border-border text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300"
+                    placeholder="Enter secure password"
                     value={formData.password}
                     onChange={handleChange}
                   />
@@ -196,9 +239,9 @@ const Login = () => {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300" />
+                      <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground hover:text-primary transition-colors" />
                     ) : (
-                      <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300" />
+                      <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground hover:text-primary transition-colors" />
                     )}
                   </button>
                 </div>
@@ -210,18 +253,19 @@ const Login = () => {
                     id="remember-me"
                     name="rememberMe"
                     type="checkbox"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+                    className="h-4 w-4 text-primary focus:ring-primary border-border rounded bg-input"
                     checked={formData.rememberMe}
                     onChange={handleChange}
                   />
-                  <Label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-100">
-                    Remember me
+                  <Label htmlFor="remember-me" className="ml-2 block text-sm text-foreground">
+                    Keep me signed in
                   </Label>
                 </div>
 
                 <div className="text-sm">
-                  <Link to="/forgot-password" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">
-                    Forgot password?
+                  <Link to="/forgot-password" className="font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1">
+                    <Heart className="w-3 h-3" />
+                    Recovery assistance
                   </Link>
                 </div>
               </div>
@@ -229,17 +273,30 @@ const Login = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 sm:py-3 text-sm sm:text-base"
+                className="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-primary-foreground py-2 sm:py-3 text-sm sm:text-base font-medium transition-all duration-300 hover:scale-[1.02] medical-shadow"
               >
-                {isLoading ? 'Signing in...' : 'Sign In'}
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <Activity className="w-4 h-4 animate-spin" />
+                    Securing access...
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Stethoscope className="w-4 h-4" />
+                    Enter Medical Portal
+                    <Heart className="w-4 h-4 heartbeat" />
+                  </div>
+                )}
               </Button>
             </form>
 
             <div className="mt-4 sm:mt-6 text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Don't have an account?{' '}
-                <Link to="/signup" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">
+              <p className="text-sm text-muted-foreground">
+                New to our medical community?{' '}
+                <Link to="/signup" className="font-medium text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1">
+                  <Heart className="w-3 h-3" />
                   Join DocMateX
+                  <Activity className="w-3 h-3" />
                 </Link>
               </p>
             </div>
