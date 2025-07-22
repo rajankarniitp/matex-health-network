@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Send, Bot, User, Loader2, Stethoscope, AlertCircle, BookOpen, Calculator, Zap, Database } from 'lucide-react';
+import { Send, Brain, User, Loader2, Stethoscope, AlertCircle, BookOpen, Calculator, Zap, Database } from 'lucide-react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -61,36 +61,7 @@ const DoxyAI = () => {
 
   const getWelcomeMessage = () => ({
     id: '1',
-    content: `# Welcome to DoxyAI — Your Research-Driven Medical Assistant! 🩺
-
-I'm **DoxyAI**, created by **Rajan Kumar Karn**, founder of **DocMateX** — India's first verified medical networking and research platform. Rajan is a student at **IIT Patna**.
-
-## 🎯 **My Purpose**
-My goal is to support the healthcare community — not replace doctors, but to assist them with knowledge, research, and tools — 24x7, in a verified and respectful space.
-
-## 🔬 **Advanced Capabilities**
-I'm powered by:
-- **Live PubMed RAG Pipeline** with real-time literature retrieval
-- **Enhanced Statistical Engine** for medical calculations  
-- **Evidence-Based Responses** with direct PubMed citations
-
-## 📚 **DocMateX Platform Features**
-- Role-specific profiles for verified healthcare professionals
-- AI assistance (that's me, DoxyAI!)
-- Verified jobs and internships
-- In-app messaging and mentorship discovery
-- Case study and research uploads
-- Personalized content feed
-
-## 🚀 **Try These Enhanced Queries:**
-- *"Compare HbA1c reduction of Metformin vs Semaglutide based on recent RCTs"*
-- *"What's the 5-year survival rate for triple-negative breast cancer with immunotherapy?"*
-- *"Pembrolizumab vs Nivolumab efficacy in stage IV NSCLC with PD-L1 ≥50%"*
-- *"Who made you?"* or *"What is DocMateX?"*
-
-**Ready to provide evidence-based medical insights with live literature retrieval!**
-
-**Powered by DocMateX — for those who care, heal, and lead.**`,
+    content: `Welcome to DoxyAI — Your Research-Driven Medical Assistant! 🩺`,
     isUser: false,
     timestamp: new Date(),
     ragEnabled: true,
@@ -251,22 +222,29 @@ I'm powered by:
   return (
     <DashboardLayout>
       <div className="max-w-5xl mx-auto h-full flex flex-col px-4 sm:px-6 lg:px-8">
-        {/* Enhanced Header with DocMateX branding */}
-        <Card className="mb-4 bg-gradient-to-r from-green-50 via-blue-50 to-purple-50 dark:from-green-900/20 dark:via-blue-900/20 dark:to-purple-900/20 border-blue-200 dark:border-blue-800">
+        {/* Enhanced DoxyAI Header with Brain Icon */}
+        <Card className="mb-4 medical-card bg-gradient-to-r from-purple-50 via-blue-50 to-cyan-50 dark:from-purple-900/30 dark:via-blue-900/30 dark:to-cyan-900/30 border-purple-200 dark:border-purple-700">
           <CardHeader className="pb-4">
-            <CardTitle className="flex items-center justify-between text-blue-900 dark:text-blue-100">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
-                  <Stethoscope className="h-6 w-6 text-white" />
+            <CardTitle className="flex items-center justify-between text-purple-900 dark:text-purple-100">
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <div className="p-3 bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-600 rounded-xl shadow-lg brain-icon">
+                    <Brain className="h-8 w-8 text-white" />
+                  </div>
+                  <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
+                    <span className="text-xs font-bold text-purple-700 dark:text-purple-300 bg-white dark:bg-gray-800 px-2 py-1 rounded-full shadow-md">
+                      Doxy
+                    </span>
+                  </div>
                 </div>
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+                  <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2 medical-bounce">
                     DoxyAI — Medical Research Assistant
-                    <Database className="h-5 w-5 text-green-500" />
-                    <Zap className="h-5 w-5 text-yellow-500" />
+                    <Database className="h-5 w-5 text-green-500 heartbeat-icon" />
+                    <Zap className="h-5 w-5 text-yellow-500 stethoscope-icon" />
                   </h1>
-                  <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-300 font-normal">
-                    Created by Rajan Kumar Karn • DocMateX Platform • Live PubMed RAG • Statistical Engine • Evidence-Based Medicine
+                  <p className="text-xs sm:text-sm text-purple-600 dark:text-purple-300 font-normal">
+                    🧠 AI-Powered • 🔬 PubMed Enhanced • 📊 Evidence-Based • ⚡ Real-time Analysis
                   </p>
                 </div>
               </div>
@@ -274,7 +252,7 @@ I'm powered by:
                 variant="outline" 
                 size="sm" 
                 onClick={clearConversation}
-                className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                className="text-purple-600 border-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 healing-glow"
               >
                 Clear Chat
               </Button>
@@ -314,8 +292,8 @@ I'm powered by:
                     ) : (
                       <>
                         <AvatarImage src="" alt="DoxyAI" />
-                        <AvatarFallback className="bg-gradient-to-br from-green-100 to-blue-100 dark:from-green-900 dark:to-blue-900 text-green-600 dark:text-green-300">
-                          <Bot className="h-4 w-4" />
+                        <AvatarFallback className="bg-gradient-to-br from-purple-100 to-cyan-100 dark:from-purple-900 dark:to-cyan-900 text-purple-600 dark:text-purple-300">
+                          <Brain className="h-4 w-4 brain-icon" />
                         </AvatarFallback>
                       </>
                     )}
@@ -386,8 +364,8 @@ I'm powered by:
               {isLoading && (
                 <div className="flex items-start space-x-3">
                   <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-gradient-to-br from-green-100 to-blue-100 dark:from-green-900 dark:to-blue-900 text-green-600 dark:text-green-300">
-                      <Bot className="h-4 w-4" />
+                    <AvatarFallback className="bg-gradient-to-br from-purple-100 to-cyan-100 dark:from-purple-900 dark:to-cyan-900 text-purple-600 dark:text-purple-300">
+                      <Brain className="h-4 w-4 brain-icon" />
                     </AvatarFallback>
                   </Avatar>
                   <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg rounded-bl-sm border border-gray-200 dark:border-gray-700">

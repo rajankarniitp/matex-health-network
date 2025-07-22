@@ -1,6 +1,6 @@
 
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, Briefcase, MessageSquare, Bot } from 'lucide-react';
+import { Home, Users, Briefcase, MessageSquare, Brain } from 'lucide-react';
 
 const MobileBottomNav = () => {
   const location = useLocation();
@@ -29,7 +29,7 @@ const MobileBottomNav = () => {
     },
     { 
       to: '/doxy-ai', 
-      icon: Bot, 
+      icon: Brain, 
       label: 'DoxyAI',
       activeColor: 'text-purple-600',
       bgColor: 'bg-purple-600/10'
@@ -75,8 +75,8 @@ const MobileBottomNav = () => {
                   : 'hover:bg-muted/30 group-hover:bg-muted/50'
               }`}>
                 <Icon className={`h-6 w-6 transition-all duration-300 ${
-                  isActive ? 'scale-110 drop-shadow-sm' : 'group-hover:scale-105'
-                }`} />
+                  isActive ? 'scale-110 drop-shadow-sm brain-icon' : 'group-hover:scale-105'
+                } ${item.label === 'DoxyAI' ? 'brain-icon' : ''}`} />
                 
                 {/* Enhanced active state indicators */}
                 {isActive && (

@@ -51,15 +51,43 @@
     --shadow-card: 0 10px 15px -3px hsl(200 20% 20% / 0.1), 0 4px 6px -2px hsl(200 20% 20% / 0.05);
     --shadow-medical: 0 8px 30px -8px hsl(200 100% 45% / 0.2);
 
-    /* Medical specific colors */
-    --medical-blue: 200 100% 45%;
-    --medical-green: 155 65% 50%;
-    --medical-light: 200 30% 98%;
-    --medical-accent: 180 50% 85%;
+  /* Enhanced medical theme colors */
+  --medical-blue: 210 98% 60%;
+  --medical-blue-light: 210 98% 85%;
+  --medical-blue-dark: 210 98% 40%;
+  --medical-green: 142 76% 47%;
+  --medical-green-light: 142 76% 85%;
+  --medical-green-dark: 142 76% 35%;
+  --medical-purple: 260 60% 65%;
+  --medical-purple-light: 260 60% 85%;
+  --medical-orange: 24 95% 53%;
+  --medical-teal: 173 58% 47%;
+  --medical-pink: 330 81% 70%;
+  --medical-cyan: 187 85% 53%;
+  --medical-indigo: 231 48% 48%;
+  
+  /* Advanced doctor-friendly gradients */
+  --gradient-medical: linear-gradient(135deg, hsl(var(--medical-blue)), hsl(var(--medical-teal)));
+  --gradient-healing: linear-gradient(135deg, hsl(var(--medical-green)), hsl(var(--medical-blue)));
+  --gradient-research: linear-gradient(135deg, hsl(var(--medical-purple)), hsl(var(--medical-pink)));
+  --gradient-care: linear-gradient(135deg, hsl(var(--medical-orange)), hsl(var(--medical-green)));
+  --gradient-brain: linear-gradient(135deg, hsl(var(--medical-purple)), hsl(var(--medical-cyan)));
+  --gradient-feed: linear-gradient(135deg, hsl(var(--medical-blue-light)), hsl(var(--medical-green-light)));
+  --gradient-professional: linear-gradient(135deg, hsl(var(--medical-indigo)), hsl(var(--medical-purple)));
+  
+  /* Enhanced medical shadows */
+  --shadow-medical: 0 10px 30px -10px hsl(var(--medical-blue) / 0.3);
+  --shadow-healing: 0 0 40px hsl(var(--medical-green) / 0.2);
+  --shadow-stethoscope: 0 4px 20px hsl(var(--medical-teal) / 0.4);
+  --shadow-brain: 0 8px 25px hsl(var(--medical-purple) / 0.3);
+  --shadow-feed: 0 6px 20px hsl(var(--medical-blue) / 0.15);
 
-    /* Animation variables */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  /* Enhanced doctor-friendly animations */
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --transition-gentle: all 0.2s ease-out;
+  --transition-medical: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --transition-pulse: all 0.6s ease-in-out;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -344,21 +372,66 @@
   }
 
   .medical-card {
-    background: var(--gradient-card);
+    background: var(--gradient-medical);
+    border: 1px solid hsl(var(--medical-blue) / 0.2);
     box-shadow: var(--shadow-medical);
-    border: 1px solid hsl(var(--border));
+    transition: var(--transition-medical);
   }
 
-  .doctor-pulse {
-    animation: doctor-pulse 2s ease-in-out infinite;
+  .medical-card:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--shadow-healing);
   }
 
-  .heartbeat {
-    animation: heartbeat 1.5s ease-in-out infinite;
+  .feed-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.95));
+    backdrop-filter: blur(10px);
+    border: 1px solid hsl(var(--medical-blue) / 0.1);
+    box-shadow: var(--shadow-feed);
+    transition: var(--transition-medical);
   }
 
-  .stethoscope-bounce {
-    animation: stethoscope-bounce 2s ease-in-out infinite;
+  .feed-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px hsl(var(--medical-blue) / 0.2);
+  }
+
+  .brain-icon {
+    animation: brain-pulse 2.5s infinite;
+    color: hsl(var(--medical-purple));
+    filter: drop-shadow(0 0 8px hsl(var(--medical-purple) / 0.4));
+  }
+
+  .stethoscope-icon {
+    animation: stethoscope-pulse 2s infinite;
+    color: hsl(var(--medical-teal));
+  }
+
+  .heartbeat-icon {
+    animation: heartbeat 1.5s infinite;
+    color: hsl(var(--medical-pink));
+  }
+
+  .doctor-float {
+    animation: doctor-float 3s ease-in-out infinite;
+  }
+
+  .medical-glow {
+    animation: medical-glow 2s infinite;
+  }
+
+  .healing-glow {
+    animation: healing-glow 3s infinite;
+  }
+
+  .medical-bounce {
+    animation: medical-bounce 2s infinite;
+  }
+
+  .feed-shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    background-size: 200px 100%;
+    animation: feed-shimmer 2s infinite;
   }
 
   /* Text size utilities for consistency */
@@ -434,42 +507,57 @@
   }
 }
 
-/* Medical themed animations */
-@keyframes doctor-pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.9;
-  }
+/* Enhanced doctor animations */
+@keyframes stethoscope-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
 
 @keyframes heartbeat {
-  0%, 100% {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes doctor-float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+
+@keyframes medical-glow {
+  0%, 100% { box-shadow: 0 0 10px hsl(var(--medical-blue) / 0.3); }
+  50% { box-shadow: 0 0 20px hsl(var(--medical-blue) / 0.6), 0 0 30px hsl(var(--medical-green) / 0.4); }
+}
+
+@keyframes brain-pulse {
+  0%, 100% { 
     transform: scale(1);
+    filter: brightness(1);
   }
-  14% {
-    transform: scale(1.1);
-  }
-  28% {
-    transform: scale(1);
-  }
-  42% {
-    transform: scale(1.1);
-  }
-  70% {
-    transform: scale(1);
+  50% { 
+    transform: scale(1.05);
+    filter: brightness(1.2);
   }
 }
 
-@keyframes stethoscope-bounce {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
+@keyframes feed-shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+@keyframes medical-bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-5px); }
+  60% { transform: translateY(-3px); }
+}
+
+@keyframes healing-glow {
+  0%, 100% { 
+    box-shadow: 0 0 15px hsl(var(--medical-green) / 0.3);
+    border-color: hsl(var(--medical-green) / 0.5);
   }
-  50% {
-    transform: translateY(-10px) rotate(2deg);
+  50% { 
+    box-shadow: 0 0 25px hsl(var(--medical-green) / 0.6), 0 0 35px hsl(var(--medical-blue) / 0.4);
+    border-color: hsl(var(--medical-green) / 0.8);
   }
 }
 

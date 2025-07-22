@@ -189,10 +189,14 @@ const Feed = () => {
   return (
     <DashboardLayout>
       <div className="max-w-2xl mx-auto space-y-6">
-        {/* Create Post */}
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        {/* Enhanced Create Post */}
+        <Card className="feed-card medical-glow bg-gradient-to-br from-blue-50/80 via-white to-green-50/80 dark:from-blue-900/20 dark:via-gray-800 dark:to-green-900/20 border-blue-200 dark:border-blue-700">
           <CardHeader>
-            <CardTitle className="text-gray-900 dark:text-gray-100">Share with your network</CardTitle>
+            <CardTitle className="text-blue-900 dark:text-blue-100 flex items-center gap-2">
+              <div className="h-2 w-2 bg-gradient-to-r from-blue-500 to-green-500 rounded-full stethoscope-icon"></div>
+              Share with your medical network
+              <div className="h-2 w-2 bg-gradient-to-r from-green-500 to-blue-500 rounded-full heartbeat-icon"></div>
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center space-x-3 mb-4">
@@ -267,15 +271,15 @@ const Feed = () => {
           </CardContent>
         </Card>
 
-        {/* Posts Feed */}
+        {/* Enhanced Posts Feed */}
         <div className="space-y-6">
           {posts.map((post) => (
-            <Card key={post.id} className="hover:shadow-md transition-shadow bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+            <Card key={post.id} className="feed-card hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white via-blue-50/30 to-green-50/30 dark:from-gray-800 dark:via-blue-900/10 dark:to-green-900/10 border-blue-100 dark:border-blue-800">
               <CardContent className="p-6">
                 <div className="flex items-start space-x-3">
-                  <Avatar className="h-12 w-12">
+                    <Avatar className="h-12 w-12 medical-glow">
                     <AvatarImage src="" alt={post.author} />
-                    <AvatarFallback className="bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300">
+                    <AvatarFallback className="bg-gradient-to-br from-blue-100 to-green-100 dark:from-blue-900 dark:to-green-900 text-blue-600 dark:text-blue-300 font-semibold">
                       {post.author.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
@@ -286,8 +290,8 @@ const Feed = () => {
                         <div className="flex items-center space-x-2">
                           <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{post.author}</h3>
                           {post.verified && (
-                            <Badge variant="secondary" className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300">
-                              ✓ Verified
+                            <Badge variant="secondary" className="text-xs bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900 dark:to-blue-900 text-green-600 dark:text-green-300 border border-green-200 dark:border-green-700 medical-bounce">
+                              ✓ Verified Doctor
                             </Badge>
                           )}
                         </div>
