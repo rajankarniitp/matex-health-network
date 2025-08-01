@@ -16,19 +16,18 @@
     --popover: 0 0% 100%;
     --popover-foreground: 210 20% 15%;
 
-    /* Medical theme - Trust blue with healing green accents */
-    --primary: 200 100% 45%;
+  /* Professional Medical Theme */
+    --primary: 37 99% 60%;  /* Medical blue */
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 200 100% 55%;
-
-    --secondary: 155 65% 50%;
+    
+    --secondary: 217 91% 60%;  /* LinkedIn blue */
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 200 20% 97%;
-    --muted-foreground: 200 15% 45%;
+    --muted: 210 40% 98%;
+    --muted-foreground: 215 13.8% 34.1%;
 
-    --accent: 155 30% 95%;
-    --accent-foreground: 155 65% 25%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 215 25% 26.1%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
@@ -39,55 +38,22 @@
 
     --radius: 1rem;
 
-    /* Medical themed gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(200 100% 45%), hsl(155 65% 50%));
-    --gradient-hero: linear-gradient(135deg, hsl(200 100% 45%) 0%, hsl(155 65% 50%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(200 20% 98%) 100%);
-    --gradient-medical: linear-gradient(145deg, hsl(200 100% 98%) 0%, hsl(155 30% 98%) 100%);
+    /* Clean Professional Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(37 99% 60%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(210 40% 98%));
     
-    /* Professional medical shadows */
-    --shadow-elegant: 0 20px 25px -5px hsl(200 100% 45% / 0.15), 0 10px 10px -5px hsl(200 100% 45% / 0.08);
-    --shadow-glow: 0 0 50px hsl(200 100% 45% / 0.25);
-    --shadow-card: 0 10px 15px -3px hsl(200 20% 20% / 0.1), 0 4px 6px -2px hsl(200 20% 20% / 0.05);
-    --shadow-medical: 0 8px 30px -8px hsl(200 100% 45% / 0.2);
+    /* Professional shadows */
+    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 
-  /* Enhanced medical theme colors */
-  --medical-blue: 210 98% 60%;
-  --medical-blue-light: 210 98% 85%;
-  --medical-blue-dark: 210 98% 40%;
-  --medical-green: 142 76% 47%;
-  --medical-green-light: 142 76% 85%;
-  --medical-green-dark: 142 76% 35%;
-  --medical-purple: 260 60% 65%;
-  --medical-purple-light: 260 60% 85%;
-  --medical-orange: 24 95% 53%;
-  --medical-teal: 173 58% 47%;
-  --medical-pink: 330 81% 70%;
-  --medical-cyan: 187 85% 53%;
-  --medical-indigo: 231 48% 48%;
+  /* Medical accent colors */
+  --medical-green: 142 76% 36%;
+  --medical-purple: 262 83% 58%;
+  --medical-orange: 25 95% 53%;
   
-  /* Advanced doctor-friendly gradients */
-  --gradient-medical: linear-gradient(135deg, hsl(var(--medical-blue)), hsl(var(--medical-teal)));
-  --gradient-healing: linear-gradient(135deg, hsl(var(--medical-green)), hsl(var(--medical-blue)));
-  --gradient-research: linear-gradient(135deg, hsl(var(--medical-purple)), hsl(var(--medical-pink)));
-  --gradient-care: linear-gradient(135deg, hsl(var(--medical-orange)), hsl(var(--medical-green)));
-  --gradient-brain: linear-gradient(135deg, hsl(var(--medical-purple)), hsl(var(--medical-cyan)));
-  --gradient-feed: linear-gradient(135deg, hsl(var(--medical-blue-light)), hsl(var(--medical-green-light)));
-  --gradient-professional: linear-gradient(135deg, hsl(var(--medical-indigo)), hsl(var(--medical-purple)));
-  
-  /* Enhanced medical shadows */
-  --shadow-medical: 0 10px 30px -10px hsl(var(--medical-blue) / 0.3);
-  --shadow-healing: 0 0 40px hsl(var(--medical-green) / 0.2);
-  --shadow-stethoscope: 0 4px 20px hsl(var(--medical-teal) / 0.4);
-  --shadow-brain: 0 8px 25px hsl(var(--medical-purple) / 0.3);
-  --shadow-feed: 0 6px 20px hsl(var(--medical-blue) / 0.15);
-
-  /* Enhanced doctor-friendly animations */
-  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  --transition-gentle: all 0.2s ease-out;
-  --transition-medical: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --transition-pulse: all 0.6s ease-in-out;
+  /* Simple transitions */
+  --transition-smooth: all 0.2s ease-out;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -109,18 +75,17 @@
     --popover: 200 25% 10%;
     --popover-foreground: 200 10% 95%;
 
-    --primary: 200 100% 55%;
-    --primary-foreground: 200 25% 8%;
-    --primary-glow: 200 100% 65%;
-
-    --secondary: 155 45% 45%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 210 40% 2%;
+    
+    --secondary: 37 99% 60%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 200 25% 12%;
-    --muted-foreground: 200 15% 70%;
+    --muted: 215 27.9% 16.9%;
+    --muted-foreground: 217.9 10.6% 64.9%;
 
-    --accent: 200 25% 14%;
-    --accent-foreground: 200 10% 95%;
+    --accent: 215 27.9% 16.9%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
@@ -129,23 +94,19 @@
     --input: 200 25% 15%;
     --ring: 200 100% 55%;
 
-    /* Dark medical gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(200 100% 55%), hsl(155 45% 45%));
-    --gradient-hero: linear-gradient(135deg, hsl(200 100% 55%) 0%, hsl(155 45% 45%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(200 25% 10%) 0%, hsl(200 25% 12%) 100%);
-    --gradient-medical: linear-gradient(145deg, hsl(200 25% 12%) 0%, hsl(155 20% 12%) 100%);
+    /* Dark mode gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(37 99% 60%));
+    --gradient-card: linear-gradient(135deg, hsl(215 27.9% 16.9%), hsl(215 27.9% 18%));
     
-    /* Dark medical shadows */
-    --shadow-elegant: 0 20px 25px -5px hsl(0 0% 0% / 0.5), 0 10px 10px -5px hsl(0 0% 0% / 0.3);
-    --shadow-glow: 0 0 50px hsl(200 100% 55% / 0.4);
-    --shadow-card: 0 10px 15px -3px hsl(0 0% 0% / 0.4), 0 4px 6px -2px hsl(0 0% 0% / 0.2);
-    --shadow-medical: 0 8px 30px -8px hsl(200 100% 55% / 0.3);
-
-    /* Dark medical specific colors */
-    --medical-blue: 200 100% 55%;
-    --medical-green: 155 45% 45%;
-    --medical-light: 200 25% 15%;
-    --medical-accent: 180 30% 25%;
+    /* Dark mode shadows */
+    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.2), 0 1px 2px -1px rgb(0 0 0 / 0.2);
+    --shadow-hover: 0 4px 6px -1px rgb(0 0 0 / 0.2), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+    
+    /* Dark medical colors */
+    --medical-green: 142 76% 36%;
+    --medical-purple: 262 83% 58%;
+    --medical-orange: 25 95% 53%;
 
     --sidebar-background: 22 8% 6%;
     --sidebar-foreground: 210 40% 98%;
@@ -362,76 +323,43 @@
     backdrop-filter: blur(2px);
   }
 
-  /* Medical themed utilities */
-  .medical-gradient {
-    background: var(--gradient-medical);
+  /* Professional utility classes */
+  .card-clean {
+    @apply bg-background border border-border rounded-lg shadow-sm;
+    box-shadow: var(--shadow-card);
+    transition: var(--transition-smooth);
   }
 
-  .medical-shadow {
-    box-shadow: var(--shadow-medical);
-  }
-
-  .medical-card {
-    background: var(--gradient-medical);
-    border: 1px solid hsl(var(--medical-blue) / 0.2);
-    box-shadow: var(--shadow-medical);
-    transition: var(--transition-medical);
-  }
-
-  .medical-card:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: var(--shadow-healing);
-  }
-
-  .feed-card {
-    background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.95));
-    backdrop-filter: blur(10px);
-    border: 1px solid hsl(var(--medical-blue) / 0.1);
-    box-shadow: var(--shadow-feed);
-    transition: var(--transition-medical);
-  }
-
-  .feed-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 30px hsl(var(--medical-blue) / 0.2);
+  .card-clean:hover {
+    box-shadow: var(--shadow-hover);
   }
 
   .brain-icon {
-    animation: brain-pulse 2.5s infinite;
+    animation: brain-pulse 2s ease-in-out infinite;
+  }
+
+  .text-medical-green {
+    color: hsl(var(--medical-green));
+  }
+
+  .text-medical-purple {
     color: hsl(var(--medical-purple));
-    filter: drop-shadow(0 0 8px hsl(var(--medical-purple) / 0.4));
   }
 
-  .stethoscope-icon {
-    animation: stethoscope-pulse 2s infinite;
-    color: hsl(var(--medical-teal));
+  .text-medical-orange {
+    color: hsl(var(--medical-orange));
   }
 
-  .heartbeat-icon {
-    animation: heartbeat 1.5s infinite;
-    color: hsl(var(--medical-pink));
+  .bg-medical-green {
+    background-color: hsl(var(--medical-green));
   }
 
-  .doctor-float {
-    animation: doctor-float 3s ease-in-out infinite;
+  .bg-medical-purple {
+    background-color: hsl(var(--medical-purple));
   }
 
-  .medical-glow {
-    animation: medical-glow 2s infinite;
-  }
-
-  .healing-glow {
-    animation: healing-glow 3s infinite;
-  }
-
-  .medical-bounce {
-    animation: medical-bounce 2s infinite;
-  }
-
-  .feed-shimmer {
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-    background-size: 200px 100%;
-    animation: feed-shimmer 2s infinite;
+  .bg-medical-orange {
+    background-color: hsl(var(--medical-orange));
   }
 
   /* Text size utilities for consistency */
@@ -531,11 +459,9 @@
 @keyframes brain-pulse {
   0%, 100% { 
     transform: scale(1);
-    filter: brightness(1);
   }
   50% { 
     transform: scale(1.05);
-    filter: brightness(1.2);
   }
 }
 
