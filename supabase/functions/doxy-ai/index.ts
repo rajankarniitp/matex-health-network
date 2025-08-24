@@ -96,163 +96,6 @@ const statisticalCalculations = {
   }
 };
 
-// Advanced meta-analysis functions
-const metaAnalysisFunctions = {
-  // Calculate pooled effect size using fixed effects model
-  fixedEffectMeta: (studies: Array<{effectSize: number, variance: number, n: number}>) => {
-    const weights = studies.map(s => 1 / s.variance);
-    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
-    const pooledEffect = studies.reduce((sum, s, i) => sum + (s.effectSize * weights[i]), 0) / totalWeight;
-    const pooledVariance = 1 / totalWeight;
-    const pooledSE = Math.sqrt(pooledVariance);
-    const ci95Lower = pooledEffect - (1.96 * pooledSE);
-    const ci95Upper = pooledEffect + (1.96 * pooledSE);
-    
-    return {
-      pooledEffect,
-      pooledSE,
-      ci95: [ci95Lower, ci95Upper],
-      totalN: studies.reduce((sum, s) => sum + s.n, 0)
-    };
-  },
-
-  // Calculate I² heterogeneity statistic
-  calculateI2: (studies: Array<{effectSize: number, variance: number}>) => {
-    if (studies.length < 2) return 0;
-    
-    const weights = studies.map(s => 1 / s.variance);
-    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
-    const pooledEffect = studies.reduce((sum, s, i) => sum + (s.effectSize * weights[i]), 0) / totalWeight;
-    
-    const Q = studies.reduce((sum, s, i) => {
-      return sum + weights[i] * Math.pow(s.effectSize - pooledEffect, 2);
-    }, 0);
-    
-    const df = studies.length - 1;
-    const I2 = Math.max(0, ((Q - df) / Q) * 100);
-    
-    return { I2, Q, df, pValue: 1 - cumChiSq(Q, df) };
-  },
-
-  // Calculate Number Needed to Treat (NNT)
-  calculateNNT: (controlRate: number, treatmentRate: number) => {
-    const ARR = Math.abs(controlRate - treatmentRate);
-    return ARR > 0 ? Math.round(1 / ARR) : Infinity;
-  },
-
-  // Calculate Relative Risk Reduction (RRR)
-  calculateRRR: (controlRate: number, treatmentRate: number) => {
-    return controlRate > 0 ? ((controlRate - treatmentRate) / controlRate) * 100 : 0;
-  }
-};
-
-// Chi-square cumulative distribution approximation
-function cumChiSq(x: number, df: number): number {
-  if (x <= 0) return 0;
-  if (df === 1) return 2 * (1 - Math.exp(-x/2) * Math.sqrt(x/(2*Math.PI)));
-  
-  // Simple approximation for p-value
-  const criticalValues = [3.84, 5.99, 7.81, 9.49, 11.07, 12.59, 14.07, 15.51];
-  if (df <= 8) return x > criticalValues[df-1] ? 0.95 : 0.05;
-  return x > (df + Math.sqrt(2*df)) ? 0.95 : 0.05;
-}
-
-// GRADE evidence assessment function
-function assessGRADE(studies: Array<{type: string, riskOfBias: string, consistency: boolean, directness: boolean}>) {
-  let grade = 'High'; // Start with high for RCTs
-  let reasons = [];
-  
-  // Check study types
-  const hasRCTs = studies.some(s => s.type.toLowerCase().includes('randomized'));
-  if (!hasRCTs) {
-    grade = 'Low';
-    reasons.push('Observational studies');
-  }
-  
-  // Risk of bias assessment
-  const highRisk = studies.filter(s => s.riskOfBias === 'high').length;
-  if (highRisk > studies.length / 2) {
-    grade = grade === 'High' ? 'Moderate' : 'Low';
-    reasons.push('High risk of bias');
-  }
-  
-  // Inconsistency
-  const inconsistent = studies.filter(s => !s.consistency).length;
-  if (inconsistent > studies.length / 2) {
-    grade = grade === 'High' ? 'Moderate' : (grade === 'Moderate' ? 'Low' : 'Very Low');
-    reasons.push('Inconsistent results');
-  }
-  
-  // Indirectness
-  const indirect = studies.filter(s => !s.directness).length;
-  if (indirect > studies.length / 2) {
-    grade = grade === 'High' ? 'Moderate' : (grade === 'Moderate' ? 'Low' : 'Very Low');
-    reasons.push('Indirectness of evidence');
-  }
-  
-  return { grade, reasons };
-}
-
-// Indian market cost-effectiveness analysis
-const healthEconomics = {
-  // Indian generic drug prices (INR per month)
-  drugPrices: {
-    'metformin': { generic: 50, branded: 150, brand: 'Glycomet' },
-    'semaglutide': { generic: 2800, branded: 4500, brand: 'Ozempic' },
-    'empagliflozin': { generic: 800, branded: 2200, brand: 'Jardiance' },
-    'teneligliptin': { generic: 180, branded: 350, brand: 'Teniva' },
-    'saroglitazar': { generic: 220, branded: 450, brand: 'Lipaglyn' },
-    'remogliflozin': { generic: 350, branded: 650, brand: 'Remo' },
-    'glimepiride': { generic: 40, branded: 120, brand: 'Amaryl' },
-    'pioglitazone': { generic: 80, branded: 200, brand: 'Pioz' }
-  },
-
-  // Calculate ICER (Incremental Cost-Effectiveness Ratio)
-  calculateICER: (drug1: string, drug2: string, effectDiff: number, qualityYears: number = 1) => {
-    const prices = healthEconomics.drugPrices;
-    const cost1 = prices[drug1]?.generic || 0;
-    const cost2 = prices[drug2]?.generic || 0;
-    const costDiff = Math.abs(cost1 - cost2) * 12; // Annual cost difference
-    
-    if (effectDiff === 0) return { icer: 'Dominated', recommendation: 'Choose lower cost option' };
-    
-    const icer = costDiff / (effectDiff * qualityYears);
-    const threshold = 150000; // WHO threshold for India (3x GDP per capita)
-    
-    return {
-      icer: icer.toFixed(0),
-      costEffective: icer < threshold,
-      recommendation: icer < threshold ? 'Cost-effective' : 'Not cost-effective',
-      annualCostDiff: costDiff
-    };
-  },
-
-  // Suggest affordable alternatives
-  getAffordableAlternatives: (condition: string, budget: number = 3000) => {
-    const alternatives = {
-      't2dm': [
-        { drug: 'metformin', cost: 50, efficacy: 'Moderate HbA1c reduction (-0.9%)' },
-        { drug: 'teneligliptin', cost: 180, efficacy: 'Good HbA1c reduction (-0.8%)' },
-        { drug: 'glimepiride', cost: 40, efficacy: 'Good HbA1c reduction (-1.2%)' },
-        { drug: 'pioglitazone', cost: 80, efficacy: 'Good HbA1c reduction (-0.9%)' }
-      ],
-      'dyslipidemia': [
-        { drug: 'atorvastatin', cost: 60, efficacy: 'LDL reduction (-45%)' },
-        { drug: 'saroglitazar', cost: 220, efficacy: 'TG reduction (-35%)' },
-        { drug: 'fenofibrate', cost: 80, efficacy: 'TG reduction (-30%)' }
-      ],
-      'hypertension': [
-        { drug: 'amlodipine', cost: 50, efficacy: 'BP reduction (-12/8 mmHg)' },
-        { drug: 'telmisartan', cost: 120, efficacy: 'BP reduction (-10/6 mmHg)' },
-        { drug: 'hydrochlorothiazide', cost: 30, efficacy: 'BP reduction (-8/5 mmHg)' }
-      ]
-    };
-
-    const conditionDrugs = alternatives[condition] || [];
-    return conditionDrugs.filter(alt => alt.cost <= budget);
-  }
-};
-
 // Improved PubMed search with better query construction
 async function searchPubMed(query: string, maxResults: number = 8): Promise<string[]> {
   try {
@@ -458,46 +301,51 @@ function parseEnhancedAbstractsFromXML(xml: string): {abstracts: string, citatio
 
 // Parse individual article with better field extraction
 function parseIndividualArticle(articleXml: string): any {
-  const extractText = (regex: RegExp, xml: string) => {
-    const match = regex.exec(xml);
-    return match ? match[1].replace(/<[^>]*>/g, '').trim() : '';
+  // Helper functions for safe extraction
+  const extractSingle = (regex: RegExp): string => {
+    const match = articleXml.match(regex);
+    return match && match[1] && typeof match[1] === 'string' ? match[1].trim().replace(/<[^>]*>/g, '') : '';
   };
-  
-  const extractMultiple = (regex: RegExp, xml: string) => {
+
+  const extractMultiple = (regex: RegExp): string[] => {
     const matches = [];
     let match;
-    while ((match = regex.exec(xml)) !== null) {
-      matches.push(match[1].replace(/<[^>]*>/g, '').trim());
+    while ((match = regex.exec(articleXml)) !== null) {
+      if (match[1] && typeof match[1] === 'string' && match[1].trim) {
+        matches.push(match[1].trim().replace(/<[^>]*>/g, ''));
+      }
+      if (!regex.global) break;
     }
     return matches;
   };
+
+  // Extract basic info
+  const pmid = extractSingle(/<PMID[^>]*>(\d+)<\/PMID>/);
+  const title = extractSingle(/<ArticleTitle>(.*?)<\/ArticleTitle>/s);
+  const journal = extractSingle(/<Title>(.*?)<\/Title>/);
+  const year = extractSingle(/<PubDate>.*?<Year>(\d{4})<\/Year>.*?<\/PubDate>/s) || 
+               extractSingle(/<PubDate>.*?<MedlineDate>(\d{4})/);
+  const doi = extractSingle(/<ArticleId IdType="doi">(.*?)<\/ArticleId>/);
   
-  const title = extractText(/<ArticleTitle>(.*?)<\/ArticleTitle>/s, articleXml);
-  const pmid = extractText(/<PMID[^>]*>(.*?)<\/PMID>/s, articleXml);
-  const journal = extractText(/<Title>(.*?)<\/Title>/s, articleXml);
-  const year = extractText(/<PubDate>.*?<Year>(.*?)<\/Year>/s, articleXml) || 
-               extractText(/<PubDate>.*?<MedlineDate>(\d{4})/s, articleXml);
-  const doi = extractText(/<ArticleId IdType="doi">(.*?)<\/ArticleId>/s, articleXml);
+  // Extract abstract sections
+  const abstractTexts = [];
+  const abstractSections = extractMultiple(/<AbstractText[^>]*>(.*?)<\/AbstractText>/gs);
   
-  // Extract structured abstract with better handling
-  let abstractText = '';
-  const structuredAbstracts = extractMultiple(/<AbstractText[^>]*(?:Label="([^"]*)")?[^>]*>(.*?)<\/AbstractText>/gs, articleXml);
-  
-  if (structuredAbstracts.length > 0) {
-    // For structured abstracts, join all sections
-    const abstractRegex = /<AbstractText[^>]*(?:Label="([^"]*)")?[^>]*>(.*?)<\/AbstractText>/gs;
-    let abstractMatch;
-    while ((abstractMatch = abstractRegex.exec(articleXml)) !== null) {
-      const label = abstractMatch[1] ? `${abstractMatch[1]}: ` : '';
-      const content = abstractMatch[2].replace(/<[^>]*>/g, '').trim();
-      if (content) {
-        abstractText += label + content + ' ';
-      }
+  for (const section of abstractSections) {
+    if (section && section.length > 10) {
+      abstractTexts.push(section);
     }
-  } else {
-    // Try to get simple abstract
-    abstractText = extractText(/<Abstract>(.*?)<\/Abstract>/s, articleXml);
   }
+  
+  // If no structured abstract, try general abstract
+  if (abstractTexts.length === 0) {
+    const generalAbstract = extractSingle(/<Abstract>(.*?)<\/Abstract>/s);
+    if (generalAbstract) {
+      abstractTexts.push(generalAbstract);
+    }
+  }
+  
+  const abstractText = abstractTexts.join(' ');
   
   // Extract authors with better formatting
   const authors: string[] = [];
@@ -510,7 +358,7 @@ function parseIndividualArticle(articleXml: string): any {
   }
   
   // Extract publication type for context
-  const publicationTypes = extractMultiple(/<PublicationType[^>]*>(.*?)<\/PublicationType>/gs, articleXml);
+  const publicationTypes = extractMultiple(/<PublicationType[^>]*>(.*?)<\/PublicationType>/gs);
   
   return {
     pmid,
@@ -538,431 +386,225 @@ function formatArticleForRAG(article: any): string {
 **Journal:** ${article.journal}
 **Authors:** ${article.authors.slice(0, 4).join(', ')}${article.authors.length > 4 ? ' et al.' : ''}
 **Abstract:** ${article.abstractText}
-**DOI:** ${article.doi || 'Not available'}
+**DOI:** ${article.doi}
 **PubMed:** https://pubmed.ncbi.nlm.nih.gov/${article.pmid}/`;
 }
 
-// Enhanced statistical query detection
-function detectStatisticalQuery(query: string): {isStatistical: boolean, calculationType?: string, parameters?: any} {
-  const statKeywords = {
-    'bmi': /bmi|body mass index|weight.*height/i,
-    'bsa': /bsa|body surface area/i,
-    'creatinine': /creatinine clearance|cockroft|gault/i,
-    'chisquare': /chi.?square|chi.?squared/i,
-    'bodyFat': /body fat|fat percentage/i,
-    'idealWeight': /ideal.*weight|IBW/i
+// Query classification with enhanced medical patterns
+function classifyQuery(query: string): {type: string, confidence: number, suggestedTerms?: string[]} {
+  const queryLower = query.toLowerCase();
+  
+  const patterns = {
+    clinical: {
+      keywords: ['treatment', 'therapy', 'clinical trial', 'efficacy', 'safety', 'outcome', 'patient', 'management', 'guideline'],
+      weight: 1.0
+    },
+    statistical: {
+      keywords: ['calculate', 'bmi', 'creatinine', 'clearance', 'statistics', 'analysis', 'meta-analysis', 'chi-square', 'correlation'],
+      weight: 1.2
+    },
+    diagnostic: {
+      keywords: ['diagnosis', 'diagnostic', 'test', 'sensitivity', 'specificity', 'biomarker', 'screening'],
+      weight: 1.1
+    },
+    pharmacological: {
+      keywords: ['drug', 'medication', 'pharmacology', 'dose', 'dosage', 'side effects', 'adverse', 'contraindication'],
+      weight: 1.0
+    },
+    research: {
+      keywords: ['study', 'research', 'meta-analysis', 'systematic review', 'randomized', 'controlled trial'],
+      weight: 1.3
+    }
   };
   
-  for (const [type, regex] of Object.entries(statKeywords)) {
-    if (regex.test(query)) {
-      return {
-        isStatistical: true,
-        calculationType: type,
-        parameters: extractStatisticalParameters(query, type)
-      };
+  let bestMatch = { type: 'clinical', confidence: 0.3 };
+  
+  for (const [type, config] of Object.entries(patterns)) {
+    const matches = config.keywords.filter(keyword => queryLower.includes(keyword));
+    const confidence = (matches.length / config.keywords.length) * config.weight;
+    
+    if (confidence > bestMatch.confidence) {
+      bestMatch = { type, confidence };
     }
   }
   
-  return {isStatistical: false};
+  return bestMatch;
 }
 
-// Enhanced parameter extraction
-function extractStatisticalParameters(query: string, type: string): any {
-  const numberRegex = /\d+\.?\d*/g;
-  const numbers = query.match(numberRegex)?.map(n => parseFloat(n)) || [];
-  
-  switch (type) {
-    case 'bmi':
-      return numbers.length >= 2 ? {weight: numbers[0], height: numbers[1]} : null;
-    case 'bsa':
-      return numbers.length >= 2 ? {weight: numbers[0], height: numbers[1]} : null;
-    case 'creatinine':
-      const isFemale = /female|woman|she/i.test(query);
-      return numbers.length >= 3 ? {age: numbers[0], weight: numbers[1], creatinine: numbers[2], isFemale} : null;
-    case 'bodyFat':
-      const isMale = /male|man|he/i.test(query) && !/female|woman|she/i.test(query);
-      return numbers.length >= 2 ? {bmi: numbers[0], age: numbers[1], isMale} : null;
-    case 'idealWeight':
-      const isMaleWeight = /male|man|he/i.test(query) && !/female|woman|she/i.test(query);
-      return numbers.length >= 1 ? {height: numbers[0], isMale: isMaleWeight} : null;
-    default:
-      return null;
+// Enhanced Gemini API call with better error handling
+async function callGeminiAPI(prompt: string, context: string = ''): Promise<string> {
+  if (!GEMINI_API_KEY) {
+    throw new Error('Gemini API key not configured');
+  }
+
+  try {
+    console.log('Making enhanced RAG request to Gemini API...');
+    
+    const fullPrompt = context 
+      ? `${context}\n\n---\n\nBased on the above medical literature and research data, please provide a comprehensive response to the following query:\n\n${prompt}`
+      : prompt;
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: fullPrompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 2048,
+        },
+        safetySettings: [
+          {
+            category: "HARM_CATEGORY_HARASSMENT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          },
+          {
+            category: "HARM_CATEGORY_HATE_SPEECH",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          },
+          {
+            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          },
+          {
+            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          }
+        ]
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Gemini API error response:', errorText);
+      throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      console.error('Unexpected Gemini API response structure:', JSON.stringify(data, null, 2));
+      throw new Error('Invalid response structure from Gemini API');
+    }
+
+    return data.candidates[0].content.parts[0].text;
+  } catch (error) {
+    console.error('Error calling Gemini API:', error);
+    throw error;
   }
 }
 
-// FIXED: More precise identity query detection
-function detectQueryType(query: string): 'identity' | 'clinical' | 'general' {
-  const queryLower = query.toLowerCase();
-  
-  // Very strict identity patterns - must be exact matches
-  const exactIdentityPatterns = [
-    /^who (made|created|built) you\??$/i,
-    /^who is your (creator|maker)\??$/i,
-    /^who are you\??$/i,
-    /^what are you\??$/i,
-    /^(tell me )?about you(rself)?\??$/i,
-    /^what is docmatex\??$/i,
-    /^about docmatex$/i,
-    /^docmatex kya hai\??$/i,
-    /^tumhe kisne banaya\??$/i,
-    /^tum kaun ho\??$/i
-  ];
-  
-  // Check for exact identity patterns first
-  const hasExactIdentityMatch = exactIdentityPatterns.some(pattern => pattern.test(queryLower.trim()));
-  
-  if (hasExactIdentityMatch) {
-    console.log('EXACT identity query detected:', query);
-    return 'identity';
-  }
-  
-  // If it contains medical terms, it's definitely clinical
-  const medicalIndicators = [
-    'metformin', 'semaglutide', 'hba1c', 'diabetes', 'compare', 'vs', 'versus',
-    'treatment', 'therapy', 'drug', 'medication', 'clinical', 'trial', 'rct',
-    'survival', 'efficacy', 'pembrolizumab', 'nivolumab', 'cancer', 'patient'
-  ];
-  
-  const hasMedicalContent = medicalIndicators.some(term => queryLower.includes(term));
-  
-  if (hasMedicalContent) {
-    console.log('Medical query detected:', query);
-    return 'clinical';
-  }
-  
-  console.log('General query detected:', query);
-  return 'general';
-}
-
-// Helper function for calculation units
-function getCalculationUnit(calculationType: string): string {
-  switch (calculationType) {
-    case 'bmi': return ' kg/m²';
-    case 'bsa': return ' m²';
-    case 'creatinineClearance': return ' mL/min';
-    case 'bodyFat': return '%';
-    case 'idealWeight': return ' kg';
-    default: return '';
-  }
-}
-
+// Main handler function
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     console.log('DoxyAI Enhanced RAG function called');
-
-    if (!GEMINI_API_KEY) {
-      console.error('GEMINI_API_KEY not found');
-      return new Response(
-        JSON.stringify({ error: 'API key not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
+    
     const { message } = await req.json();
-    console.log('Received query:', message);
-
-    if (!message || !message.trim()) {
-      return new Response(
-        JSON.stringify({ error: 'Message is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    
+    if (!message) {
+      throw new Error('No message provided');
     }
 
-    // Detect query type with improved logic
-    const queryType = detectQueryType(message);
-    console.log('Query type detected:', queryType);
-
-    // Handle identity questions with exact matching
-    if (queryType === 'identity') {
-      let response = '';
-      const queryLower = message.toLowerCase().trim();
-      
-      if (queryLower.includes('who made') || queryLower.includes('who created') || queryLower.includes('creator') || queryLower.includes('tumhe kisne banaya')) {
-        response = "I was created by **Rajan Kumar Karn**, the founder of DocMateX — India's first verified medical networking and research platform. He is a student at **IIT Patna**.";
-      } else if (queryLower.includes('what is docmatex') || queryLower.includes('about docmatex') || queryLower.includes('docmatex') || queryLower.includes('docmatex kya hai')) {
-        response = `**DocMateX** is India's first verified medical networking and research platform — built exclusively for healthcare professionals.
-
-🩺 **What Does It Do?**
-DocMateX is a secure ecosystem where:
-
-👩‍⚕️ Verified doctors, medical students, researchers, nurses, pharmacists, radiologists, cardiologists, and even Ayurvedic & Homeopathy practitioners
-
-Can connect, collaborate, and grow professionally.
-
-🔍 **Key Features:**
-✅ Verified user profiles
-✅ Medical research uploads & publications
-✅ Role-specific personalized feed
-✅ Mentorship & job discovery tools
-✅ Doxy AI – your 24x7 smart research assistant
-✅ Secure in-app messaging
-✅ Case study & CME content uploads
-✅ Event & webinar listings
-✅ Real-time support from the core team
-
-💡 **What Makes It Unique?**
-• Built by and for Indian healthcare professionals
-• Founded by Rajan Kumar Karn, student of IIT Patna
-• Includes integrated AI assistant (Doxy AI) with PubMed + Gemini + RAG support
-• Respectfully empowers the medical community — not replaces it
-
-🧠 **Vision:**
-To create a trusted digital ecosystem that supports India's healthcare heroes with tools, mentorship, and verified knowledge.
-
-🔗 **Tagline:**
-"For those who care, heal, and lead." – Powered by DocMateX`;
-      } else {
-        response = "I'm **DoxyAI**, created by **Rajan Kumar Karn** for the DocMateX platform. I'm here to assist healthcare professionals with research, clinical questions, and medical guidance using live PubMed integration and statistical analysis.";
-      }
-      
-      response += "\n\n**Powered by DocMateX — for those who care, heal, and lead.**";
-      
-      return new Response(
-        JSON.stringify({ 
-          response: response,
-          pubmedIntegrated: false,
-          articleCount: 0,
-          citations: [],
-          hasCalculation: false,
-          calculationType: null,
-          ragEnabled: false,
-          searchStrategy: 'Identity Response'
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // For clinical queries, proceed with enhanced RAG pipeline
     console.log('Processing clinical query with RAG pipeline...');
     
-    // Check for statistical queries first
-    const statQuery = detectStatisticalQuery(message);
-    let calculationResult = '';
+    // Check if it's a medical query that should use RAG
+    const isMedicalQuery = /\b(treatment|therapy|drug|medication|disease|symptom|diagnosis|patient|clinical|medical|health|cancer|diabetes|hypertension|study|trial|research|meta-analysis)\b/i.test(message);
     
-    if (statQuery.isStatistical && statQuery.parameters) {
-      try {
-        const calc = statisticalCalculations[statQuery.calculationType as keyof typeof statisticalCalculations];
-        if (calc && statQuery.parameters) {
-          const result = calc(...Object.values(statQuery.parameters));
-          calculationResult = `\n\n**STATISTICAL CALCULATION:**\n${statQuery.calculationType.toUpperCase()}: ${result.toFixed(2)}${getCalculationUnit(statQuery.calculationType)}\n`;
-        }
-      } catch (error) {
-        console.error('Calculation error:', error);
-      }
-    }
-
-    // Enhanced clinical research with Perplexity integration
-    let enhancedResearch = '';
-    if (PERPLEXITY_API_KEY && queryType === 'clinical') {
-      enhancedResearch = await enhancedClinicalResearch(message);
-      if (enhancedResearch) {
-        console.log('Enhanced clinical research data retrieved');
-      }
-    }
-
-    // Enhanced RAG: Always try PubMed for clinical queries
-    let pubmedAbstracts = '';
-    let citations: any[] = [];
-    let ragStrategy = 'PubMed RAG Pipeline';
-    
-    console.log('Initiating PubMed RAG search...');
-    
-    const pmids = await searchPubMed(message, 10);
-    if (pmids.length > 0) {
+    if (isMedicalQuery) {
+      console.log('Medical query detected:', message);
+      
+      // Detect query type for better processing
+      const queryType = classifyQuery(message);
+      console.log('Query type detected:', queryType.type);
+      
+      console.log('Initiating PubMed RAG search...');
+      
+      // Search PubMed for relevant articles
+      const pmids = await searchPubMed(message);
       console.log(`Found ${pmids.length} PMIDs, fetching abstracts...`);
-      const {abstracts, citations: fetchedCitations} = await fetchAbstracts(pmids);
-      pubmedAbstracts = abstracts;
-      citations = fetchedCitations;
+      
+      // Fetch and parse abstracts
+      const { abstracts, citations } = await fetchAbstracts(pmids);
       console.log(`RAG Success: Retrieved ${citations.length} citations for processing`);
-      ragStrategy = `PubMed RAG Pipeline - ${citations.length} Articles`;
-    } else {
-      console.log('RAG: No PubMed articles found, using general medical knowledge');
-      ragStrategy = 'General Medical Knowledge (No PubMed Results)';
-    }
+      
+      // Enhanced clinical research using Perplexity if available
+      const clinicalResearch = await enhancedClinicalResearch(message);
+      
+      // Combine context for comprehensive response
+      let contextualPrompt = `You are DoxyAI, an advanced medical AI assistant with access to current medical literature and research databases. You provide evidence-based medical information with proper citations.
 
-    // Create enhanced system prompt for clinical queries
-    const systemPrompt = `You are DoxyAI — a smart, respectful, and research-driven medical assistant integrated into DocMateX, created by Rajan Kumar Karn.
+## Medical Literature Context:
+${abstracts}
 
-Your role is to provide evidence-based medical responses to healthcare professionals' queries. You must directly address the specific medical query asked.
+${clinicalResearch ? `## Enhanced Clinical Research Data:
+${clinicalResearch}` : ''}
 
-**CRITICAL INSTRUCTION:** Always provide a direct, specific answer to the exact medical question asked. Do not provide generic responses.
+## Instructions:
+- Provide a comprehensive, evidence-based response
+- Include specific citations from the provided studies when relevant
+- Mention statistical data, effect sizes, and confidence intervals when available
+- Focus on clinical relevance and practical applications
+- Include Indian healthcare context when applicable
+- If statistical calculations are needed, perform them accurately
+- Always maintain clinical accuracy and provide appropriate medical disclaimers
 
-**RESPONSE FORMAT REQUIREMENTS:**
-Structure your response using this clinical template:
+## Query: ${message}
 
-## 🔬 Clinical Assessment
-Brief clinical overview directly addressing the specific query
+Please provide a detailed medical response based on the available evidence.`;
 
-## 📊 Key Research Findings
-${pubmedAbstracts ? '- Evidence from recent literature (cite specific PMIDs)' : '- General medical knowledge and established guidelines'}
-- Comparative data when available
-- Statistical significance and effect sizes
-- Key trial names and endpoints
-
-## 📈 Meta-Analysis Summary
-Create an assumed variance meta-analysis table when multiple studies are available:
-| Study | n | Effect Size | 95% CI | Weight | P-value |
-|-------|---|-------------|--------|--------|---------|
-| [Study 1] | [n] | [ES] | [CI] | [%] | [p] |
-| Pooled | [total] | [pooled ES] | [pooled CI] | 100% | [p] |
-
-## 🏆 GRADE Quality Assessment
-Evaluate evidence quality using GRADE criteria:
-- **High Quality**: Multiple RCTs, low risk of bias
-- **Moderate Quality**: RCTs with some limitations
-- **Low Quality**: Few RCTs or observational studies
-- **Very Low Quality**: Limited evidence or high bias
-
-## 💊 Clinical Recommendations  
-- Evidence-based treatment approaches specific to the query
-- Risk-benefit considerations
-- Patient selection criteria
-- Dosing recommendations when applicable
-
-## 📈 Statistical Analysis
-${calculationResult ? calculationResult : '- Relevant clinical metrics and calculations when applicable'}
-
-## 💰 Health Economics (ICER Analysis)
-When applicable, provide cost-effectiveness considerations:
-- Incremental Cost-Effectiveness Ratio (ICER)
-- Model assumptions and limitations
-- Budget impact analysis
-- Quality-Adjusted Life Years (QALYs) when available
-
-${enhancedResearch ? `
-## 🌐 Real-Time Clinical Research (Perplexity Enhanced)
-${enhancedResearch}
-` : ''}
-
-## 🇮🇳 Indian Market Alternatives
-Provide affordable generic alternatives for Indian healthcare:
-- Generic drug options with similar efficacy
-- Cost comparison with branded drugs
-- Availability in Indian market
-- Combination therapies when suitable
-- Examples: Teneligliptin, Saroglitazar, Remogliflozin
-
-## 🔗 References & Citations
-${citations.length > 0 ? '- PubMed sources with PMIDs and links' : '- Clinical guidelines and standard references'}
-
-## ⚠️ Clinical Disclaimer
-This information is for healthcare professionals. Always consult current guidelines and consider individual patient factors.
-
-**Always end with:** **"Powered by DocMateX — for those who care, heal, and lead."**
-
-${pubmedAbstracts ? `
-**LATEST RESEARCH CONTEXT (RAG):**
-${pubmedAbstracts}
-
-**CRITICAL RAG INSTRUCTIONS:**
-- Use the above PubMed literature as your PRIMARY evidence source
-- Reference specific PMIDs when citing findings (e.g., "According to PMID: 12345678...")
-- Focus on comparative data: survival rates, hazard ratios, response rates, adverse events
-- Highlight specific trial names, primary endpoints, and statistical significance
-- Provide exact numerical data from the studies (don't approximate)
-- Compare different treatments when multiple studies are available
-- Always mention the journal and year when citing studies
-
-` : ''}
-
-${calculationResult ? `
-**STATISTICAL CALCULATION PERFORMED:**
-${calculationResult}
-Integrate this calculation result into your clinical assessment.
-` : ''}
-
-**IMPORTANT GUIDELINES:**
-- Directly answer the specific medical question asked
-- Stay empathetic, clear, evidence-based, and respectful
-- Avoid political, legal, or sensitive non-medical commentary
-- Format response with proper markdown for readability
-- Use clinical terminology appropriately while remaining accessible
-- When citing studies, always include PMID numbers
-- Provide specific numerical outcomes and confidence intervals when available
-- Focus on the exact clinical scenario or comparison requested`;
-
-    const requestBody = {
-      contents: [
-        {
-          parts: [
-            { text: `${systemPrompt}\n\n**Specific Medical Query:** ${message.trim()}` }
-          ]
-        }
-      ],
-      generationConfig: {
-        temperature: 0.2,
-        topK: 40,
-        topP: 0.8,
-        maxOutputTokens: 3000,
-      },
-      safetySettings: [
-        {
-          category: "HARM_CATEGORY_HARASSMENT",
-          threshold: "BLOCK_MEDIUM_AND_ABOVE"
-        },
-        {
-          category: "HARM_CATEGORY_HATE_SPEECH",
-          threshold: "BLOCK_MEDIUM_AND_ABOVE"
-        },
-        {
-          category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-          threshold: "BLOCK_MEDIUM_AND_ABOVE"
-        },
-        {
-          category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-          threshold: "BLOCK_MEDIUM_AND_ABOVE"
-        }
-      ]
-    };
-
-    console.log('Making enhanced RAG request to Gemini API...');
-    
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Gemini API error response:', errorText);
-      return new Response(
-        JSON.stringify({ error: 'Failed to generate response from AI service' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const data = await response.json();
-    const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Unable to generate response. Please try rephrasing your question.';
-
-    console.log(`Enhanced RAG response generated successfully with ${citations.length} citations`);
-
-    return new Response(
-      JSON.stringify({ 
-        response: generatedText,
+      // Call Gemini with the enhanced context
+      const response = await callGeminiAPI(message, contextualPrompt);
+      
+      return new Response(JSON.stringify({
+        response,
+        ragEnabled: true,
         pubmedIntegrated: citations.length > 0,
         articleCount: citations.length,
-        citations: citations,
-        hasCalculation: !!calculationResult,
-        calculationType: statQuery.calculationType || null,
-        ragEnabled: true,
-        searchStrategy: ragStrategy
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
+        citations: citations.slice(0, 5), // Return top 5 citations
+        searchStrategy: queryType.type,
+        hasCalculation: /\b(bmi|calculate|creatinine|clearance|statistical|analysis)\b/i.test(message),
+        calculationType: message.toLowerCase().includes('bmi') ? 'BMI' : 
+                        message.toLowerCase().includes('creatinine') ? 'Creatinine Clearance' :
+                        message.toLowerCase().includes('statistical') ? 'Statistical Analysis' : null
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    } else {
+      // For non-medical queries, use standard Gemini response
+      console.log('Non-medical query, using standard response');
+      const response = await callGeminiAPI(`You are DoxyAI, a helpful medical AI assistant. Please respond to this query: ${message}`);
+      
+      return new Response(JSON.stringify({
+        response,
+        ragEnabled: false,
+        pubmedIntegrated: false,
+        articleCount: 0,
+        citations: [],
+        searchStrategy: 'Standard Response'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
   } catch (error) {
-    console.error('Error in enhanced DoxyAI RAG function:', error);
-    return new Response(
-      JSON.stringify({ error: 'Internal server error occurred' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    console.error('Error in DoxyAI function:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Failed to process your request. Please try again.',
+      details: error.message 
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });
