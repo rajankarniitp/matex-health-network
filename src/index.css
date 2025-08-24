@@ -47,10 +47,26 @@
     --shadow-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 
-  /* Medical accent colors */
+  /* Medical accent colors - Professional & Doctor-friendly */
   --medical-green: 142 76% 36%;
-  --medical-purple: 262 83% 58%;
+  --medical-purple: 164 76% 39%;
   --medical-orange: 25 95% 53%;
+  --medical-blue: 210 100% 46%;
+  --medical-teal: 180 84% 35%;
+  
+  /* Doctor-friendly UI colors for high contrast */
+  --doctor-primary: 210 100% 46%;
+  --doctor-primary-foreground: 0 0% 100%;
+  --doctor-secondary: 210 40% 94%;
+  --doctor-secondary-foreground: 210 40% 11%;
+  --doctor-accent: 164 76% 39%;
+  --doctor-accent-foreground: 0 0% 100%;
+  --doctor-success: 142 76% 36%;
+  --doctor-success-foreground: 0 0% 100%;
+  --doctor-warning: 38 92% 50%;
+  --doctor-warning-foreground: 0 0% 100%;
+  --doctor-error: 0 84% 60%;
+  --doctor-error-foreground: 0 0% 100%;
   
   /* Simple transitions */
   --transition-smooth: all 0.2s ease-out;
@@ -104,9 +120,25 @@
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
     
     /* Dark medical colors */
-    --medical-green: 142 76% 36%;
-    --medical-purple: 262 83% 58%;
-    --medical-orange: 25 95% 53%;
+    --medical-green: 142 76% 46%;
+    --medical-purple: 164 76% 49%;
+    --medical-orange: 25 95% 63%;
+    --medical-blue: 210 100% 56%;
+    --medical-teal: 180 84% 45%;
+    
+    /* Dark mode doctor-friendly colors */
+    --doctor-primary: 210 100% 56%;
+    --doctor-primary-foreground: 0 0% 100%;
+    --doctor-secondary: 217.2 32.6% 17.5%;
+    --doctor-secondary-foreground: 210 40% 98%;
+    --doctor-accent: 164 76% 49%;
+    --doctor-accent-foreground: 0 0% 100%;
+    --doctor-success: 142 76% 46%;
+    --doctor-success-foreground: 0 0% 100%;
+    --doctor-warning: 38 92% 60%;
+    --doctor-warning-foreground: 0 0% 100%;
+    --doctor-error: 0 84% 70%;
+    --doctor-error-foreground: 0 0% 100%;
 
     --sidebar-background: 22 8% 6%;
     --sidebar-foreground: 210 40% 98%;
@@ -360,6 +392,68 @@
 
   .bg-medical-orange {
     background-color: hsl(var(--medical-orange));
+  }
+
+  /* Doctor-friendly medical interface */
+  .medical-card {
+    @apply bg-card border-2 border-doctor-accent/20 shadow-lg rounded-xl;
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1), 0 0 0 1px hsl(var(--doctor-accent) / 0.1);
+  }
+
+  .medical-card-header {
+    @apply bg-doctor-accent text-doctor-accent-foreground;
+  }
+
+  .medical-button-primary {
+    @apply bg-doctor-primary text-doctor-primary-foreground hover:bg-doctor-primary/90;
+    transition: all 0.2s ease;
+  }
+
+  .medical-button-secondary {
+    @apply bg-doctor-secondary text-doctor-secondary-foreground hover:bg-doctor-secondary/80 border border-doctor-accent/30;
+    transition: all 0.2s ease;
+  }
+
+  .medical-text-primary {
+    color: hsl(var(--doctor-primary));
+  }
+
+  .medical-text-accent {
+    color: hsl(var(--doctor-accent));
+  }
+
+  .medical-badge-success {
+    @apply bg-doctor-success text-doctor-success-foreground;
+  }
+
+  .medical-badge-warning {
+    @apply bg-doctor-warning text-doctor-warning-foreground;
+  }
+
+  .medical-badge-error {
+    @apply bg-doctor-error text-doctor-error-foreground;
+  }
+
+  /* High contrast message bubbles for doctor readability */
+  .message-user {
+    @apply bg-doctor-primary text-doctor-primary-foreground;
+  }
+
+  .message-ai {
+    @apply bg-card border border-doctor-accent/20 text-foreground;
+  }
+
+  /* Medical status indicators */
+  .status-active {
+    @apply bg-doctor-success/20 text-doctor-success border border-doctor-success/30;
+  }
+
+  .status-pending {
+    @apply bg-doctor-warning/20 text-doctor-warning border border-doctor-warning/30;
+  }
+
+  .status-error {
+    @apply bg-doctor-error/20 text-doctor-error border border-doctor-error/30;
   }
 
   /* Text size utilities for consistency */

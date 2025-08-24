@@ -222,18 +222,18 @@ const DoxyAI = () => {
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto h-full flex flex-col">
-        {/* Clean DoxyAI Header */}
-        <Card className="mb-4 card-clean">
-          <CardHeader className="pb-4">
+        {/* Doctor-friendly DoxyAI Header */}
+        <Card className="mb-4 medical-card">
+          <CardHeader className="pb-4 medical-card-header rounded-t-xl">
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-3 bg-medical-purple rounded-xl">
+                <div className="p-3 bg-white/20 rounded-xl">
                   <Brain className="h-6 w-6 text-white brain-icon" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-semibold">DoxyAI</h1>
-                  <p className="text-sm text-muted-foreground font-normal">
-                    Research-Driven Medical Assistant
+                  <h1 className="text-xl font-semibold text-white">DoxyAI</h1>
+                  <p className="text-sm text-white/90 font-normal">
+                    🩺 Research-Driven Medical Assistant
                   </p>
                 </div>
               </div>
@@ -241,6 +241,7 @@ const DoxyAI = () => {
                 variant="outline" 
                 size="sm" 
                 onClick={clearConversation}
+                className="medical-button-secondary text-white border-white/30 hover:bg-white/10"
               >
                 Clear Chat
               </Button>
@@ -259,7 +260,7 @@ const DoxyAI = () => {
         )}
 
         {/* Chat Messages */}
-        <Card className="flex-1 flex flex-col min-h-0 card-clean">
+        <Card className="flex-1 flex flex-col min-h-0 medical-card">
           <CardContent className="flex-1 flex flex-col p-4 space-y-4 overflow-hidden">
             <div className="flex-1 overflow-y-auto space-y-4">
               {messages.map((message) => (
@@ -278,21 +279,21 @@ const DoxyAI = () => {
                         </AvatarFallback>
                       </>
                     ) : (
-                      <>
-                        <AvatarImage src="" alt="DoxyAI" />
-                        <AvatarFallback className="bg-medical-purple text-white">
-                          <Brain className="h-4 w-4 brain-icon" />
-                        </AvatarFallback>
-                      </>
+                     <>
+                         <AvatarImage src="" alt="DoxyAI" />
+                         <AvatarFallback className="bg-doctor-accent text-doctor-accent-foreground">
+                           <Brain className="h-4 w-4 brain-icon" />
+                         </AvatarFallback>
+                       </>
                     )}
                   </Avatar>
                   
                   <div className={`flex-1 max-w-[80%] ${message.isUser ? 'text-right' : 'text-left'}`}>
-                    <div className={`inline-block p-3 rounded-lg text-sm leading-relaxed ${
+                     <div className={`inline-block p-4 rounded-lg text-sm leading-relaxed ${
                         message.isUser
-                          ? 'bg-primary text-primary-foreground rounded-br-sm'
-                          : 'bg-muted text-foreground rounded-bl-sm'
-                      }`}>
+                          ? 'message-user rounded-br-sm'
+                          : 'message-ai rounded-bl-sm'
+                       }`}>
                       <div 
                         className="whitespace-pre-wrap break-words"
                         dangerouslySetInnerHTML={{
@@ -302,31 +303,31 @@ const DoxyAI = () => {
                       
                       {/* Message badges for features */}
                       {!message.isUser && (
-                        <div className="flex flex-wrap gap-1 mt-3">
-                          {message.ragEnabled && (
-                            <Badge variant="secondary" className="text-xs">
-                              <Database className="h-3 w-3 mr-1" />
-                              RAG Enhanced
-                            </Badge>
-                          )}
-                          {message.pubmedIntegrated && message.articleCount && message.articleCount > 0 && (
-                            <Badge variant="secondary" className="text-xs">
-                              <BookOpen className="h-3 w-3 mr-1" />
-                              {message.articleCount} Articles
-                            </Badge>
-                          )}
-                          {message.hasCalculation && (
-                            <Badge variant="secondary" className="text-xs">
-                              <Calculator className="h-3 w-3 mr-1" />
-                              {message.calculationType?.toUpperCase()}
-                            </Badge>
-                          )}
-                          {message.citations && message.citations.length > 0 && (
-                            <Badge variant="outline" className="text-xs">
-                              {message.citations.length} Citations
-                            </Badge>
-                          )}
-                        </div>
+                         <div className="flex flex-wrap gap-1 mt-3">
+                           {message.ragEnabled && (
+                             <Badge className="text-xs medical-badge-success">
+                               <Database className="h-3 w-3 mr-1" />
+                               RAG Enhanced
+                             </Badge>
+                           )}
+                           {message.pubmedIntegrated && message.articleCount && message.articleCount > 0 && (
+                             <Badge className="text-xs medical-badge-success">
+                               <BookOpen className="h-3 w-3 mr-1" />
+                               {message.articleCount} Articles
+                             </Badge>
+                           )}
+                           {message.hasCalculation && (
+                             <Badge className="text-xs medical-badge-warning">
+                               <Calculator className="h-3 w-3 mr-1" />
+                               {message.calculationType?.toUpperCase()}
+                             </Badge>
+                           )}
+                           {message.citations && message.citations.length > 0 && (
+                             <Badge variant="outline" className="text-xs border-doctor-accent text-doctor-accent">
+                               {message.citations.length} Citations
+                             </Badge>
+                           )}
+                         </div>
                       )}
                     </div>
                     
@@ -344,23 +345,23 @@ const DoxyAI = () => {
                 </div>
               ))}
               
-              {isLoading && (
-                <div className="flex items-start space-x-3">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-medical-purple text-white">
-                      <Brain className="h-4 w-4 brain-icon" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="bg-muted p-3 rounded-lg rounded-bl-sm">
-                    <div className="flex items-center space-x-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <span className="text-sm text-muted-foreground">
-                        DoxyAI is thinking...
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
+               {isLoading && (
+                 <div className="flex items-start space-x-3">
+                   <Avatar className="h-8 w-8">
+                     <AvatarFallback className="bg-doctor-accent text-doctor-accent-foreground">
+                       <Brain className="h-4 w-4 brain-icon" />
+                     </AvatarFallback>
+                   </Avatar>
+                   <div className="message-ai p-3 rounded-lg rounded-bl-sm">
+                     <div className="flex items-center space-x-2">
+                       <Loader2 className="h-4 w-4 animate-spin medical-text-accent" />
+                       <span className="text-sm text-foreground">
+                         🧠 DoxyAI is analyzing medical data...
+                       </span>
+                     </div>
+                   </div>
+                 </div>
+               )}
             </div>
             
             {/* Input Area */}
@@ -374,11 +375,11 @@ const DoxyAI = () => {
                   disabled={isLoading}
                   className="flex-1 min-h-[60px] max-h-32 resize-none"
                 />
-                <Button
-                  onClick={handleSendMessage}
-                  disabled={!inputMessage.trim() || isLoading}
-                  className="h-[60px] px-4"
-                >
+                 <Button
+                   onClick={handleSendMessage}
+                   disabled={!inputMessage.trim() || isLoading}
+                   className="h-[60px] px-4 medical-button-primary"
+                 >
                   {isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
@@ -387,9 +388,9 @@ const DoxyAI = () => {
                 </Button>
               </div>
               
-              <div className="mt-2 text-xs text-muted-foreground text-center">
-                <strong>DoxyAI</strong> • PubMed Enhanced • Evidence-Based Medical Research Assistant
-              </div>
+               <div className="mt-2 text-xs text-muted-foreground text-center">
+                 <strong className="medical-text-accent">DoxyAI</strong> • 🔬 PubMed Enhanced • 📊 Evidence-Based Medical Research Assistant
+               </div>
             </div>
           </CardContent>
         </Card>
