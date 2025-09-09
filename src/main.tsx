@@ -8,10 +8,14 @@ import { analytics } from './lib/analytics';
 import { setupSecurityHeaders } from './lib/security';
 import ErrorBoundary from './components/ErrorBoundary';
 
-// Initialize services
-initSentry();
-analytics.init();
-setupSecurityHeaders();
+// Initialize services safely
+try {
+  initSentry();
+  analytics.init();
+  setupSecurityHeaders();
+} catch (error) {
+  console.warn('Service initialization failed:', error);
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
