@@ -61,7 +61,13 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				'doctor-primary': 'hsl(var(--doctor-primary))',
+				'doctor-secondary': 'hsl(var(--doctor-secondary))',
+				'doctor-accent': 'hsl(var(--doctor-accent))',
+				'doctor-success': 'hsl(var(--doctor-success))',
+				'doctor-warning': 'hsl(var(--doctor-warning))',
+				'doctor-error': 'hsl(var(--doctor-error))'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
