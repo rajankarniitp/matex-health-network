@@ -7,147 +7,108 @@
 
 @layer base {
   :root {
+    /* Professional Color Palette - Clean & Modern */
     --background: 0 0% 100%;
-    --foreground: 210 20% 15%;
+    --foreground: 220 13% 18%;
 
     --card: 0 0% 100%;
-    --card-foreground: 210 20% 15%;
+    --card-foreground: 220 13% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 20% 15%;
+    --popover-foreground: 220 13% 18%;
 
-  /* Professional Medical Theme */
-    --primary: 37 99% 60%;  /* Medical blue */
+    /* Primary Blue - Professional Medical */
+    --primary: 220 91% 58%;
     --primary-foreground: 0 0% 100%;
     
-    --secondary: 217 91% 60%;  /* LinkedIn blue */
-    --secondary-foreground: 0 0% 100%;
+    /* Secondary - Clean Gray */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 13% 18%;
 
-    --muted: 210 40% 98%;
-    --muted-foreground: 215 13.8% 34.1%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 210 40% 96%;
-    --accent-foreground: 215 25% 26.1%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 200 15% 90%;
-    --input: 200 15% 95%;
-    --ring: 200 100% 45%;
-
-    --radius: 1rem;
-
-    /* Clean Professional Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(37 99% 60%));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(210 40% 98%));
-    
-    /* Professional shadows */
-    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --shadow-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-
-  /* Medical accent colors - Professional & Doctor-friendly */
-  --medical-green: 142 76% 36%;
-  --medical-purple: 164 76% 39%;
-  --medical-orange: 25 95% 53%;
-  --medical-blue: 210 100% 46%;
-  --medical-teal: 180 84% 35%;
-  
-  /* Doctor-friendly UI colors for high contrast */
-  --doctor-primary: 210 100% 46%;
-  --doctor-primary-foreground: 0 0% 100%;
-  --doctor-secondary: 210 40% 94%;
-  --doctor-secondary-foreground: 210 40% 11%;
-  --doctor-accent: 164 76% 39%;
-  --doctor-accent-foreground: 0 0% 100%;
-  --doctor-success: 142 76% 36%;
-  --doctor-success-foreground: 0 0% 100%;
-  --doctor-warning: 38 92% 50%;
-  --doctor-warning-foreground: 0 0% 100%;
-  --doctor-error: 0 84% 60%;
-  --doctor-error-foreground: 0 0% 100%;
-  
-  /* Simple transitions */
-  --transition-smooth: all 0.2s ease-out;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 210 15% 9%;
-    --foreground: 210 10% 92%;
-
-    --card: 210 15% 11%;
-    --card-foreground: 210 10% 92%;
-
-    --popover: 210 15% 11%;
-    --popover-foreground: 210 10% 92%;
-
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
-    
-    --secondary: 37 99% 60%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 210 15% 16%;
-    --muted-foreground: 210 8% 65%;
-
-    --accent: 210 15% 16%;
-    --accent-foreground: 210 10% 92%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 220 13% 18%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 15% 20%;
-    --input: 210 15% 16%;
-    --ring: 217 91% 60%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 220 91% 58%;
 
-    /* Dark mode gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(37 99% 60%));
-    --gradient-card: linear-gradient(135deg, hsl(210 15% 11%), hsl(210 15% 13%));
-    
-    /* Dark mode shadows */
-    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.2), 0 1px 2px -1px rgb(0 0 0 / 0.2);
-    --shadow-hover: 0 4px 6px -1px rgb(0 0 0 / 0.2), 0 2px 4px -2px rgb(0 0 0 / 0.2);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
-    
-    /* Dark medical colors */
-    --medical-green: 142 76% 46%;
-    --medical-purple: 164 76% 49%;
-    --medical-orange: 25 95% 63%;
-    --medical-blue: 210 100% 56%;
-    --medical-teal: 180 84% 45%;
-    
-    /* Dark mode doctor-friendly colors */
-    --doctor-primary: 210 100% 56%;
-    --doctor-primary-foreground: 0 0% 100%;
-    --doctor-secondary: 217.2 32.6% 17.5%;
-    --doctor-secondary-foreground: 210 40% 98%;
-    --doctor-accent: 164 76% 49%;
-    --doctor-accent-foreground: 0 0% 100%;
-    --doctor-success: 142 76% 46%;
-    --doctor-success-foreground: 0 0% 100%;
-    --doctor-warning: 38 92% 60%;
-    --doctor-warning-foreground: 0 0% 100%;
-    --doctor-error: 0 84% 70%;
-    --doctor-error-foreground: 0 0% 100%;
+    --radius: 0.75rem;
 
-    --sidebar-background: 22 8% 6%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    /* Professional Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(220 91% 58%), hsl(220 91% 48%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(220 14% 98%));
+    
+    /* Professional Shadows */
+    --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    
+    /* Smooth Transitions */
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Sidebar Colors */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 220 13% 18%;
+    --sidebar-primary: 220 91% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 22 8% 14%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 22 8% 18%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 220 13% 18%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 220 91% 58%;
+  }
+
+  .dark {
+    --background: 220 27% 8%;
+    --foreground: 220 9% 89%;
+
+    --card: 220 27% 12%;
+    --card-foreground: 220 9% 89%;
+
+    --popover: 220 27% 12%;
+    --popover-foreground: 220 9% 89%;
+
+    --primary: 220 91% 58%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 220 17% 20%;
+    --secondary-foreground: 220 9% 89%;
+
+    --muted: 220 17% 20%;
+    --muted-foreground: 220 9% 64%;
+
+    --accent: 220 17% 20%;
+    --accent-foreground: 220 9% 89%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 17% 20%;
+    --input: 220 17% 20%;
+    --ring: 220 91% 58%;
+
+    /* Dark Mode Professional Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(220 91% 58%), hsl(220 91% 48%));
+    --gradient-card: linear-gradient(135deg, hsl(220 27% 12%), hsl(220 17% 16%));
+    
+    /* Dark Mode Shadows */
+    --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+    --shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+
+    --sidebar-background: 220 27% 8%;
+    --sidebar-foreground: 220 9% 89%;
+    --sidebar-primary: 220 91% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 17% 20%;
+    --sidebar-accent-foreground: 220 9% 89%;
+    --sidebar-border: 220 17% 20%;
+    --sidebar-ring: 220 91% 58%;
   }
 }
 
@@ -195,7 +156,7 @@
     font-weight: 500;
   }
 
-  /* Enhanced component styles */
+  /* Professional component styles */
   .gradient-bg {
     background: var(--gradient-primary);
   }
@@ -204,277 +165,41 @@
     background: var(--gradient-card);
     box-shadow: var(--shadow-card);
     border: 1px solid hsl(var(--border));
+    transition: var(--transition-smooth);
   }
 
-  .button-glow {
-    box-shadow: var(--shadow-glow);
+  .card-elegant:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
   }
 
   .glass-morphism {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
   .dark .glass-morphism {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   input, textarea, select {
-    @apply transition-colors duration-200;
+    transition: var(--transition-smooth);
     font-size: 0.875rem;
-  }
-}
-
-/* Dark mode improvements for better visibility */
-.dark {
-  color-scheme: dark;
-}
-
-.dark body {
-  @apply bg-gray-900 text-gray-100;
-}
-
-.dark .bg-white {
-  @apply bg-gray-800;
-}
-
-.dark .text-gray-900 {
-  @apply text-gray-100;
-}
-
-.dark .text-gray-800 {
-  @apply text-gray-200;
-}
-
-.dark .text-gray-700 {
-  @apply text-gray-300;
-}
-
-.dark .text-gray-600 {
-  @apply text-gray-400;
-}
-
-.dark .text-gray-500 {
-  @apply text-gray-400;
-}
-
-.dark .border-gray-200 {
-  @apply border-gray-700;
-}
-
-.dark .border-gray-300 {
-  @apply border-gray-600;
-}
-
-.dark .bg-gray-50 {
-  @apply bg-gray-900;
-}
-
-.dark .bg-gray-100 {
-  @apply bg-gray-800;
-}
-
-.dark .hover\:bg-gray-100:hover {
-  @apply bg-gray-700;
-}
-
-.dark .hover\:bg-gray-50:hover {
-  @apply bg-gray-800;
-}
-
-/* Improved card styling for dark mode */
-.dark .bg-card {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-}
-
-.dark .text-card-foreground {
-  color: hsl(var(--card-foreground));
-}
-
-/* Better contrast for form elements */
-.dark input, .dark textarea, .dark select {
-  background: hsl(var(--input));
-  border: 1px solid hsl(var(--border));
-  color: hsl(var(--foreground));
-}
-
-.dark input:focus, .dark textarea:focus, .dark select:focus {
-  border-color: hsl(var(--ring));
-  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
-}
-
-/* Animation utilities */
-@layer utilities {
-  .animate-fade-in {
-    animation: fade-in 0.6s ease-out;
-  }
-
-  .animate-slide-up {
-    animation: slide-up 0.6s ease-out;
-  }
-
-  .animate-scale-in {
-    animation: scale-in 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
-
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-
-  .animate-pulse-slow {
-    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  .hover-lift {
-    transition: var(--transition-bounce);
-  }
-
-  .hover-lift:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: var(--shadow-elegant);
-  }
-
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .backdrop-blur-xs {
-    backdrop-filter: blur(2px);
   }
 
   /* Professional utility classes */
-  .card-clean {
-    @apply bg-background border border-border rounded-lg shadow-sm;
-    box-shadow: var(--shadow-card);
-    transition: var(--transition-smooth);
+  .professional-card {
+    @apply bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-all duration-200;
   }
 
-  .card-clean:hover {
-    box-shadow: var(--shadow-hover);
+  .professional-button {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 rounded-lg font-medium;
   }
 
-  .brain-icon {
-    animation: brain-pulse 2s ease-in-out infinite;
-  }
-
-  .text-medical-green {
-    color: hsl(var(--medical-green));
-  }
-
-  .text-medical-purple {
-    color: hsl(var(--medical-purple));
-  }
-
-  .text-medical-orange {
-    color: hsl(var(--medical-orange));
-  }
-
-  .bg-medical-green {
-    background-color: hsl(var(--medical-green));
-  }
-
-  .bg-medical-purple {
-    background-color: hsl(var(--medical-purple));
-  }
-
-  .bg-medical-orange {
-    background-color: hsl(var(--medical-orange));
-  }
-
-  /* Doctor-friendly medical interface */
-  .medical-card {
-    @apply bg-card border-2 border-doctor-accent/20 shadow-lg rounded-xl;
-    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1), 0 0 0 1px hsl(var(--doctor-accent) / 0.1);
-  }
-
-  .medical-card-header {
-    @apply bg-doctor-accent text-doctor-accent-foreground;
-  }
-
-  .medical-button-primary {
-    @apply bg-doctor-primary text-doctor-primary-foreground hover:bg-doctor-primary/90;
-    transition: all 0.2s ease;
-  }
-
-  .medical-button-secondary {
-    @apply bg-doctor-secondary text-doctor-secondary-foreground hover:bg-doctor-secondary/80 border border-doctor-accent/30;
-    transition: all 0.2s ease;
-  }
-
-  .medical-text-primary {
-    color: hsl(var(--doctor-primary));
-  }
-
-  .medical-text-accent {
-    color: hsl(var(--doctor-accent));
-  }
-
-  .medical-badge-success {
-    @apply bg-doctor-success text-doctor-success-foreground;
-  }
-
-  .medical-badge-warning {
-    @apply bg-doctor-warning text-doctor-warning-foreground;
-  }
-
-  .medical-badge-error {
-    @apply bg-doctor-error text-doctor-error-foreground;
-  }
-
-  /* High contrast message bubbles for doctor readability */
-  .message-user {
-    @apply bg-doctor-primary text-doctor-primary-foreground;
-  }
-
-  .message-ai {
-    @apply bg-card border border-doctor-accent/20 text-foreground;
-  }
-
-  /* Medical status indicators */
-  .status-active {
-    @apply bg-doctor-success/20 text-doctor-success border border-doctor-success/30;
-  }
-
-  .status-pending {
-    @apply bg-doctor-warning/20 text-doctor-warning border border-doctor-warning/30;
-  }
-
-  .status-error {
-    @apply bg-doctor-error/20 text-doctor-error border border-doctor-error/30;
-  }
-
-  /* Text size utilities for consistency */
-  .text-xs-consistent {
-    font-size: 0.75rem;
-    line-height: 1.5;
-  }
-
-  .text-sm-consistent {
-    font-size: 0.875rem;
-    line-height: 1.6;
-  }
-
-  .text-base-consistent {
-    font-size: 1rem;
-    line-height: 1.7;
-  }
-
-  .text-lg-consistent {
-    font-size: 1.125rem;
-    line-height: 1.6;
+  .professional-input {
+    @apply bg-background border border-border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200;
   }
 }
 
