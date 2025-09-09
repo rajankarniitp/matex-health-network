@@ -63,11 +63,17 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				'doctor-primary': 'hsl(var(--doctor-primary))',
+				'doctor-primary-foreground': 'hsl(var(--doctor-primary-foreground))',
 				'doctor-secondary': 'hsl(var(--doctor-secondary))',
+				'doctor-secondary-foreground': 'hsl(var(--doctor-secondary-foreground))',
 				'doctor-accent': 'hsl(var(--doctor-accent))',
+				'doctor-accent-foreground': 'hsl(var(--doctor-accent-foreground))',
 				'doctor-success': 'hsl(var(--doctor-success))',
+				'doctor-success-foreground': 'hsl(var(--doctor-success-foreground))',
 				'doctor-warning': 'hsl(var(--doctor-warning))',
-				'doctor-error': 'hsl(var(--doctor-error))'
+				'doctor-warning-foreground': 'hsl(var(--doctor-warning-foreground))',
+				'doctor-error': 'hsl(var(--doctor-error))',
+				'doctor-error-foreground': 'hsl(var(--doctor-error-foreground))'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
