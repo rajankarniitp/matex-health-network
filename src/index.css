@@ -109,6 +109,20 @@
     --sidebar-accent-foreground: 220 9% 89%;
     --sidebar-border: 220 17% 20%;
     --sidebar-ring: 220 91% 58%;
+
+    /* Doctor Colors */
+    --doctor-primary: 220 91% 58%;
+    --doctor-primary-foreground: 0 0% 100%;
+    --doctor-secondary: 180 81% 15%;
+    --doctor-secondary-foreground: 180 81% 85%;
+    --doctor-accent: 180 81% 55%;
+    --doctor-accent-foreground: 0 0% 100%;
+    --doctor-success: 140 81% 55%;
+    --doctor-success-foreground: 0 0% 100%;
+    --doctor-warning: 40 91% 68%;
+    --doctor-warning-foreground: 0 0% 0%;
+    --doctor-error: 0 84% 70%;
+    --doctor-error-foreground: 0 0% 0%;
   }
 }
 

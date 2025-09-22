@@ -1,12 +1,12 @@
-
 import { useState } from 'react';
-import { Bot, Send, Loader2, BookOpen } from 'lucide-react';
+import { Bot, Send, Loader2, BookOpen, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 interface DoxyAIIntegrationProps {
   context?: string;
@@ -23,7 +23,7 @@ interface DoxyResponse {
 const DoxyAIIntegration = ({ 
   context = '', 
   placeholder = 'Ask DoxyAI for medical insights...',
-  title = 'Ask DoxyAI'
+  title = 'DoxyAI Assistant'
 }: DoxyAIIntegrationProps) => {
   const [query, setQuery] = useState('');
   const [response, setResponse] = useState('');
@@ -35,6 +35,7 @@ const DoxyAIIntegration = ({
     if (!query.trim()) return;
 
     setIsLoading(true);
+    setResponse('');
     setPubmedUsed(false);
     setArticleCount(0);
     
@@ -47,13 +48,8 @@ const DoxyAIIntegration = ({
         body: { message: contextualQuery }
       });
 
-      if (error) {
-        throw error;
-      }
-
-      if (!data?.response) {
-        throw new Error('No response received');
-      }
+      if (error) throw error;
+      if (!data?.response) throw new Error('No response received');
 
       const doxyData = data as DoxyResponse;
       setResponse(doxyData.response);
@@ -62,15 +58,15 @@ const DoxyAIIntegration = ({
 
       if (doxyData.pubmedIntegrated) {
         toast({
-          title: "Enhanced with PubMed",
-          description: `Response includes insights from ${doxyData.articleCount} recent research articles.`,
+          title: "🔬 Enhanced with PubMed",
+          description: `Response includes insights from ${doxyData.articleCount} research articles.`,
         });
       }
     } catch (error) {
       console.error('DoxyAI error:', error);
       toast({
         title: "Error",
-        description: "Failed to get response from DoxyAI. Please try again.",
+        description: "Failed to get a response from DoxyAI. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -79,30 +75,25 @@ const DoxyAIIntegration = ({
   };
 
   return (
-    <Card className="mt-4">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Bot className="h-5 w-5 text-blue-600" />
+    <Card className="shadow-lg border-primary/20">
+      <CardHeader className="pb-4 bg-primary/5 dark:bg-primary/10">
+        <CardTitle className="flex items-center gap-3 text-lg font-bold text-primary">
+          <Brain className="h-6 w-6" />
           {title}
-          {pubmedUsed && (
-            <Badge variant="secondary" className="ml-2 text-xs">
-              <BookOpen className="h-3 w-3 mr-1" />
-              PubMed Enhanced
-            </Badge>
-          )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="p-4 space-y-4">
         <Textarea
           placeholder={placeholder}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="min-h-[80px] resize-none"
+          className="min-h-[100px] resize-vertical bg-background rounded-lg shadow-inner"
+          disabled={isLoading}
         />
         <Button 
           onClick={handleAskDoxyAI}
           disabled={!query.trim() || isLoading}
-          className="w-full"
+          className="w-full font-semibold shadow-md bg-primary text-primary-foreground hover:bg-primary/90"
         >
           {isLoading ? (
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -112,18 +103,28 @@ const DoxyAIIntegration = ({
           {isLoading ? 'Analyzing...' : 'Ask DoxyAI'}
         </Button>
         
+        {isLoading && !response && (
+            <div className="mt-4 p-4 bg-muted rounded-lg flex items-center justify-center">
+                <Loader2 className="h-5 w-5 animate-spin text-primary"/>
+                <p className='ml-2 text-muted-foreground'>DoxyAI is thinking...</p>
+            </div>
+        )}
+
         {response && (
-          <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <Bot className="h-4 w-4 text-blue-600" />
-              <span className="font-medium text-sm">DoxyAI Response:</span>
+          <div className="mt-4 p-4 bg-card border rounded-lg shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+                <div className='flex items-center gap-2'>
+                    <Bot className="h-5 w-5 text-primary" />
+                    <span className="font-semibold text-sm text-primary">DoxyAI Response</span>
+                </div>
               {pubmedUsed && (
-                <Badge variant="outline" className="text-xs">
-                  {articleCount} PubMed articles analyzed
+                <Badge variant="outline" className="text-xs border-doctor-success/50 bg-doctor-success/10 text-doctor-success-foreground">
+                  <BookOpen className="h-3 w-3 mr-1.5" />
+                  {articleCount} PubMed articles
                 </Badge>
               )}
             </div>
-            <div className="text-sm whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+            <div className="text-sm whitespace-pre-wrap text-foreground/90 prose prose-sm dark:prose-invert max-w-full">
               {response}
             </div>
           </div>
