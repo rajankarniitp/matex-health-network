@@ -1,0 +1,553 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+
+@layer base {
+  :root {
+    /* Professional Color Palette - Clean & Modern */
+    --background: 0 0% 100%;
+    --foreground: 220 13% 18%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 13% 18%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 13% 18%;
+
+    /* Primary Blue - Professional Medical */
+    --primary: 220 91% 58%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary - Clean Gray */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 13% 18%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+
+    --accent: 220 14% 96%;
+    --accent-foreground: 220 13% 18%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 220 91% 58%;
+
+    --radius: 0.75rem;
+
+    /* Professional Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(220 91% 58%), hsl(220 91% 48%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(220 14% 98%));
+    
+    /* Professional Shadows */
+    --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    
+    /* Smooth Transitions */
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Sidebar Colors */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 220 13% 18%;
+    --sidebar-primary: 220 91% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 220 13% 18%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 220 91% 58%;
+  }
+
+  .dark {
+    --background: 220 27% 8%;
+    --foreground: 220 9% 89%;
+
+    --card: 220 27% 12%;
+    --card-foreground: 220 9% 89%;
+
+    --popover: 220 27% 12%;
+    --popover-foreground: 220 9% 89%;
+
+    --primary: 220 91% 58%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 220 17% 20%;
+    --secondary-foreground: 220 9% 89%;
+
+    --muted: 220 17% 20%;
+    --muted-foreground: 220 9% 64%;
+
+    --accent: 220 17% 20%;
+    --accent-foreground: 220 9% 89%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 17% 20%;
+    --input: 220 17% 20%;
+    --ring: 220 91% 58%;
+
+    /* Dark Mode Professional Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(220 91% 58%), hsl(220 91% 48%));
+    --gradient-card: linear-gradient(135deg, hsl(220 27% 12%), hsl(220 17% 16%));
+    
+    /* Dark Mode Shadows */
+    --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+    --shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+
+    --sidebar-background: 220 27% 8%;
+    --sidebar-foreground: 220 9% 89%;
+    --sidebar-primary: 220 91% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 17% 20%;
+    --sidebar-accent-foreground: 220 9% 89%;
+    --sidebar-border: 220 17% 20%;
+    --sidebar-ring: 220 91% 58%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+    line-height: 1.3;
+  }
+
+  h1 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  h2 {
+    @apply text-xl md:text-2xl;
+  }
+
+  h3 {
+    @apply text-lg md:text-xl;
+  }
+
+  h4 {
+    @apply text-base md:text-lg;
+  }
+
+  p {
+    line-height: 1.7;
+  }
+
+  button {
+    transition: var(--transition-smooth);
+    font-weight: 500;
+  }
+
+  /* Professional component styles */
+  .gradient-bg {
+    background: var(--gradient-primary);
+  }
+
+  .card-elegant {
+    background: var(--gradient-card);
+    box-shadow: var(--shadow-card);
+    border: 1px solid hsl(var(--border));
+    transition: var(--transition-smooth);
+  }
+
+  .card-elegant:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+  }
+
+  .glass-morphism {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .dark .glass-morphism {
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  input, textarea, select {
+    transition: var(--transition-smooth);
+    font-size: 0.875rem;
+  }
+
+  /* Professional utility classes */
+  .professional-card {
+    @apply bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-all duration-200;
+  }
+
+  .professional-button {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 rounded-lg font-medium;
+  }
+
+  .professional-input {
+    @apply bg-background border border-border rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.8);
+  }
+}
+
+/* Enhanced doctor animations */
+@keyframes stethoscope-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes doctor-float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+
+@keyframes medical-glow {
+  0%, 100% { box-shadow: 0 0 10px hsl(var(--medical-blue) / 0.3); }
+  50% { box-shadow: 0 0 20px hsl(var(--medical-blue) / 0.6), 0 0 30px hsl(var(--medical-green) / 0.4); }
+}
+
+@keyframes brain-pulse {
+  0%, 100% { 
+    transform: scale(1);
+  }
+  50% { 
+    transform: scale(1.05);
+  }
+}
+
+@keyframes feed-shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+@keyframes medical-bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-5px); }
+  60% { transform: translateY(-3px); }
+}
+
+@keyframes healing-glow {
+  0%, 100% { 
+    box-shadow: 0 0 15px hsl(var(--medical-green) / 0.3);
+    border-color: hsl(var(--medical-green) / 0.5);
+  }
+  50% { 
+    box-shadow: 0 0 25px hsl(var(--medical-green) / 0.6), 0 0 35px hsl(var(--medical-blue) / 0.4);
+    border-color: hsl(var(--medical-green) / 0.8);
+  }
+}
+
+@keyframes medical-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+@keyframes cross-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px hsl(var(--medical-blue) / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px hsl(var(--medical-blue) / 0.8);
+  }
+}
+
+/* Custom scrollbar for dark mode */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.7);
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.5);
+}
+
+/* Focus improvements */
+.focus-visible:focus-visible {
+  @apply ring-2 ring-blue-500 ring-offset-2 outline-none;
+}
+
+.dark .focus-visible:focus-visible {
+  @apply ring-offset-gray-900;
+}
+
+/* Button hover improvements */
+.hover-lift {
+  @apply transition-all duration-200 hover:scale-105 hover:shadow-lg;
+}
+
+/* Card hover effects */
+.card-hover {
+  @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-1;
+}
+
+.dark .card-hover:hover {
+  @apply shadow-gray-900/50;
+}
+
+/* Smooth transitions for theme switching */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* Typography improvements */
+.dark .text-muted-foreground {
+  color: hsl(var(--muted-foreground));
+}
+
+.dark .bg-muted {
+  background: hsl(var(--muted));
+}
+
+/* Better visibility for badges and small elements */
+.dark .bg-blue-100 {
+  @apply bg-blue-900;
+}
+
+.dark .text-blue-800 {
+  @apply text-blue-200;
+}
+
+.dark .bg-gray-200 {
+  @apply bg-gray-700;
+}
+
+.dark .bg-gray-300 {
+  @apply bg-gray-600;
+}
+
+/* Enhanced mobile navigation styles - LinkedIn inspired */
+@supports (padding: max(0px)) {
+  .safe-area-pb {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+  
+  .h-safe-area-inset-bottom {
+    height: env(safe-area-inset-bottom);
+  }
+}
+
+/* Modern glass morphism for mobile nav */
+.mobile-nav-glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .mobile-nav-glass {
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* LinkedIn-style navigation shadows */
+.mobile-nav-shadow {
+  box-shadow: 
+    0 -8px 32px rgba(0, 0, 0, 0.1),
+    0 -2px 16px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.dark .mobile-nav-shadow {
+  box-shadow: 
+    0 -8px 32px rgba(0, 0, 0, 0.4),
+    0 -2px 16px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Professional navigation gradients */
+.nav-gradient-light {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.98) 50%,
+    rgba(255, 255, 255, 1) 100%
+  );
+}
+
+.dark .nav-gradient-dark {
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.95) 0%,
+    rgba(15, 23, 42, 0.98) 50%,
+    rgba(15, 23, 42, 1) 100%
+  );
+}
+
+/* Enhanced mobile interaction states */
+.mobile-nav-item {
+  @apply relative overflow-hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-nav-item::before {
+  content: '';
+  @apply absolute inset-0 bg-current opacity-0 rounded-xl transition-all duration-300;
+  transform: scale(0.8);
+}
+
+.mobile-nav-item:hover::before {
+  @apply opacity-5;
+  transform: scale(1);
+}
+
+.mobile-nav-item.active::before {
+  @apply opacity-10;
+  transform: scale(1);
+}
+
+.mobile-nav-item:active {
+  transform: scale(0.95);
+}
+
+/* Smooth icon animations */
+.nav-icon {
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.nav-icon-active {
+  animation: nav-bounce 0.6s ease-out;
+}
+
+@keyframes nav-bounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1.1); }
+}
+
+/* Professional active indicators */
+.nav-active-indicator {
+  background: linear-gradient(90deg, transparent, currentColor, transparent);
+  animation: nav-glow 2s ease-in-out infinite;
+}
+
+@keyframes nav-glow {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* Status badges for navigation items */
+.nav-status-badge {
+  @apply absolute -top-1 -right-1 w-2 h-2 rounded-full;
+  background: linear-gradient(45deg, currentColor, currentColor);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
+  animation: nav-pulse 2s ease-in-out infinite;
+}
+
+.dark .nav-status-badge {
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9);
+}
+
+@keyframes nav-pulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav-item,
+  .nav-icon,
+  .nav-active-indicator,
+  .nav-status-badge {
+    animation: none;
+    transition: opacity 0.2s ease;
+  }
+}
